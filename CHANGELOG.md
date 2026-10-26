@@ -44,6 +44,13 @@
   unchanged; only the CSV column headers stay English machine keys, and the
   export labels themselves come from the dictionary.
 
+### Docs & assets
+- **Submitted deck added** at `presentation/Fault-Lines.pdf` (10 slides, 16:9, exported from
+  Gamma), with `presentation/README.md` indexing it and explaining how to regenerate or
+  re-edit it. `ROADMAP.md` now spells out what "advanced AI analysis" would mean if built
+  (differentiated reteach variants, per-misconception branches, next-misconception
+  prediction, feedback lines) and keeps it explicitly post-MVP.
+
 ### Tests
 - `tests/suggest.test.ts` (10) — ranking, dedupe, minimum query length, line-scoped
   answer completion, history filtering with all-terms-required.

@@ -9,7 +9,7 @@ _Everything needed to submit, in order, with copy-paste text, a demo script, and
 **Do:**
 ```bash
 git checkout main && git pull          # after the PR is merged
-npm ci && npm run check                # lint + typecheck + 61 tests must be green
+npm ci && npm run check                # lint + typecheck + 110 tests must be green
 npm run build && npm start             # click through: /, /tool (all 4 examples), /settings, /play, a 404
 ```
 **Deploy (pick one):**
@@ -339,6 +339,11 @@ _If Devpost relaxes the limit, the longer judge-facing versions (full route stor
 
 ### Eligibility checkboxes
 Both true: age of majority; eligibility + newly created during the Submission Period using the Learn Skill Pack (`skills-lock.json` pins all six hashes).
+
+### Repo assets judges can open (already committed)
+- **Deck:** `presentation/Fault-Lines.pdf` — the 10-slide pitch, exported from Gamma (16:9). If you mention a deck anywhere in the submission, point here rather than to a Gamma link that needs an account.
+- **Deck source:** `presentation/PROMPT.md` — the prompt pack that produced it, so the slides are reproducible rather than a magic file.
+- **Roadmap:** `ROADMAP.md` — what is shipped versus what is planned (advanced AI coaching sits there explicitly, not in the build).
 
 ### Final gate before you press Save
 - [ ] Preview link opens and the cover renders at card size
