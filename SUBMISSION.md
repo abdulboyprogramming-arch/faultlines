@@ -82,6 +82,126 @@ Alt pitch: `Paste your class's answers. Fault Lines maps the beliefs underneath 
 
 **Links to fill:** Live demo URL (Stage 0) · GitHub repo · Video (Stage 2) · Try-it note: *"No login. Click 'Map my class' → 'Load example classroom'. Try the 404 page for a surprise."*
 
+## Stage 3b — Public project page (story, tags, links, gallery)
+
+### Project Story → About the project (paste as Markdown; Devpost renders LaTeX)
+
+## Inspiration
+
+Mark 120 scripts on a Sunday, write “see me” on thirty of them, and you still walk into Monday not knowing the one thing you actually need to know: **what does this class believe?**
+
+Every answer on those scripts is evidence. A mark book throws that evidence away and keeps only the verdict. Two students can write the same sentence for opposite reasons — one guessing, one half-right — and both get the same tick. Meanwhile the belief that half the class shares, the one that will cost them in the exam and take five minutes to fix, is invisible because it is spread across forty different scripts.
+
+Fault Lines started from a reframing: an answer is not a mark, it is **evidence of a belief**. If you group answers by the belief underneath instead of by score, the class stops looking like a bell curve and starts looking like a landscape — with fault lines running through it. The job of the tool is to draw that map before the exam finds the cracks.
+
+## What it does
+
+Paste your class’s written answers to one question — one per line, or drop a `.txt`/`.csv` from a markbook. In seconds, Fault Lines returns a **strata map**:
+
+- Each band is a distinct belief, **named in plain language** and sized by share of class — *18 of 28 students · 64%*.
+- Bands are **ordered by exam risk**, not by frequency, and a single “start here” call-out tells you which one to reteach first.
+- Every band is **proven with verbatim quotes** from the actual scripts, unedited.
+- Each belief ships with a **≈5-minute reteach card** (title, minutes, steps, check question) and a **follow-up diagnostic** question to test whether the reteach landed.
+- Anything too vague to interpret is set aside honestly as **“Not sure — needs your eyes”**, with the raw answer shown. It is never assigned an invented misconception.
+
+Then take it with you: copy the one-page plan, print it for the staffroom, download Markdown/CSV/JSON for department records, or share it as a link (the report travels inside the URL, not on a server). Re-map the same question a week later and it shows you **which beliefs shrank** — the actual signal that a reteach worked.
+
+No accounts. No database. No stored student data. It runs key-free out of the box on a built-in deterministic engine, works offline as an installable PWA, and the entire interface is available in **seven languages** (English, French, Spanish, German, Portuguese, Yorùbá and Arabic with full RTL).
+
+## The design decision everything else follows from
+
+Most “AI for teachers” tools ask you to trust the model. We removed the need to.
+
+When an LLM is configured, it is only allowed to answer one question: **which answers belong together**. It returns *member indexes* — never counts, never quotes, never rewritten text. Everything the teacher actually reads is then derived from the paste itself:
+
+- quotes are sliced verbatim out of the original answer, so they cannot be paraphrased;
+- every count is computed from the grouping, so the totals are exact **by construction**:
+
+$$\sum_{i=1}^{k} c_i \;+\; |U| \;=\; N$$
+
+where $c_i$ is the size of belief $i$, $U$ is the set of answers too vague to classify, and $N$ is the number of answers you pasted. That identity is enforced in code and covered by tests — a map can be wrong about *which* belief an answer belongs to, but it can never quietly lose an answer, double-count one, or invent a quote.
+
+If no API key is configured, a deterministic heuristic (tokenise → unassign vague answers → cluster around leaders) produces the same faithful structure with zero network. Every report and the Settings page say which engine produced the map, so a teacher always knows what they are reading.
+
+## How we built it
+
+Plan-first, not vibes-first: scope → PRD → spec live in `devpost/` and were written before the first component.
+
+- **Next.js App Router + React 19 + TypeScript + Tailwind 4** (via PostCSS, no build-time font fetches — fonts are self-hosted).
+- **One serverless endpoint** (`/api/analyze`) and a hard boundary at every edge: Zod schemas, size caps, rate limiting, `415`/`413`/`400` handled explicitly.
+- A provider interface with two implementations: a deterministic heuristic and any OpenAI-compatible model, plus **visible degradation** — if the provider fails, the map is still produced and the teacher is told why.
+- A real design system (paper / ink / rust / ochre / slate, Fraunces + Inter, dark mode, text-size scaling, reduced-motion-safe animation) rather than a component library, so the product feels like a field notebook, not a dashboard.
+- Every asset is **programmatic** — the logo, icons, loading object, social card and the built-in game are SVG/canvas, no stock art anywhere.
+- The interface itself went through a full localisation pass: seven complete, separately typed dictionaries, so a missing translation is a compile error instead of an English sentence on a Yorùbá page.
+- **84 automated tests across 11 files** cover the parts that must not break: quote fidelity, count sums, CSV injection, share-link codecs, privacy scanning, backup validation, translation parity.
+
+## Challenges we ran into
+
+**The demo that never worked.** The API route referenced a schema that did not exist, and the only reason the demo looked alive was a silent fallback to a mock that understood exactly one topic. Finding that out was unpleasant; fixing it honestly produced the indexing architecture above.
+
+**Honest grouping without judgement.** A heuristic can tell that “because it’s closer to the sun” and “the earth is nearer in June” are the same idea. It cannot tell you the idea is wrong. Making that limitation legible instead of papering over it is why the “Not sure” bucket exists — and why the engine is labelled on every report.
+
+**Real markbook files.** CSV from schools is a war zone: quoted cells, merged headers, name columns, trailing commas, formulas that execute on open. All of it is handled and tested, including spreadsheet-formula injection on export.
+
+**Seven languages, properly.** The first localisation attempt spread English over translated dictionaries, so switching language left most of the page in English. The fix was structural: one complete, typed dictionary per locale, plus a parity test that fails the build if a key, a `{placeholder}` or an entire screen is left untranslated.
+
+## What we learned
+
+- “It compiles in the demo” is not “it works”. Verify the path end-to-end, then write the test that proves it.
+- Faithfulness is an architecture property, not a prompt. If you want verbatim evidence, take the model’s ability to write prose away from it.
+- Removing a feature can be the trust feature. The “Not sure” bucket is the part teachers mention first.
+- Plan-first work with AI is fast, but only when the plan is owned by a human and the acceptance criteria are written before the code.
+
+## What's next
+
+Live classroom trials with anonymised class sets through the real-LLM path; misconception tracking over time (did the reteach actually shrink the band?); the browser extension in the Chrome Web Store; a formal WCAG 2.1 AA audit; and community review of the Yorùbá and Arabic copy.
+
+## Try it in thirty seconds
+
+Open the live app → **Map my class** → **Load an example classroom**. No login, no API key, no data leaves your browser. Then hit a wrong URL: the 404 page hides *Strata Drop*, the little geological drilling game we built instead of an apology.
+
+> Every class has fault lines. See them before the exam does.
+
+### Built with (25/25 tags — paste one at a time)
+
+`nextjs` `react` `typescript` `tailwindcss` `zod` `vitest` `vercel` `github-actions` `pwa` `service-worker` `openai-api` `llm` `education` `edtech` `teachers` `accessibility` `i18n` `rtl` `canvas` `svg` `localstorage` `markdown` `csv` `browser-extension` `web-app`
+
+_Drop these first if you want fewer: `github-actions`, `service-worker`, `markdown`, `csv`, `localstorage`._
+
+### "Try it out" links
+
+| Label | URL |
+|---|---|
+| Live demo (no login) | `https://faultlines-kappa.vercel.app` |
+| Source code | `https://github.com/abdulboyprogramming-arch/faultlines` |
+| Privacy notes | `https://faultlines-kappa.vercel.app/privacy` |
+
+### Image gallery (3:2 ratio, 5 MB max, up to 15 — ship 8, in this order)
+
+Devpost shows the first image as the card, so image 1 is the cover. Export every shot at **2400×1600** (3:2), browser zoom 100 % at 1440 px wide, and keep the crop rectangle 3:2 while capturing so nothing important sits at the edges.
+
+| # | Shot | How to capture | Caption |
+|---|---|---|---|
+| 1 | **Cover** | AI-generated (prompt below) — or the landing hero re-composed to 3:2 | "Fault Lines — every class has fault lines." |
+| 2 | **The map** | `/tool` → load “Why do we have seasons?” → capture the strata bands + “Start here” banner | "28 answers become 5 beliefs, ordered by exam risk." |
+| 3 | **Evidence + reteach** | Same view, scrolled to the open band (quotes + reteach card + diagnostic visible) | "Every belief is proven with verbatim student quotes." |
+| 4 | **Honesty shot** | Expand “Not sure — needs your eyes” | "Too vague to classify is set aside — never invented." |
+| 5 | **Second subject** | Load the fractions example (17 answers) | "Any subject: maths, science, humanities." |
+| 6 | **Export** | Open the export bar, copy the plan, show the toast | "One-page plan: copy, print, Markdown, CSV, JSON, link." |
+| 7 | **Mobile / PWA** | iPhone-width viewport on the report, then the installed app icon | "Installs like an app; works offline." |
+| 8 | **Delight** | A wrong URL, mid-game of Strata Drop | "Even the 404 page has a game." |
+
+**Cover prompt (16:9 crop-safe 3:2, no text):**
+> "A minimal editorial vector illustration for a teacher's tool called Fault Lines, landscape 3:2. Four flat geological strata bands stacked horizontally across warm off-white paper (#F4F1EA): rust orange (#B5471F), ochre (#C98A2E), slate teal (#3E5C63) and deep ink (#14110E), confident slightly hand-drawn edges. A single clean diagonal fault crack slices through the bands from upper-left to lower-right, offsetting the layers on each side so the strata visibly slip out of alignment. One thin ochre survey line and three small circular sample markers suggest a map being read. Calm empty paper in the upper-left third. Flat vector, subtle paper grain, no gradients, no shadows. No text, no letters, no logos, no people."
+
+**Second image option (concept, if you would rather show the idea than the product):**
+> "Editorial flat-vector diagram, 3:2, on warm paper #F4F1EA. Left: twelve short horizontal ink tick marks stacked like a list, unremarkable. Right: the same twelve marks regrouped into four solid coloured bands — rust, ochre, slate, ink — with thin bracket lines joining them. A single hairline fault crack runs between the two halves. Minimal, lots of white space, no text, no numbers."
+
+**Negative prompt:** `no text, no letters, no gibberish words, no watermark, no gradients, no photorealism, no 3D render, no lens flare, no busy texture`
+
+**Gallery rules that matter:** first image must survive a 200 px-wide card crop (test it); keep all eight the same 3:2 and palette; no browser chrome or personal tabs in screenshots; captions should describe the product, not the screenshot ("28 answers become 5 beliefs", not "screenshot of the map").
+
+
 ## Stage 4 — Final click-through as a judge (10 min)
 
 Incognito window, live URL, no guidance: Can you reach a belief map in ≤3 clicks? Does every button work? Does the phone layout hold? Is there any lorem/dead link? Check `/api/health` shows your intended provider. Then hit **Submit** — and screenshot the confirmation for your records.
