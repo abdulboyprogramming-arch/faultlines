@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Logo from "./Logo";
-import { t } from "@/lib/i18n";
+import { useT } from "@/lib/use-i18n";
 
 /**
  * Strata Drop — Fault Lines' own mini game (100% programmatic canvas,
@@ -15,9 +15,27 @@ import { t } from "@/lib/i18n";
 type TileKind = "solid" | "partial" | "crack";
 interface Tile { x: number; y: number; r: number; vy: number; kind: TileKind; rot: number }
 
-const COLORS = { solid: "#3E5C63", partial: "#C98A2E", crack: "#B5471F", ink: "#14110E", paper: "#F4F1EA" };
+const COLORS = { solid: "#3E5C63", partial: "#C98A2E", crack: "#B5471F", ink: "#14110E", paper: "#F4F1EA", card: "#FBFAF5" };
+
+/** Canvas colours follow the live design tokens, so the game matches dark mode. */
+function readPalette() {
+  if (typeof window === "undefined") return COLORS;
+  const read = (name: string, fallback: string) => {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return value || fallback;
+  };
+  return {
+    solid: read("--color-slate", COLORS.solid),
+    partial: read("--color-ochre", COLORS.partial),
+    crack: read("--color-rust", COLORS.crack),
+    ink: read("--color-ink", COLORS.ink),
+    paper: read("--color-paper", COLORS.paper),
+    card: read("--color-card", COLORS.card),
+  };
+}
 
 export default function StrataGame({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"idle" | "playing" | "paused" | "over">("idle");
@@ -51,6 +69,7 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const COLORS = readPalette();
     let raf = 0;
     let W = 0, H = 0;
 
@@ -125,7 +144,7 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
       // ---- draw ----
       ctx.save();
       if (g.shake > 0) ctx.translate((Math.random() - 0.5) * g.shake, (Math.random() - 0.5) * g.shake);
-      ctx.fillStyle = "#FBF9F4";
+      ctx.fillStyle = COLORS.card;
       ctx.fillRect(-10, -10, W + 20, H + 20);
       // strata backdrop bands with a fault crack
       const bands: [string, number][] = [["#B5471F", 0.13], ["#C98A2E", 0.10], ["#3E5C63", 0.10], ["#14110E", 0.16]];
@@ -201,26 +220,25 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
     };
   }, [state, compact, endGame]);
 
-  const btn = "px-4 py-2 rounded-md font-ui text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rust";
 
   return (
-    <section className="border border-ink/15 rounded-lg bg-white/50 dark:bg-white/5 p-4 sm:p-5 shadow-sm" aria-label={t("playGame")}>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+    <section className="card p-4 sm:p-5" aria-label={t("playGame")}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Logo className="w-9 h-9" variant="static" />
           <div>
-            <h2 className="font-display text-xl leading-tight">Strata Drop</h2>
-            <p className="text-xs text-ink/60">{t("gameTagline")}</p>
+            <h2 className="font-display text-lg font-semibold leading-tight">Strata Drop</h2>
+            <p className="text-xs text-ink/55">{t("gameTagline")}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 font-ui text-sm" aria-live="polite">
+        <div className="flex items-center gap-4 font-ui text-sm tabular-nums" aria-live="polite">
           <span>Score <strong className="tabular-nums">{score}</strong></span>
           <span aria-label={`${lives} lives left`}>{"♥".repeat(Math.max(0, lives))}<span className="opacity-25">{"♥".repeat(Math.max(0, 3 - lives))}</span></span>
           <span className="text-ink/50">Best <strong className="tabular-nums">{best}</strong></span>
         </div>
       </div>
 
-      <div ref={wrapRef} className="relative w-full rounded-md overflow-hidden border border-ink/10 touch-none select-none">
+      <div ref={wrapRef} className="relative w-full touch-none select-none overflow-hidden rounded-lg border border-ink/10">
         <canvas ref={canvasRef} className="block w-full" style={{ minHeight: 220 }} tabIndex={0} aria-label="Strata Drop game area. Use left and right arrow keys, mouse, or touch to move the tray." />
         {state !== "playing" && (
           <div className="absolute inset-0 bg-paper/85 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 text-center px-6 animate-fade-in">
@@ -241,7 +259,7 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
                 </p>
               </>
             )}
-            <button type="button" onClick={start} className={`${btn} bg-ink text-paper hover:opacity-90`}>
+            <button type="button" onClick={start} className="btn btn-primary">
               {state === "over" ? "Play again" : state === "paused" ? "Restart" : "Start drilling"}
             </button>
           </div>
@@ -250,10 +268,10 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
 
       <div className="flex gap-2 mt-3">
         {state === "playing" && (
-          <button type="button" onClick={() => setState("paused")} className={`${btn} border border-ink/30 hover:bg-ink/5`}>Pause</button>
+          <button type="button" onClick={() => setState("paused")} className="btn btn-outline btn-sm">Pause</button>
         )}
         {state === "paused" && (
-          <button type="button" onClick={() => { game.current.last = performance.now(); setState("playing"); }} className={`${btn} bg-ink text-paper hover:opacity-90`}>Resume</button>
+          <button type="button" onClick={() => { game.current.last = performance.now(); setState("playing"); }} className="btn btn-primary btn-sm">Resume</button>
         )}
         <p className="text-xs text-ink/50 self-center">100% offline · no assets · built into Fault Lines</p>
       </div>

@@ -1,11 +1,38 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import type { Cluster } from "@/lib/schema";
 
-/** Selected band detail: evidence (verbatim quotes) + reteach card + diagnostic (PRD). */
-export default function BandDetail({ cluster, total }: { cluster: Cluster; total: number }) {
+const RISK: Record<Cluster["risk"], { chip: string; label: string; dot: string }> = {
+  high: { chip: "border-rust/35 bg-rust/10 text-rust", label: "High risk", dot: "bg-rust" },
+  med: { chip: "border-ochre/45 bg-ochre/15 text-ink/75", label: "Medium risk", dot: "bg-ochre" },
+  low: { chip: "border-slate/35 bg-slate/12 text-slate", label: "Low risk", dot: "bg-slate" },
+};
+
+/** Selected band detail: verbatim evidence + reteach card + follow-up diagnostic. */
+export default function BandDetail({
+  cluster,
+  total,
+  onPrev,
+  onNext,
+  position,
+}: {
+  cluster: Cluster;
+  total: number;
+  onPrev?: () => void;
+  onNext?: () => void;
+  /** e.g. "2 of 3" */
+  position?: string;
+}) {
   const [copied, setCopied] = useState(false);
   const pct = total ? Math.round((cluster.count / total) * 100) : 0;
+  const risk = RISK[cluster.risk];
+
+  useEffect(() => {
+    if (!copied) return;
+    const id = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(id);
+  }, [copied]);
 
   async function copyReteach() {
     const text = [
@@ -17,37 +44,131 @@ export default function BandDetail({ cluster, total }: { cluster: Cluster; total
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch { /* clipboard requires secure context */ }
+    } catch {
+      /* clipboard requires a secure context */
+    }
   }
 
   return (
-    <article className="border border-ink/15 rounded-md p-5 space-y-4 bg-white/40 dark:bg-white/5 animate-fade-up" aria-label={`Detail for ${cluster.plain_name}`}>
-      <div>
-        <h2 className="font-display text-2xl">{cluster.plain_name}</h2>
-        <p className="text-sm text-ink/60 mt-1">
-          <strong className="text-ink">{cluster.count} of {total}</strong> ({pct}%) · {cluster.risk} risk
-        </p>
-        <p className="text-sm mt-2"><span className="text-ink/50">The belief:</span> {cluster.label}</p>
-        <p className="text-sm text-ink/70 mt-1">{cluster.why_it_matters}</p>
-      </div>
-      <div>
-        <p className="text-xs uppercase tracking-wide text-ink/50 mb-1">In their own words (verbatim)</p>
-        {cluster.quotes.map((q, i) => (
-          <blockquote key={i} className="italic text-sm border-l-2 border-rust pl-3 my-1.5">“{q}”</blockquote>
-        ))}
-      </div>
-      <div>
-        <p className="text-xs uppercase tracking-wide text-ink/50 mb-1">Reteach · {cluster.reteach.minutes} min</p>
-        <p className="font-display text-lg">{cluster.reteach.title}</p>
-        <ol className="list-decimal pl-5 text-sm space-y-1 mt-1">
-          {cluster.reteach.steps.map((s, i) => <li key={i}>{s}</li>)}
-        </ol>
-        <p className="text-sm mt-3"><span className="text-ink/50">Check question:</span> {cluster.reteach.check_question}</p>
-        <p className="text-sm"><span className="text-ink/50">Follow-up diagnostic:</span> {cluster.diagnostic_question}</p>
-        <button type="button" onClick={copyReteach} className="mt-3 px-3 py-1.5 border border-ink/30 rounded-md text-xs font-ui no-print hover:bg-ink/5">
-          {copied ? "Copied ✓" : "Copy this reteach card"}
-        </button>
+    <article
+      key={cluster.plain_name + cluster.count}
+      className="card animate-fade-up overflow-hidden"
+      aria-label={`Detail for ${cluster.plain_name}`}
+    >
+      <header className="border-b border-ink/10 bg-card-deep/40 px-5 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <span className={`chip border ${risk.chip}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${risk.dot}`} aria-hidden="true" />
+              {risk.label}
+            </span>
+            <h2 className="mt-2.5 font-display text-[1.4rem] leading-tight">{cluster.plain_name}</h2>
+            <p className="mt-1 text-sm text-ink/55">
+              <strong className="font-semibold text-ink/80">
+                {cluster.count} of {total}
+              </strong>{" "}
+              students ({pct}%)
+            </p>
+          </div>
+          {(onPrev || onNext) && (
+            <div className="no-print flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={onPrev}
+                disabled={!onPrev}
+                aria-label="Previous belief"
+                className="rounded-md border border-ink/15 p-1.5 text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink disabled:opacity-30"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M14.5 6 9 12l5.5 6" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={onNext}
+                disabled={!onNext}
+                aria-label="Next belief"
+                className="rounded-md border border-ink/15 p-1.5 text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink disabled:opacity-30"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9.5 6 15 12l-5.5 6" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+        {position && <p className="mt-2 text-[0.7rem] uppercase tracking-[0.12em] text-ink/40">{position}</p>}
+      </header>
+
+      <div className="space-y-5 p-5">
+        <div>
+          <p className="eyebrow">The belief underneath</p>
+          <p className="mt-1.5 text-sm leading-relaxed">{cluster.label}</p>
+          <p className="mt-2 text-sm leading-relaxed text-ink/60">{cluster.why_it_matters}</p>
+        </div>
+
+        <div>
+          <p className="eyebrow">In their own words · verbatim</p>
+          <ul className="mt-2 space-y-2">
+            {cluster.quotes.map((q, i) => (
+              <li key={i} className="rounded-r-md border-l-2 border-rust bg-rust/[0.04] py-1.5 pl-3 pr-2">
+                <p className="font-display text-[0.95rem] italic leading-relaxed text-ink/85">“{q}”</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="rounded-lg border border-ink/12 bg-paper/60 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="eyebrow">Reteach plan</p>
+            <span className="inline-flex items-center gap-1 rounded-full bg-ink/8 px-2 py-0.5 text-[0.7rem] font-medium text-ink/65">
+              <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7.5V12l3 1.8" strokeLinecap="round" />
+              </svg>
+              {cluster.reteach.minutes} min
+            </span>
+          </div>
+          <h3 className="mt-2 font-display text-lg leading-snug">{cluster.reteach.title}</h3>
+          <ol className="mt-2.5 space-y-1.5 text-sm">
+            {cluster.reteach.steps.map((s, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-ink/8 text-[0.65rem] font-semibold tabular-nums text-ink/70">
+                  {i + 1}
+                </span>
+                <span className="leading-relaxed text-ink/80">{s}</span>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-4 space-y-2.5 border-t border-ink/10 pt-3">
+            <div>
+              <p className="eyebrow">Check question</p>
+              <p className="mt-1 text-sm leading-relaxed text-ink/80">{cluster.reteach.check_question}</p>
+            </div>
+            <div className="rounded-md bg-slate/8 p-2.5">
+              <p className="eyebrow">Follow-up diagnostic</p>
+              <p className="mt-1 text-sm leading-relaxed text-ink/80">{cluster.diagnostic_question}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={copyReteach}
+            className={`btn btn-sm mt-4 no-print ${copied ? "btn-primary" : "btn-outline"}`}
+          >
+            {copied ? (
+              <>
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12.5 9.5 17 19 7" />
+                </svg>
+                Copied
+              </>
+            ) : (
+              "Copy this reteach card"
+            )}
+          </button>
+        </div>
       </div>
     </article>
   );
