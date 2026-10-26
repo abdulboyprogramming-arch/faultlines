@@ -1,0 +1,69 @@
+{
+  "clusters": [
+    {
+      "label": "Thinks summer happens because Earth is closer to the Sun",
+      "plain_name": "The distance myth",
+      "count": 18,
+      "risk": "high",
+      "why_it_matters": "Survives into adulthood; blocks any later understanding of seasons or climate.",
+      "quotes": [
+        "Because the earth moves nearer to the sun in June",
+        "The earth is closer to the sun during summer"
+      ],
+      "reteach": {
+        "title": "Same distance, different tilt",
+        "minutes": 6,
+        "steps": [
+          "Show orbit is nearly circular.",
+          "Demonstrate axial tilt with a globe.",
+          "Ask: if distance caused summer, why winter in Sydney now?"
+        ],
+        "check_question": "If distance caused summer, why is it winter in Sydney right now?"
+      },
+      "diagnostic_question": "Explain why Australia has winter when the UK has summer, using tilt not distance."
+    },
+    {
+      "label": "Mentions tilt but cannot connect it to seasons",
+      "plain_name": "Tilt without cause",
+      "count": 7,
+      "risk": "med",
+      "why_it_matters": "Partial model; needs the mechanism linking tilt to sunlight angle.",
+      "quotes": [
+        "The earth tilts on its axis",
+        "Because of the tilt of the earth"
+      ],
+      "reteach": {
+        "title": "Tilt and sunlight angle",
+        "minutes": 5,
+        "steps": [
+          "Model sunlight angle with a lamp.",
+          "Connect angle to intensity.",
+          "Check with a latitude example."
+        ],
+        "check_question": "Why does tilted sunlight feel weaker?"
+      },
+      "diagnostic_question": "Describe how tilt changes the angle of sunlight hitting a location."
+    },
+    {
+      "label": "Correct idea, weakly explained",
+      "plain_name": "Correct, unexplained",
+      "count": 2,
+      "risk": "low",
+      "why_it_matters": "Understanding present but fragile; needs articulation practice.",
+      "quotes": [
+        "The earth's tilt changes sunlight",
+        "The earth's tilt changes how much sun we get"
+      ],
+      "reteach": {
+        "title": "Put the mechanism in words",
+        "minutes": 4,
+        "steps": ["Have students write the causal chain.", "Peer review for missing links.", "Revise."],
+        "check_question": "Write two sentences explaining seasons without using 'closer'."
+      },
+      "diagnostic_question": "Write a two-sentence explanation of seasons without the word 'closer'."
+    }
+  ],
+  "unsure": [
+    { "answer": "I don't know", "why": "No identifiable claim" }
+  ]
+}
