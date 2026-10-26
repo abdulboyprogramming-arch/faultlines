@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Logo from "./Logo";
-import { t } from "@/lib/i18n";
+import { useT } from "@/lib/use-i18n";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => void;
@@ -34,6 +34,7 @@ function recentlyDismissed(): boolean {
  *   version is waiting (update toast).
  */
 export default function InstallPrompt() {
+  const t = useT();
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOS, setShowIOS] = useState(false);
   const [updateReady, setUpdateReady] = useState(false);
@@ -70,10 +71,10 @@ export default function InstallPrompt() {
 
   if (updateReady) {
     return (
-      <div className="no-print fixed bottom-4 left-1/2 z-50 w-[min(92vw,26rem)] animate-slide-up rounded-lg bg-ink text-paper shadow-xl px-5 py-4 flex items-center gap-3" role="status">
+      <div className="no-print fixed bottom-4 left-1/2 z-50 flex w-[min(92vw,26rem)] animate-slide-up items-center gap-3 rounded-xl bg-ink px-5 py-4 text-paper shadow-[var(--shadow-pop)]" role="status" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
         <Logo className="w-9 h-9 shrink-0" variant="static" />
         <p className="text-sm flex-1">A new version of Fault Lines is ready.</p>
-        <button type="button" className="px-3 py-1.5 bg-rust rounded-md text-sm shrink-0" onClick={() => {
+        <button type="button" className="btn btn-sm shrink-0 bg-rust text-paper" onClick={() => {
           navigator.serviceWorker.getRegistration().then((r) => r?.waiting?.postMessage({ type: "SKIP_WAITING" }));
         }}>Reload</button>
         <button type="button" aria-label="Dismiss" className="opacity-70 shrink-0" onClick={() => setUpdateReady(false)}>×</button>
@@ -84,7 +85,7 @@ export default function InstallPrompt() {
   if (!deferred && !showIOS) return null;
 
   return (
-    <div className="no-print fixed bottom-4 left-1/2 z-50 w-[min(92vw,26rem)] animate-slide-up rounded-lg bg-ink text-paper shadow-xl p-5" role="dialog" aria-label={t("installTitle")}>
+    <div className="no-print fixed bottom-4 left-1/2 z-50 w-[min(92vw,26rem)] animate-slide-up rounded-xl bg-ink p-5 text-paper shadow-[var(--shadow-pop)]" role="dialog" aria-modal="false" aria-label={t("installTitle")} style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}>
       <div className="flex items-start gap-3">
         <Logo className="w-11 h-11 shrink-0" />
         <div className="flex-1">
@@ -95,12 +96,12 @@ export default function InstallPrompt() {
       </div>
       {deferred ? (
         <div className="flex gap-2 mt-4">
-          <button type="button" className="flex-1 px-4 py-2 bg-rust rounded-md text-sm font-ui hover:opacity-90" onClick={async () => {
+          <button type="button" className="btn btn-sm flex-1 bg-rust text-paper hover:opacity-90" onClick={async () => {
             deferred.prompt();
             await deferred.userChoice;
             dismiss();
           }}>{t("install")}</button>
-          <button type="button" className="px-4 py-2 border border-paper/30 rounded-md text-sm font-ui" onClick={dismiss}>{t("notNow")}</button>
+          <button type="button" className="btn btn-sm border border-paper/30 text-paper hover:bg-paper/10" onClick={dismiss}>{t("notNow")}</button>
         </div>
       ) : (
         <ol className="text-sm mt-4 space-y-1.5 list-decimal pl-5 opacity-90">

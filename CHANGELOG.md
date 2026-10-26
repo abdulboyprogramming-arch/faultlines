@@ -1,5 +1,89 @@
 # Changelog
 
+## 1.2.0 — 2026-10-26 (Frontend: the design system actually ships)
+
+### Added in the follow-up pass (privacy, continuity, resilience)
+- **Name & personal-data guard**: the composer scans pastes for emails, phone-shaped
+  numbers, “Name:” labels and name-like word pairs (`lib/privacy.ts`) and warns before
+  anything is mapped, quoted or shared. Runs entirely in the browser; the warning
+  clears itself when the answers change. No false positives on place names or
+  determiners (`The Earth`, `World War`).
+- **“Since your last run of this question”**: local history is diffed against the
+  current map by belief name (`lib/compare.ts`), showing which beliefs shrank or grew —
+  the reteach-effect signal the product is really about. Refuses to compare classes
+  of clearly different sizes and says so honestly when nothing moved.
+- **Local data backup & restore** (`lib/backup.ts` + Settings): download every
+  `faultlines-*` key as one JSON file, restore it later on another machine. The file
+  is validated (app, version, key namespace, strings only, size cap) before a single
+  key is written; nothing leaves the browser.
+- **Plain-language `/privacy` page**: what is stored (nothing, server-side), where
+  local data lives, what the AI provider setting actually sends, how share links work,
+  and what to do on a shared school computer. Linked from the footer and FAQ.
+- **Social preview image** generated at build time (`app/opengraph-image.tsx`) — shared
+  links now show the product's own strata map instead of a blank card.
+- **Offline awareness**: a quiet on-brand banner says what still works when the network
+  drops, instead of letting the app look broken.
+- **Tool-level error boundary** (`app/tool/error.tsx`): retry, start a fresh map, or
+  check saved data — no dead white page.
+- **Keyboard + assistive tech**: `j`/`k` move between beliefs, focus moves to the result
+  when a map finishes, results are announced through a live region, and the question
+  field offers the example questions as presets.
+- **Result insight**: a risk-mix bar shows the class distribution (high / medium / low /
+  not sure) at a glance.
+- **10 new tests** (`tests/privacy-backup.test.ts`, `tests/compare.test.ts`) → 76 total.
+
+
+### Fixed (why the deployed site looked half-built)
+- **Tailwind CSS was never compiled.** There was no `postcss.config.mjs` and the
+  `@tailwindcss/turbopack` loader was installed but never registered, so
+  `@import "tailwindcss"` and `@theme` were passed through untouched: every
+  utility class (`bg-paper`, `grid`, `text-ink`, …) was missing from the build
+  and the whole product rendered as unstyled HTML. Added
+  `@tailwindcss/postcss` + `postcss.config.mjs`; the compiled stylesheet now
+  contains the full utility set (verified: 65 KB production CSS).
+- **Circular font token**: `--font-display: var(--font-display)` made the brand
+  type fall back to Times. Tokens now resolve to real families.
+- **Fonts no longer fetched from Google at build time.** A blocked
+  `fonts.googleapis.com` fails `next build` outright; switched to self-hosted
+  `@fontsource-variable` (Fraunces + Inter), which also makes the PWA render real
+  typography offline.
+- **Dark mode was half-broken**: `ThemeProvider` toggled a `.dark` class while
+  Tailwind's `dark:` variant followed the OS preference. Dark is now
+  class-driven (`@custom-variant`), and the whole palette is re-declared as
+  theme tokens inside `.dark`, so every surface flips — not just the two rules
+  that were hand-patched.
+- **Hydration mismatches** for non-English users and for stored themes:
+  `t()` and the theme settings read `localStorage` during render. Language now
+  goes through a hydration-safe `useT()` hook, and settings through
+  `useSyncExternalStore` (`lib/use-local-store.ts`).
+- **Changing theme or text size reloaded the page.** Both now apply instantly
+  (and cross-tab).
+- **CSP/COOP blocked local previews** (no `unsafe-eval` for Turbopack dev,
+  `frame-ancestors 'none'`). Dev and production policies are now separate.
+- Starter-template SVGs removed from `public/`; service worker bumped to v4.
+
+### Added
+- **Real design system** (`app/globals.css`): paper/ink/rust/ochre/slate/moss
+  token set with dark overrides, Fraunces + Inter type scale, elevation tokens,
+  shared primitives (`shell`, `card`, `btn` family, `field`, `chip`, `eyebrow`),
+  paper grain, on-brand focus rings and scrollbars, scan/drift/strata keyframes.
+- **Rebuilt landing page**: interactive live example map (click a band for its
+  verbatim evidence), topographic hero, stat rail, "the gap" narrative section,
+  three-step how-it-works, feature grid, evidence-principles panel, example
+  classroom cards, richer FAQ, closing CTA and a full site footer.
+- **Rebuilt tool workspace**: two-column composer with drag-and-drop, cap/duplicate
+  meter and `⌘/Ctrl + ↵` shortcut; example rail and local-history rail; results
+  view with a belief map (risk filters, staggered bars, keyboard/screen-reader
+  labels), sticky detail panel with prev/next, share/export card, and a
+  `?example=` deep link.
+- **Settings**: live theme/text-size segmented controls with previews, language
+  grid, engine status, local-data controls and an About block.
+- **Chrome**: sticky header with active-route underline, theme toggle, mobile
+  sheet, skip link, shared footer; consistent 404/error/offline/play pages.
+- **SEO/a11y**: `metadataBase`, OpenGraph/Twitter metadata, JSON-LD
+  `SoftwareApplication`, `sitemap.xml`, `robots.txt`, canonical URLs,
+  reduced-motion-safe reveal animations.
+
 ## 1.1.0 — 2026-10-26 (Polish, play, reach & proof)
 
 ### Added

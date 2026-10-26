@@ -1,4 +1,5 @@
 import { AnalysisResultSchema, type AnalysisResult } from "./schema";
+import { notifyStorageChange } from "./use-local-store";
 import { resultTotal } from "./validate";
 
 /** Local-only history (browser storage). Labelled, validated, deletable. */
@@ -10,7 +11,8 @@ export interface HistoryEntry {
   result: AnalysisResult;
 }
 
-const KEY = "faultlines-history-v2";
+export const HISTORY_KEY = "faultlines-history-v2";
+const KEY = HISTORY_KEY;
 const LEGACY_KEY = "faultlines-history";
 export const MAX_HISTORY = 8;
 
@@ -50,7 +52,10 @@ export function entryFor(result: AnalysisResult, at = new Date().toISOString()):
 }
 
 export function saveHistory(entries: HistoryEntry[]): void {
-  try { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_HISTORY))); } catch { /* quota */ }
+  try {
+    localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_HISTORY)));
+  } catch { /* quota */ }
+  notifyStorageChange();
 }
 
 export function clearAllLocalData(): void {
@@ -60,4 +65,5 @@ export function clearAllLocalData(): void {
     if (k?.startsWith("faultlines-")) keys.push(k);
   }
   keys.forEach((k) => localStorage.removeItem(k));
+  notifyStorageChange();
 }

@@ -3,10 +3,10 @@
 // network-first for page navigations with an /offline fallback,
 // cache-first for static assets, network-only for /api (fresh analysis,
 // and the page falls back to the in-browser heuristic when offline).
-const VERSION = "v3";
+const VERSION = "v4";
 const CORE_CACHE = `faultlines-core-${VERSION}`;
 const RUNTIME_CACHE = `faultlines-runtime-${VERSION}`;
-const CORE = ["/", "/tool", "/settings", "/offline", "/play", "/manifest.json", "/icon.svg", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
+const CORE = ["/", "/tool", "/settings", "/offline", "/play", "/privacy", "/manifest.json", "/icon.svg", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
