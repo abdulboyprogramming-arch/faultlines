@@ -66,7 +66,10 @@ export function toMarkdown(result: AnalysisResult): string {
 }
 
 function csvCell(s: string | number): string {
-  const v = String(s);
+  let v = String(s);
+  // Spreadsheet formula injection: a student answer starting with = + - @
+  // must never become a live formula when a teacher opens the CSV.
+  if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`;
   return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 }
 

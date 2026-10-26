@@ -41,11 +41,28 @@ const ANSWER_HEADER = /(answer|response|text|réponse|respuesta)/i;
 export function answersFromCsv(text: string): string[] {
   const rows = parseCsvRows(text);
   if (rows.length === 0) return [];
-  if (rows.every((r) => r.length === 1)) return rows.map((r) => r[0].trim()).filter(Boolean);
+  if (rows.every((r) => r.length === 1)) {
+    const cells = rows.map((r) => r[0].trim()).filter(Boolean);
+    // Drop a lone header cell ("answer", "response", …) in single-column CSVs.
+    if (cells.length > 1 && ANSWER_HEADER.test(cells[0]) && !/\s/.test(cells[0])) cells.shift();
+    return cells;
+  }
   const header = rows[0];
   const idx = header.findIndex((h) => ANSWER_HEADER.test(h));
-  const col = idx >= 0 ? idx : header.length - 1;
-  const body = idx >= 0 || header.some((h) => /[a-z]/i.test(h)) ? rows.slice(1) : rows;
+  if (idx >= 0) {
+    return rows.slice(1).map((r) => (r[idx] ?? "").trim()).filter(Boolean);
+  }
+  // No recognisable header: free-text answers are almost always the longest
+  // column (names/ids/scores are short) — pick it instead of guessing position.
+  const cols = Math.max(...rows.map((r) => r.length));
+  let col = 0;
+  let bestAvg = -1;
+  for (let c = 0; c < cols; c++) {
+    const avg = rows.reduce((sum, r) => sum + (r[c] ?? "").trim().length, 0) / rows.length;
+    if (avg > bestAvg) { bestAvg = avg; col = c; }
+  }
+  // Skip a first row that looks like labels (single-token cells).
+  const body = header.every((h) => !/\s/.test(h.trim())) && rows.length > 1 ? rows.slice(1) : rows;
   return body.map((r) => (r[col] ?? "").trim()).filter(Boolean);
 }
 
