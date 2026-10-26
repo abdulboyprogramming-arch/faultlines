@@ -36,20 +36,100 @@ Capture at 1440×900 (browser zoom 100%), in this order — Devpost gallery orde
 >
 > **Negative:** no text, no letters, no gibberish words, no gradients, no photorealism, no 3D render, no stock-photo people, no lens flare, no watermark, no busy texture.
 
-## Stage 2 — Demo video (20 min, 90 seconds max)
+## Stage 2 — Demo video (Loom, runbook)
 
-**Tools:** OBS / Loom / Screenity. Record the LIVE deployment, 1080p.
-**Script (read verbatim or adapt):**
-- 0:00 "I'm Abdulrahman Adeeyo. This is Fault Lines. Every class has fault lines — see them before the exam does."
-- 0:08 (landing) "Teachers mark 120 scripts and still miss the one belief the whole class shares. Fault Lines makes it visible."
-- 0:18 (click Map my class → Load seasons example) "28 messy answers to one question… become this: 18 of 28 students think summer happens because Earth is closer to the Sun. High risk. Start here."
-- 0:38 (open band) "Every belief is proven with the students' own words — verbatim, always — and comes with a five-minute reteach and a follow-up diagnostic."
-- 0:55 (expand Not sure) "And when an answer is too vague, it says so. It never invents a misconception. Trust over hallucination."
-- 1:05 (fractions example + export menu) "Any subject. Export the one-page plan, or share it with a link. No accounts, nothing stored."
-- 1:18 (404 game, 3 seconds of play + phone/PWA quick shot) "It works offline, installs like an app, speaks seven languages — and yes, the 404 page has a game. Fault Lines: misconception cartography for teachers."
+Hard limit: **90 seconds**. Target **88 seconds**. One take, 1080p, cursor visible, no voice-over music louder than your voice.
 
-**AI prompt (polish narration):**
-> "Rewrite this 90-second hackathon demo narration for a teacher-focused edtech tool. Keep it warm, zero buzzwords, every sentence under 15 words, end with one memorable line."
+Total time: ~45 minutes — 10 prep · 5 rehearsal · 10 recording (2 takes) · 15 editing · 5 publishing.
+
+### 2.1 Before you record (10 min)
+
+| # | Do this | Why |
+|---|---|---|
+| 1 | Open Chrome → `faultlines-kappa.vercel.app` → then `/tool` in a second tab, `/play` third, `/settings` fourth | every beat is one click away; no waiting on a cold load |
+| 2 | **Settings → Clear all local data** → then set Theme **Light**, Text size **Medium**, Language **English** | a clean "Recent" list; no half-finished maps on screen |
+| 3 | Browser zoom **100 %** (`Ctrl+0`), bookmarks bar **off** (`Ctrl+Shift+B`), window **1920×1080** (not fullscreen) | Loom records the window; 16:9 keeps it 1080p |
+| 4 | Close every other tab, Slack, mail, WhatsApp Web. macOS **Do Not Disturb** / Windows **Focus assist** on | one notification ruins the take |
+| 5 | Use a **fresh paste or the example classrooms only** — no real student answers, no names on screen | the video is public |
+| 6 | If the install banner appears, click **Not now** once; it stays away for 14 days | it can cover the export bar |
+
+### 2.2 Loom settings (2 min)
+
+1. Install the **Loom desktop app** (not just the extension) — the app records at better quality and gives you a camera bubble.
+2. In Loom → **Preferences / Settings**: camera **on** (small bubble, bottom-left), microphone **on**, **recording quality 1080p** if offered, "countdown before recording" **on (3 s)**, "remember cursor" **off**.
+3. Test once for **10 seconds** — speak your first line, stop, replay. Check: audio level, no fan noise, text readable, cursor visible. Delete the test.
+4. Pick "**Screen only / Window**" and choose the Chrome window. Do **not** record the whole desktop.
+
+### 2.3 The 88-second shot list (say it exactly like this)
+
+Rehearse twice out loud with a timer, then record. Times are cumulative — if you drift by 2–3 s it does not matter.
+
+| Time | On screen (exact action) | Say (verbatim) |
+|---|---|---|
+| 0:00–0:07 | Landing page, hero untouched. Camera bubble on. | "I'm Abdulrahman Adeeyo. This is Fault Lines." |
+| 0:07–0:16 | Scroll down **one screen** slowly (stat rail + the live example map). Stop. | "Teachers mark 120 scripts and still miss the one belief half the class shares. This makes it visible." |
+| 0:16–0:20 | Click **Map my class** (hero button). | "One question, one paste." |
+| 0:20–0:26 | On `/tool`, click **Why do we have seasons?** in the right-hand example list. | "28 messy answers…" |
+| 0:26–0:40 | Result appears. **Do not scroll for 2 s** — let it land. Hover the **Start here** banner. | "…become this. Eighteen of 28 think summer happens because Earth is closer to the Sun. High risk — reteach that first." |
+| 0:40–0:52 | Click the **top band** on the map. Right panel shows quotes + reteach card. Hover a quote. | "Every belief is proven with the students' own words, verbatim, and comes with a five-minute reteach and a follow-up question." |
+| 0:52–1:00 | Click **Not sure — needs your eyes** at the bottom of the map. The list expands below. | "And when an answer is too vague, it says so. It never invents a misconception." |
+| 1:00–1:10 | Click **New map** (top right) → click **Adding fractions (½ + ⅓)** → hover the **Take it with you** export bar. | "Any subject. Export the one-page plan, or share it with a link. No accounts, nothing stored." |
+| 1:10–1:20 | Address bar: type `faultlines-kappa.vercel.app/nope` + Enter. 404 loads with the game → press **← →** for 4 seconds. | "It works offline, installs like an app, speaks seven languages — and yes, the 404 page has a game." |
+| 1:20–1:28 | Stop moving. Hold on the game (or Alt-Tab to the landing hero). | "Fault Lines: see what your class actually misunderstands." |
+
+**Rules while recording**
+- **Read the real numbers off your screen.** If the top band says 17 of 28, say seventeen. Never say a number you did not read.
+- Speak ~10 % slower than feels natural. Pauses are free; you can cut them.
+- If you fluff a line: **stop talking, count 2 seconds in silence, repeat the sentence**, keep going. Do not restart the take — you will cut the bad segment in Loom.
+- Move the mouse deliberately: click, then stop. No circling.
+- Maximum **two takes**. Take two is almost always better than take three.
+
+### 2.4 Editing in Loom (15 min)
+
+1. **Stop the recording.** Loom opens the video page; it saves automatically.
+2. Click **Edit** (scissors / trim icon).
+3. **Trim the head:** drag the start handle to just before "I'm Abdulrahman" — kill the countdown and the tab-switching.
+4. **Trim the tail:** end on "see what your class actually misunderstands." Nothing after it.
+5. **Cut the dead air:** select the silent gap while the map renders (0:26–0:28) and use **Cut / Remove selection**. Target length: **85–90 s**; if you are still 95 s, cut the fractions beat down to 4 s rather than the honesty beat.
+6. If you fluffed a line, cut that whole segment (the pause + the bad sentence) so the good repeat joins cleanly. Slight jump-cut is normal and reads as editing, not error.
+7. **Title** the video: `Fault Lines — 90 second demo`. Set visibility **anyone with the link**.
+8. **Watch it once end-to-end at 1×.** Checklist: can you read the band labels at normal size? (if not, re-record at 125 % zoom) · is any personal data visible? · does the audio clip or echo? · is the cursor visible on every click?
+9. **Download the MP4** if your plan allows (Loom → Download). If the export is only 720p, that is acceptable for Devpost but soft on YouTube — in that case record the master with OBS at 1080p using the same script.
+
+**What Loom cannot do:** no captions burn-in, no title cards, no music bed on the free tier. If you want those, do step 2.5. If you are short on time, **skip it** — a clean 88-second screen recording beats a fancy one that is late.
+
+### 2.5 Optional polish in CapCut / Clipchamp (10 min)
+
+1. New project → import the Loom MP4 → set canvas **1920×1080**.
+2. **Captions:** auto-caption, language English, then fix "Fault Lines" (it will hear "fault lines" as two words), and "reteach", "misconception". Captions are what judges watch on mute — they are worth the 5 minutes.
+3. **First 2 seconds:** add a text card `Fault Lines — see what your class actually misunderstands` on the paper background (#F4F1EA), ink text, Fraunces if available, otherwise any serif.
+4. **Last 3 seconds:** end card with the product mark and `faultlines-kappa.vercel.app`. Keep it under 90 s total — trim elsewhere to afford it.
+5. **Music (optional):** one calm ambient track at **−25 dB** under the voice, fade out at the end. If in doubt, no music.
+6. Export: **1080p, 30 fps, MP4/H.264, under 200 MB.**
+
+### 2.6 Publish (5 min)
+
+1. YouTube → **Upload** → the MP4.
+2. Title: `Fault Lines — 90 second demo (Devpost Build with AI: Basics)`
+3. Description:
+   ```
+   Fault Lines is misconception mapping for teachers: paste your class's answers to one question and see the beliefs underneath — sized by share of class, ranked by exam risk, proven in their own words, each with a five-minute reteach plan.
+
+   Live demo (no login): https://faultlines-kappa.vercel.app
+   Source: https://github.com/abdulboyprogramming-arch/faultlines
+   ```
+4. Visibility: **Unlisted** (never Private — judges cannot open Private).
+5. Thumbnail: the generated cover art (see Stage 1).
+6. In Devpost, paste the YouTube link into **Video demo link**. Do not paste the Loom link unless YouTube blocks the upload — Devpost prefers YouTube, and Loom links can expire with your plan.
+
+### 2.7 Final QA before you submit
+
+- [ ] Length **≤ 90 s**, audio audible on phone speakers at 50 %
+- [ ] Every number spoken matches what is on screen
+- [ ] No student names, no browser tabs with personal accounts, no OS notifications
+- [ ] First 3 seconds already show the product (judges decide fast)
+- [ ] Link opens in a **logged-out / incognito** window
+- [ ] The video is also linked from the Devpost story's last line, so it cannot be missed
 
 ## Stage 3 — Devpost form (copy-paste blocks) (15 min)
 
