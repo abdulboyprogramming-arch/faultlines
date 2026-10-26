@@ -26,7 +26,7 @@ Open http://localhost:3000 → **Map my class**. It works with **no API key**: a
 - **Name guard** — the composer warns about emails, phone-like numbers, “Name:” labels and name-like pairs before anything is mapped, quoted or shared. It runs in your browser.
 - **“Since your last run”** — re-map the same question and see which beliefs shrank after a reteach (diffed against local history; refuses to compare classes of very different sizes).
 - **Backup & restore** — download every local setting and saved map as one JSON file, restore it on another machine. Validated before import; nothing leaves the browser.
-- **Languages** — UI in 7 languages (English, Français, Español, Deutsch, Português, Yorùbá, العربية with RTL), auto-detected; analysis works on answers in any language.
+- **Languages** — the **whole interface** is translated into 7 languages (English, Français, Español, Deutsch, Português, Yorùbá, العربية with RTL): every page, button, error, screen-reader label, toast and exported plan. Auto-detected from the browser, switchable from the header or Settings, no reload. Only brand/product nouns and student answers stay as they are — see `docs/i18n.md`. Analysis works on answers in any language.
 - **PWA** — installable on phone/tablet/laptop/desktop with a cross-device install sheet (incl. iOS steps); examples, heuristic and history work offline; custom offline page.
 - **Browser extension** — select answers anywhere on the web and send them into the tool (`extension/`, MV3, minimal permissions).
 - **Strata Drop** — our own little offline game built into the 404/error/offline pages and at `/play`. Catch solid understanding, dodge the fault cracks.
@@ -60,9 +60,11 @@ npm run dev        # develop
 npm run build      # production build
 npm run lint       # eslint (zero problems expected)
 npm run typecheck  # tsc --noEmit
-npm test           # vitest — 76 tests across every core system
+npm test           # vitest — 84 tests across every core system
 npm run check      # all three
 ```
+
+Copy lives in `lib/i18n/` (one complete dictionary per locale, typed against English) — `docs/i18n.md` explains the system and what is deliberately left untranslated.
 
 Stack: Next.js App Router + TypeScript + Tailwind 4 (via PostCSS) + Zod. Fonts are self-hosted with `@fontsource-variable/*` — no build-time Google Fonts fetch. One API route (`app/api/analyze`). Provider interface in `lib/llm/` (`mock` heuristic + `real` OpenAI-compatible). Structure: see `STRUCTURE.md`; design decisions: `ARCHITECTURE.md`; product docs: `devpost/`.
 
@@ -73,7 +75,7 @@ Stack: Next.js App Router + TypeScript + Tailwind 4 (via PostCSS) + Zod. Fonts a
 
 ## Project status
 
-MVP complete and polished (v1.1.0). Submission pack: `SUBMISSION.md`. Operations pack: `docs/operations/`. This codebase went through a full recovery & completion pass — state, audits, plan, log, acceptance evidence and handoff live in `docs/recovery/`. Future ideas: `ROADMAP.md`.
+MVP complete and polished (v1.3.0 — full seven-language interface). Submission pack: `SUBMISSION.md`. Operations pack: `docs/operations/`. This codebase went through a full recovery & completion pass — state, audits, plan, log, acceptance evidence and handoff live in `docs/recovery/`. Future ideas: `ROADMAP.md`.
 
 ## Acknowledgements
 

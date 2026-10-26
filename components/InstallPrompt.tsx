@@ -73,11 +73,11 @@ export default function InstallPrompt() {
     return (
       <div className="no-print fixed bottom-4 left-1/2 z-50 flex w-[min(92vw,26rem)] animate-slide-up items-center gap-3 rounded-xl bg-ink px-5 py-4 text-paper shadow-[var(--shadow-pop)]" role="status" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
         <Logo className="w-9 h-9 shrink-0" variant="static" />
-        <p className="text-sm flex-1">A new version of Fault Lines is ready.</p>
+        <p className="text-sm flex-1">{t("updateReady")}</p>
         <button type="button" className="btn btn-sm shrink-0 bg-rust text-paper" onClick={() => {
           navigator.serviceWorker.getRegistration().then((r) => r?.waiting?.postMessage({ type: "SKIP_WAITING" }));
-        }}>Reload</button>
-        <button type="button" aria-label="Dismiss" className="opacity-70 shrink-0" onClick={() => setUpdateReady(false)}>×</button>
+        }}>{t("updateReload")}</button>
+        <button type="button" aria-label={t("dismiss")} className="opacity-70 shrink-0" onClick={() => setUpdateReady(false)}>×</button>
       </div>
     );
   }
@@ -105,9 +105,9 @@ export default function InstallPrompt() {
         </div>
       ) : (
         <ol className="text-sm mt-4 space-y-1.5 list-decimal pl-5 opacity-90">
-          <li>Tap the <strong>Share</strong> button in Safari&apos;s toolbar.</li>
-          <li>Choose <strong>“Add to Home Screen”</strong>.</li>
-          <li>Tap <strong>Add</strong> — Fault Lines now lives on your home screen, offline-ready.</li>
+          <li>{t("installIos1")}</li>
+          <li>{t("installIos2")}</li>
+          <li>{t("installIos3")}</li>
         </ol>
       )}
     </div>

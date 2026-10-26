@@ -181,6 +181,19 @@
   p, li { text-wrap: pretty; }
 
   [dir="rtl"] body { font-family: var(--font-arabic); }
+  /* Arabic does not use letter-spacing or small caps: drop both so headings and
+     the eyebrow labels keep their shape instead of looking squeezed. */
+  [dir="rtl"] :is(h1, h2, h3, h4) { letter-spacing: 0; }
+  [dir="rtl"] .eyebrow { letter-spacing: 0.02em; }
+  /* Quote rules are physical borders, so mirror the ones that carry meaning. */
+  [dir="rtl"] blockquote {
+    border-left: 0;
+    border-right: 2px solid var(--color-rust);
+    padding-left: 0;
+    padding-right: 0.75rem;
+  }
+  /* Counts and code stay left-to-right inside right-to-left text. */
+  [dir="rtl"] :is(.tabular-nums, code, kbd) { direction: ltr; unicode-bidi: isolate; display: inline-block; }
 
   ::selection { background: var(--color-rust); color: #f4f1ea; }
 

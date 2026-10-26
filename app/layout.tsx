@@ -5,6 +5,7 @@ import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import OfflineBanner from "@/components/OfflineBanner";
 import ThemeProvider from "@/components/ThemeProvider";
+import T from "@/components/T";
 
 /**
  * Fonts are self-hosted from `@fontsource-variable/*` instead of fetched from
@@ -81,8 +82,10 @@ var dark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: da
 if(dark)d.classList.add('dark');
 var s=localStorage.getItem('faultlines-size');
 if(s)d.dataset.size=s;
-var l=localStorage.getItem('faultlines-locale')||((navigator.language||'en').slice(0,2).toLowerCase());
-if(l){d.lang=l;d.dir=l==='ar'?'rtl':'ltr';}
+var ok=['en','fr','es','de','pt','yo','ar'];
+var l=localStorage.getItem('faultlines-locale');
+if(!l){var n=((navigator.language||'en')+'').slice(0,2).toLowerCase();l=ok.indexOf(n)>-1?n:'en';}
+if(ok.indexOf(l)>-1){d.lang=l;d.dir=l==='ar'?'rtl':'ltr';}
 }catch(e){}})();`;
 
 const jsonLd = {
@@ -111,7 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
         >
-          Skip to content
+          <T k="skipToContent" />
         </a>
         <ThemeProvider>{children}</ThemeProvider>
         <OfflineBanner />

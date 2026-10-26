@@ -11,7 +11,7 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `app/tool/page.tsx` | **The core loop**: paste/upload → name guard → counters → analyse → risk mix → "since last run" → map → detail → export → history; share-link (`#…`), extension-prefill (`#a=…`) and `?example=` readers; `j`/`k` navigation, live-region announcements |
 | `app/tool/error.tsx` | Route-level error boundary for the workspace: retry, fresh map, check saved data |
 | `app/tool/loading.tsx` | Route loading screen (StrataLoader) for the tool |
-| `app/settings/page.tsx` | Live theme/text-size controls, 7-language picker, engine status, **backup / restore / clear** local data, About |
+| `app/settings/page.tsx` | Live theme/text-size controls, 7-language picker (native names + codes), engine status, **backup / restore / clear** local data, About — all translated |
 | `app/privacy/page.tsx` | Plain-language privacy page for teachers and schools |
 | `app/opengraph-image.tsx` | Build-time social preview card (1200×630, no external assets) |
 | `app/sitemap.ts` / `app/robots.ts` | Generated `sitemap.xml` / `robots.txt` |
@@ -31,7 +31,9 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 |---|---|
 | `components/Logo.tsx` | Programmatic SVG logo, `static` + `animated` (crack draw-in + seismic fault-slip) variants |
 | `components/StrataMap.tsx` | Belief bands sized by class share, risk-sorted, risk filters, staggered reveal, keyboard/ARIA |
-| `components/SiteHeader.tsx` / `SiteFooter.tsx` | Sticky nav (active route, theme toggle, mobile sheet) and shared footer |
+| `components/SiteHeader.tsx` / `SiteFooter.tsx` | Sticky nav (active route, language picker, theme toggle, mobile sheet) and shared footer — both fully translated |
+| `components/T.tsx` | Translation island: lets server components render dictionary strings (and keep inline markup) without becoming client components |
+| `components/LanguageSwitcher.tsx` | Compact native `<select>` language picker (header + mobile sheet); instant re-render via the locale event |
 | `components/Reveal.tsx` | IntersectionObserver reveal (progressive enhancement, `as` tag, reduced-motion safe) |
 | `components/OfflineBanner.tsx` | Quiet "you're offline — this still works" indicator |
 | `components/landing/DemoMap.tsx` | Interactive example map on the landing page |
@@ -53,10 +55,11 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `lib/llm/real.ts` | OpenAI-compatible LLM provider; index-based output → faithful counts/quotes by construction |
 | `lib/llm/index.ts` | Provider selection from env + resilient visible-degradation fallback + `providerMode()` |
 | `lib/parse-input.ts` | Line splitting, real CSV parsing (quoted cells; header/longest-column detection), caps + duplicate counting |
-| `lib/export.ts` | Plain-text/Markdown/CSV plan builders (CSV formula-injection safe) + download helper |
+| `lib/export.ts` | Plain-text/Markdown/CSV plan builders (CSV formula-injection safe, localised via a passed translator) + download helper |
 | `lib/share.ts` | Share-report codec (`#…`) and answers-prefill codec (`#a=…`, shared with the extension), Zod/size-validated |
-| `lib/i18n.ts` | 7 locales (en fr es de pt yo ar), identical keys, auto-detect, RTL flag, `setLocale` broadcast |
-| `lib/use-i18n.ts` | Hydration-safe `useT()` / `useLocale()` hooks |
+| `lib/i18n.ts` | Locale registry + loader over `lib/i18n/*`: auto-detect, `{placeholder}` interpolation, `setLocale` broadcast, RTL flag, `Intl` number/date formatters |
+| `lib/i18n/en.ts` … `ar.ts` | **One complete dictionary per locale** (en fr es de pt yo ar, ~410 keys each), each typed `Dict` against English — no `...en` spread, so a missing key is a compile error. Guide: `docs/i18n.md` |
+| `lib/use-i18n.ts` | Hydration-safe `useT()` (with `num`/`date`/`dateTime`) and `useLocale()`; subscribes to the locale event so every mounted string re-renders without a reload |
 | `lib/use-local-store.ts` | `useSyncExternalStore` helpers for localStorage + media queries |
 | `lib/history.ts` | Local history v2 (labels, cap, v1 migration, clear-all, change broadcast) |
 | `lib/privacy.ts` | Browser-side personal-data scan (emails, phones, labels, name pairs) |
@@ -89,11 +92,11 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | File | Role |
 |---|---|
 | `public/manifest.json` | Full PWA manifest: any+maskable icons, shortcuts, standalone, any orientation |
-| `public/sw.js` | Service worker v4: precache shell incl. `/privacy` + `/offline`, network-first navigations, cache-first assets, network-only `/api`, update flow |
+| `public/sw.js` | Service worker v5: precache shell incl. `/privacy` + `/offline`, network-first navigations, cache-first assets, network-only `/api`, update flow |
 | `public/icon.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | Generated brand icon set (static logo variant) |
 | `public/.well-known/security.txt` | Responsible-disclosure contact |
 
-## Tests (`tests/` — Vitest, 76 tests, `npm test`)
+## Tests (`tests/` — Vitest, 84 tests, `npm test`)
 
 | File | Covers |
 |---|---|
@@ -105,6 +108,7 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `tests/validate.test.ts` | Normalisation: sorting, dedupe, verbatim enforcement |
 | `tests/export-share-parse.test.ts` | Exports (incl. newline regression), share codec, input prep, example integrity |
 | `tests/i18n-and-history.test.ts` | Locale key parity ×7, RTL, detection; history round-trip/cap/migration/corruption/clear |
+| `tests/i18n-coverage.test.ts` | Full translation coverage: key parity, no empty values, identical placeholder sets, "no English left" allowlist, ≥85 % of short labels translated per locale, RTL assertions |
 | `tests/privacy-backup.test.ts` | Name/email/phone scan (incl. no false positives), backup round-trip, foreign/oversized/future-file rejection, namespace filtering |
 | `tests/compare.test.ts` | Run-to-run belief deltas, question matching, class-size guard, "no change" honesty |
 | `tests/fixtures.ts` | Shared messy datasets (multilingual, unicode, duplicates, vague, big class, tricky CSV) |
@@ -120,6 +124,7 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `ROADMAP.md` / `CHANGELOG.md` / `CONTRIBUTING.md` / `LICENSE` | Future plans, history, how to help, MIT |
 | `docs/recovery/*.md` | PRSIC record: state → intent → completeness → integration → plan → log → acceptance → handoff |
 | `docs/operations/*.md` | Release engineering, operational readiness, capacity planning, disaster recovery, independent verification |
+| `docs/i18n.md` | The localisation system: where copy lives, how it reaches the screen, why some things stay English, how to add a language |
 | `devpost/{scope,prd,spec,checklist}.md`, `scope.html` | Original plan-first product documents |
 | `presentation/` | Pitch assets + prompt |
 
@@ -127,7 +132,7 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 
 | File | Role |
 |---|---|
-| `package.json` / `package-lock.json` | faultlines v1.2.0; scripts: dev/build/start/lint/typecheck/test/check |
+| `package.json` / `package-lock.json` | faultlines v1.3.0; scripts: dev/build/start/lint/typecheck/test/check |
 | `postcss.config.mjs` | **Required**: wires Tailwind v4 into the build (`@tailwindcss/postcss`) |
 | `next.config.ts` | Dev/prod security headers + CSP, `poweredByHeader: false`, GitHub-Pages static-export mode |
 | `tsconfig.json`, `eslint.config.mjs`, `vitest.config.mts`, `next-env.d.ts` | TS / lint / tests configuration |
