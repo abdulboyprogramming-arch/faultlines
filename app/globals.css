@@ -16,4 +16,18 @@
 [data-size="sm"] { font-size: 14px; }
 [data-size="md"] { font-size: 16px; }
 [data-size="lg"] { font-size: 18px; }
-.font-display { font-family: var(--font-display), serif; }
+.font-display { font-family: var(--font-display), Georgia, serif; }
+.font-ui { font-family: var(--font-ui), system-ui, sans-serif; }
+
+/* Print: the one-page reteach plan. Hide controls, show the full report. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; color: #14110E !important; }
+  main { max-width: none !important; padding: 0 !important; }
+  a { text-decoration: none; color: inherit; }
+  article, section { break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
