@@ -3,9 +3,23 @@ import { z } from "zod";
 import { AnalysisResultSchema } from "@/lib/schema";
 import { getProvider } from "@/lib/llm";
 
-const BodySchema = z.object({ answers: z.array(z.string()).min(1).max(60) });
+const rateMap = new Map<string, number[]>();
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 60_000;
+  const max = 30;
+  const hits = (rateMap.get(ip) || []).filter((t) => now - t < windowMs);
+  if (hits.length >= max) return true;
+  hits.push(now);
+  rateMap.set(ip, hits);
+  return false;
+}
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  if (rateLimited(ip)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   let body: unknown;
   try {
     body = await req.json();
