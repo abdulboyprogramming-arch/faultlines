@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import StrataMap from "@/components/StrataMap";
 import type { AnalysisResult } from "@/lib/schema";
 import exampleResult from "@/data/example-result.json";
-import exampleAnswers from "@/data/example-answers.json";
+import { MockProvider } from "@/lib/llm/mock";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -12,6 +12,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [mode, setMode] = useState<"sample" | null>(null);
+  const [history, setHistory] = useState<AnalysisResult[]>(() => {
     if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem("faultlines-history");
@@ -53,9 +54,12 @@ export default function Home() {
       setSelected(0);
       saveHistory(data);
     } catch {
-      setError("Something went wrong. Showing the example classroom instead.");
-      setResult(exampleResult as AnalysisResult);
+      // Static deploy fallback (e.g. GitHub Pages): run mock in-browser.
+      const provider = new MockProvider();
+      const data = await provider.analyze(answers);
+      setResult(data);
       setSelected(0);
+      saveHistory(data);
     } finally {
       setLoading(false);
     }
@@ -70,6 +74,8 @@ export default function Home() {
   }
 
   const selectedCluster = result && selected !== null ? result.clusters[selected] : null;
+
+  const saveHistory = (data: AnalysisResult) => {
     const next = [data, ...history].slice(0, 5);
     setHistory(next);
     try {
