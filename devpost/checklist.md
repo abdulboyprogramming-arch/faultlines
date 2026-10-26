@@ -9,7 +9,7 @@ Build mode: learn
 
 ## Slices
 
-- [ ] **1. Scaffold + input workspace + example classroom renders the map**
+- [x] **1. Scaffold + input workspace + example classroom renders the map**
   Becomes usable: A running Next.js app where you can paste answers or load the example classroom and see the strata map with mock data.
   Why now: Bootstrapping lives in slice one; proves the whole path end to end on the first slice.
   PRD ref: `prd.md > The Core Journey` (steps 1-4), `prd.md > Features and Behavior > Input and validation`
