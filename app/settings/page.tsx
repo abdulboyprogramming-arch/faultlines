@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { getLocale, setLocale, locales } from "@/lib/i18n";
 
 export default function Settings() {
   const [theme, setTheme] = useState("system");
   const [size, setSize] = useState("md");
 
+  const [locale, setL] = useState("en");
   useEffect(() => {
     setTheme(localStorage.getItem("faultlines-theme") || "system");
     setSize(localStorage.getItem("faultlines-size") || "md");
+    setL(getLocale());
   }, []);
 
   const save = (t: string, s: string) => {
@@ -40,7 +42,14 @@ export default function Settings() {
           </select>
         </div>
       </div>
-      <Link href="/" className="block mt-8 text-rust underline">Back to home</Link>
+        <div>
+          <label className="block text-sm mb-1">Language</label>
+          <select value={locale} onChange={(e) => setLocale(e.target.value as any)} className="border border-ink/20 bg-white dark:bg-ink rounded px-3 py-2">
+            {Object.keys(locales).map((l) => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
+        </div>
     </main>
   );
 }
