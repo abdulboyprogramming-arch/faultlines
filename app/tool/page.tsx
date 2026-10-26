@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import StrataMap from "@/components/StrataMap";
 import type { AnalysisResult } from "@/lib/schema";
+import exampleResult from "@/data/example-result.json";
 import exampleAnswers from "@/data/example-answers.json";
 import { MockProvider } from "@/lib/llm/mock";
 
