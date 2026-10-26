@@ -57,10 +57,13 @@ export async function POST(req: Request) {
   const answers = parsed.data.answers.map((a) => a.trim()).filter(Boolean);
   if (answers.length === 0) return fail(400, "No answers provided.");
   const question = parsed.data.question?.trim() || undefined;
+  // The engine writes its prose in this language; student quotes are returned
+  // verbatim regardless, so a mis-set locale can never alter evidence.
+  const locale = parsed.data.locale;
 
   try {
     const provider = getProvider();
-    const raw = await provider.analyze(answers, { question });
+    const raw = await provider.analyze(answers, { question, locale });
     const withMeta = {
       ...raw,
       question: raw.question ?? question,

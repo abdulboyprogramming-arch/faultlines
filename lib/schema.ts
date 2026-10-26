@@ -43,9 +43,15 @@ export const AnalysisResultSchema = z.object({
   meta: AnalysisMetaSchema,
 });
 
+/** Interface languages a report's prose can be written in. */
+export const REPORT_LOCALES = ["en", "fr", "es", "de", "pt", "yo", "ar"] as const;
+export type ReportLocale = (typeof REPORT_LOCALES)[number];
+
 export const AnalyzeRequestSchema = z.object({
   answers: z.array(z.string().max(MAX_ANSWER_CHARS)).min(1).max(MAX_ANSWERS),
   question: z.string().max(MAX_QUESTION_CHARS).optional(),
+  /** Optional: the language the report's prose should be written in. */
+  locale: z.enum(REPORT_LOCALES).optional(),
 });
 
 export type Cluster = z.infer<typeof ClusterSchema>;

@@ -77,7 +77,7 @@ export default function SiteHeader() {
           : "border-transparent bg-paper/60 backdrop-blur-sm"
       }`}
     >
-      <nav className="shell flex h-16 items-center justify-between gap-4" aria-label={t("mainNav")}>
+      <nav className="shell flex h-16 items-center justify-between gap-4" aria-label={t("mainNav")} data-tour="nav">
         <Link
           href="/"
           className="group flex items-center gap-2.5 rounded-md py-1 transition-opacity hover:opacity-90"

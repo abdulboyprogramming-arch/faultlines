@@ -16,7 +16,21 @@ import { EXAMPLES } from "@/data/examples";
 import { answersFromCsv, looksLikeCsv, parseLines, prepareAnswers } from "@/lib/parse-input";
 import { decodeAnswersPayload, decodeShare } from "@/lib/share";
 import { entryFor, HISTORY_KEY, loadHistory, saveHistory } from "@/lib/history";
-import { useT } from "@/lib/use-i18n";
+import { useLocale, useT } from "@/lib/use-i18n";
+import SuggestionList from "@/components/SuggestionList";
+import {
+  matchesHistoryQuery,
+  suggestAnswers,
+  suggestHistory,
+  suggestQuestions,
+  type Suggestion,
+} from "@/lib/suggest";
+import { useHistorySuggestPref, useNotifyPref, useSuggestPref } from "@/lib/prefs";
+import { notifyReady } from "@/lib/notify";
+import { startTour } from "@/lib/tour";
+import { LOCALE_NAMES } from "@/lib/i18n";
+import { getLocale, tFor } from "@/lib/i18n";
+import { isOn, TOGGLE_KEY } from "@/lib/prefs";
 import { useStoredString } from "@/lib/use-local-store";
 import { scanForPersonalData } from "@/lib/privacy";
 import { compareRuns } from "@/lib/compare";
@@ -62,6 +76,11 @@ function describeComparisonLocalised(
   return t("cmpSummary", { date: t.date(comparison.previousAt), parts: parts.join(", ") });
 }
 
+/** Read the notification preference outside React (called from a callback). */
+function isNotifyOn(): boolean {
+  return isOn(TOGGLE_KEY.notify, "off");
+}
+
 export default function Tool() {
   const t = useT();
   const [question, setQuestion] = useState("");
@@ -84,6 +103,17 @@ export default function Tool() {
   const [privacyDismissedFor, setPrivacyDismissedFor] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [lastSavedId, setLastSavedId] = useState<string | null>(null);
+  const [suggestOn] = useSuggestPref();
+  const [historySuggestOn] = useHistorySuggestPref();
+  useNotifyPref(); // subscribe so a Settings change re-renders and the next map notifies
+  const locale = useLocale();
+  const [questionOpen, setQuestionOpen] = useState(false);
+  const [questionActive, setQuestionActive] = useState(0);
+  const [answerDismissed, setAnswerDismissed] = useState<string | null>(null);
+  const [answerActive, setAnswerActive] = useState(0);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historySearchOpen, setHistorySearchOpen] = useState(false);
+  const [historySearchActive, setHistorySearchActive] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLDivElement>(null);
@@ -99,6 +129,92 @@ export default function Tool() {
     () => Array.from(new Set(EXAMPLES.map((e) => e.question))).slice(0, 8),
     [],
   );
+
+  // ── suggestion pools ───────────────────────────────────────────────────
+  // Questions come from the examples plus every saved map; answers come from
+  // the example classrooms plus every quote the teacher already has in local
+  // history. Nothing new is stored to make this work — it reads what is
+  // already in this browser, and both features can be switched off in Settings.
+  const pools = useMemo(() => {
+    const questions = new Set<string>(questionPresets);
+    const beliefs = new Set<string>();
+    const answers = new Set<string>();
+    for (const e of EXAMPLES) e.answers.forEach((a) => answers.add(a));
+    for (const h of history) {
+      if (h.question) questions.add(h.question);
+      for (const c of h.result.clusters) {
+        beliefs.add(c.plain_name);
+        c.quotes.forEach((q) => answers.add(q));
+      }
+      h.result.unsure.forEach((u) => answers.add(u.answer));
+    }
+    return { questions: [...questions], beliefs: [...beliefs], answers: [...answers] };
+  }, [questionPresets, history]);
+
+  const questionSuggestions = useMemo(
+    () => (suggestOn && questionOpen ? suggestQuestions(question, pools) : []),
+    [suggestOn, questionOpen, question, pools],
+  );
+
+  const answerSuggest = useMemo(
+    () => (suggestOn ? suggestAnswers(text, pools) : { line: "", partial: "", suggestions: [] as Suggestion[] }),
+    [suggestOn, text, pools],
+  );
+  const answerSuggestions =
+    answerDismissed !== null && answerDismissed === answerSuggest.partial
+      ? []
+      : answerSuggest.suggestions;
+
+  const historySuggestions = useMemo(
+    () => (historySuggestOn && historySearchOpen ? suggestHistory(historyQuery, pools) : []),
+    [historySuggestOn, historySearchOpen, historyQuery, pools],
+  );
+
+  const visibleHistory = useMemo(
+    () => history.filter((h) => matchesHistoryQuery(historyQuery, h)),
+    [history, historyQuery],
+  );
+
+  function applyQuestion(value: string) {
+    setQuestion(value);
+    setQuestionOpen(false);
+  }
+
+  /** Replace the line being typed with the accepted completion. */
+  function applyAnswer(value: string) {
+    setText((current) => {
+      const normalised = current.replace(/\r\n?/g, "\n");
+      const start = normalised.lastIndexOf("\n") + 1;
+      return `${normalised.slice(0, start)}${value}`;
+    });
+    setAnswerActive(0);
+    setAnswerDismissed(value);
+  }
+
+  /** Shared keyboard model for all three suggestion fields. */
+  function suggestKeys(
+    e: React.KeyboardEvent<HTMLElement>,
+    items: Suggestion[],
+    active: number,
+    setActive: (n: number) => void,
+    accept: (value: string) => void,
+    close: () => void,
+  ) {
+    if (items.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((active + 1) % items.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((active - 1 + items.length) % items.length);
+    } else if (e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) {
+      e.preventDefault();
+      accept(items[active].value);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      close();
+    }
+  }
 
   // One-time sync from an external system (URL hash of a share/extension link,
   // or ?example=… from the landing page). Runs after hydration because the
@@ -174,6 +290,15 @@ export default function Tool() {
       const entry = entryFor(clean);
       setLastSavedId(entry.id);
       saveHistory([entry, ...loadHistory()].slice(0, 8));
+
+      // Optional system notification — counts only, never student words, so it
+      // is safe to show on a lock screen. Silently skipped when off or denied.
+      if (isNotifyOn()) {
+        void notifyReady(
+          tFor(getLocale(), "notifyTitle"),
+          tFor(getLocale(), "notifyBody", { a: resultTotal(clean), b: clean.clusters.length }),
+        );
+      }
     },
     [t],
   );
@@ -186,7 +311,13 @@ export default function Tool() {
     setError(null);
     setNotice(live.truncated ? t("capMessage", { n: MAX_ANSWERS }) : null);
     setLoading(true);
-    const payload = { answers: live.answers, question: question.trim() || undefined };
+    // `locale` asks the engine to *write* its prose in the reader's language.
+    // Student quotes are returned verbatim regardless of locale.
+    const payload = {
+      answers: live.answers,
+      question: question.trim() || undefined,
+      locale: getLocale(),
+    };
     try {
       const res = await fetch("/api/analyze", {
         method: "POST",
@@ -385,25 +516,52 @@ export default function Tool() {
                   </div>
 
                   <div className="space-y-5 p-5">
-                    <div>
+                    <div data-tour="question">
                       <label htmlFor="question" className="mb-1.5 block text-sm font-medium">
                         {t("questionLabel")}
                       </label>
-                      <input
-                        id="question"
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        maxLength={300}
-                        placeholder={t("questionPlaceholder")}
-                        className="field"
-                        list="question-presets"
-                        aria-describedby="question-hint"
-                      />
-                      <datalist id="question-presets">
-                        {questionPresets.map((q) => (
-                          <option key={q} value={q} />
-                        ))}
-                      </datalist>
+                      <div className="relative">
+                        <input
+                          id="question"
+                          value={question}
+                          onChange={(e) => {
+                            setQuestion(e.target.value);
+                            setQuestionOpen(true);
+                            setQuestionActive(0);
+                          }}
+                          onFocus={() => setQuestionOpen(true)}
+                          onBlur={() => setQuestionOpen(false)}
+                          onKeyDown={(e) =>
+                            suggestKeys(
+                              e,
+                              questionSuggestions,
+                              questionActive,
+                              setQuestionActive,
+                              applyQuestion,
+                              () => setQuestionOpen(false),
+                            )
+                          }
+                          maxLength={300}
+                          placeholder={t("questionPlaceholder")}
+                          className="field"
+                          role="combobox"
+                          aria-expanded={questionSuggestions.length > 0}
+                          aria-controls="question-suggestions"
+                          aria-autocomplete="list"
+                          aria-activedescendant={
+                            questionSuggestions.length ? `question-suggestions-${questionActive}` : undefined
+                          }
+                          aria-describedby="question-hint"
+                        />
+                        <SuggestionList
+                          id="question-suggestions"
+                          items={questionSuggestions}
+                          active={questionActive}
+                          label={t("suggestAria")}
+                          onPick={applyQuestion}
+                          onHover={setQuestionActive}
+                        />
+                      </div>
                       <p id="question-hint" className="mt-1.5 text-xs text-ink/45">
                         {t("questionHint")}
                       </p>
@@ -431,7 +589,8 @@ export default function Tool() {
                         </span>
                       </div>
                       <div
-                        className={`rounded-lg transition-shadow ${
+                        data-tour="answers"
+                        className={`relative rounded-lg transition-shadow ${
                           dragging ? "ring-2 ring-rust ring-offset-2 ring-offset-paper" : ""
                         }`}
                       >
@@ -439,10 +598,33 @@ export default function Tool() {
                           id="answers"
                           aria-describedby="answers-hint"
                           value={text}
-                          onChange={(e) => setText(e.target.value)}
+                          onChange={(e) => {
+                            setText(e.target.value);
+                            setAnswerActive(0);
+                            setAnswerDismissed(null);
+                          }}
+                          onKeyDown={(e) =>
+                            suggestKeys(
+                              e,
+                              answerSuggestions,
+                              answerActive,
+                              setAnswerActive,
+                              applyAnswer,
+                              () => setAnswerDismissed(answerSuggest.partial),
+                            )
+                          }
                           rows={11}
                           placeholder={t("answersPlaceholder")}
                           className="field min-h-[11rem] font-ui leading-relaxed"
+                          autoComplete="off"
+                        />
+                        <SuggestionList
+                          id="answer-suggestions"
+                          items={answerSuggestions}
+                          active={answerActive}
+                          label={t("suggestAria")}
+                          onPick={applyAnswer}
+                          onHover={setAnswerActive}
                         />
                       </div>
                       <div className="mt-2 h-1 overflow-hidden rounded-full bg-ink/8" aria-hidden="true">
@@ -546,7 +728,7 @@ export default function Tool() {
 
                 {/* right rail */}
                 <div className="space-y-4">
-                  <div className="card overflow-hidden">
+                  <div className="card overflow-hidden" data-tour="examples">
                     <div className="border-b border-ink/10 bg-card-deep/40 px-4 py-3">
                       <h2 className="font-display text-base font-semibold">{t("exampleTitle")}</h2>
                       <p className="mt-0.5 text-xs text-ink/50">{t("exampleSub")}</p>
@@ -583,7 +765,7 @@ export default function Tool() {
                   </div>
 
                   {history.length > 0 && (
-                    <div className="card overflow-hidden">
+                    <div className="card overflow-hidden" data-tour="history">
                       <div className="flex items-center justify-between border-b border-ink/10 bg-card-deep/40 px-4 py-3">
                         <h2 className="font-display text-base font-semibold">{t("recentTitle")}</h2>
                         <button
@@ -596,8 +778,88 @@ export default function Tool() {
                           {t("deleteAll")}
                         </button>
                       </div>
+                      <div className="relative border-b border-ink/10 px-3 py-2">
+                        <label htmlFor="history-search" className="sr-only">
+                          {t("historySearchLabel")}
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5 shrink-0 text-ink/35"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            aria-hidden="true"
+                          >
+                            <circle cx="11" cy="11" r="6.5" />
+                            <path d="m16 16 4 4" strokeLinecap="round" />
+                          </svg>
+                          <input
+                            id="history-search"
+                            type="search"
+                            value={historyQuery}
+                            onChange={(e) => {
+                              setHistoryQuery(e.target.value);
+                              setHistorySearchOpen(true);
+                              setHistorySearchActive(0);
+                            }}
+                            onFocus={() => setHistorySearchOpen(true)}
+                            onBlur={() => setHistorySearchOpen(false)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") {
+                                setHistoryQuery("");
+                                setHistorySearchOpen(false);
+                                return;
+                              }
+                              suggestKeys(
+                                e,
+                                historySuggestions,
+                                historySearchActive,
+                                setHistorySearchActive,
+                                (value) => {
+                                  setHistoryQuery(value);
+                                  setHistorySearchOpen(false);
+                                },
+                                () => setHistorySearchOpen(false),
+                              );
+                            }}
+                            placeholder={t("historySearchPlaceholder")}
+                            aria-label={t("historySearchAria")}
+                            role="combobox"
+                            aria-expanded={historySuggestions.length > 0}
+                            aria-controls="history-suggestions"
+                            aria-autocomplete="list"
+                            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-xs text-ink/80 outline-none placeholder:text-ink/35"
+                          />
+                          {historyQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setHistoryQuery("")}
+                              className="shrink-0 text-[0.65rem] text-ink/40 hover:text-ink"
+                            >
+                              {t("historyClear")}
+                            </button>
+                          )}
+                        </div>
+                        <SuggestionList
+                          id="history-suggestions"
+                          items={historySuggestions}
+                          active={historySearchActive}
+                          label={t("historySearchAria")}
+                          onPick={(value) => {
+                            setHistoryQuery(value);
+                            setHistorySearchOpen(false);
+                          }}
+                          onHover={setHistorySearchActive}
+                        />
+                      </div>
+                      {historyQuery && (
+                        <p className="border-b border-ink/8 px-4 py-1.5 text-[0.65rem] text-ink/45">
+                          {t("historyCount", { n: visibleHistory.length, total: history.length })}
+                        </p>
+                      )}
                       <ul className="divide-y divide-ink/8">
-                        {history.map((h) => (
+                        {visibleHistory.map((h) => (
                           <li key={h.id} className="group flex items-center gap-2 px-4 py-2.5">
                             <button
                               type="button"
@@ -627,6 +889,11 @@ export default function Tool() {
                             </button>
                           </li>
                         ))}
+                        {visibleHistory.length === 0 && (
+                          <li className="px-4 py-3 text-xs text-ink/50">
+                            {t("historyNoMatch", { q: historyQuery })}
+                          </li>
+                        )}
                       </ul>
                       <p className="border-t border-ink/10 px-4 py-2.5 text-[0.7rem] leading-relaxed text-ink/45">
                         {t("historyNote").split("{link}")[0]}
@@ -699,13 +966,26 @@ export default function Tool() {
                   <span className="chip border-ink/15 bg-card/70 text-ink/55" title={sourceHint}>
                     {isSample ? t("sourceExample") : sourceLabel}
                   </span>
+                  <span
+                    className="chip border-slate/30 bg-slate/8 text-slate"
+                    title={t("reportLangHint")}
+                  >
+                    {t("reportLangLabel", { lang: LOCALE_NAMES[locale] })}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={startOver} className="btn btn-primary">
                   {t("newMap")}
                 </button>
-                <Link href="/settings" className="btn btn-outline">
+                <button
+                  type="button"
+                  onClick={() => startTour("report")}
+                  className="btn btn-ghost btn-sm self-center"
+                >
+                  {t("tourBtn")}
+                </button>
+                <Link href="/settings" className="btn btn-outline" data-tour="settings-link">
                   {t("settings")}
                 </Link>
               </div>
@@ -829,13 +1109,15 @@ export default function Tool() {
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:items-start">
               <div className="space-y-5">
-                <StrataMap
+                <div data-tour="map">
+                  <StrataMap
                   result={result}
                   selected={selected}
                   onSelect={setSelected}
                   unsureOpen={unsureOpen}
-                  onShowUnsure={() => setUnsureOpen((v) => !v)}
-                />
+                    onShowUnsure={() => setUnsureOpen((v) => !v)}
+                  />
+                </div>
                 <p className="no-print text-[0.7rem] text-ink/40">
                   <T
                     k="keyboardHint"
@@ -870,7 +1152,9 @@ export default function Tool() {
                   </section>
                 )}
 
-                <ExportBar result={result} />
+                <div data-tour="export">
+                  <ExportBar result={result} />
+                </div>
 
                 <div className="no-print flex flex-wrap items-center gap-4 text-sm">
                   <button type="button" onClick={startOver} className="text-ink/55 underline underline-offset-2 hover:text-ink">
@@ -887,7 +1171,8 @@ export default function Tool() {
 
               <div className="no-print lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:pr-1">
                 {selectedCluster && (
-                  <BandDetail
+                  <div data-tour="detail">
+                    <BandDetail
                     cluster={selectedCluster}
                     total={total}
                     position={t("beliefPosition", { n: selected + 1, total: result.clusters.length })}
@@ -895,7 +1180,8 @@ export default function Tool() {
                     onNext={
                       selected < result.clusters.length - 1 ? () => setSelected(selected + 1) : undefined
                     }
-                  />
+                    />
+                  </div>
                 )}
               </div>
             </div>

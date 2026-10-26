@@ -13,4 +13,6 @@ MVP (v1.0.0) + polish release (v1.1.0) are complete: faithful belief map, heuris
 - ✅ **Self-hosted fonts** so production builds don't depend on Google Fonts at build time (v1.2.0).
 - ✅ **Local-only backup/restore** for saved maps (v1.2.0) — a lighter answer to "tracking over time" that needs no accounts.
 - ✅ **Reteach effect on one device**: "since your last run" comparison of the same question (v1.2.0).
-- Next: a printable *student-facing* version of the diagnostic question list; dept-level aggregation without accounts (export-based).
+- ✅ **Assistance layer** (v1.4.0): autocomplete for pastes and questions, searchable history with suggestions, optional completion notifications, and a replayable guided tour — all switchable in Settings.
+- ✅ **Localised report prose** (v1.4.0): belief names, reteach plans and diagnostics are written in the reader's language, not just the interface.
+- Next: a printable *student-facing* version of the diagnostic question list; dept-level aggregation without accounts (export-based); richer tour for the export/print flow.
