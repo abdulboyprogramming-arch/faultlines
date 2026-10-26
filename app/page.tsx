@@ -11,7 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
-  const [history, setHistory] = useState<AnalysisResult[]>(() => {
+  const [mode, setMode] = useState<"sample" | null>(null);
     if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem("faultlines-history");
@@ -69,7 +69,7 @@ export default function Home() {
     saveHistory(exampleResult as AnalysisResult);
   }
 
-  const saveHistory = (data: AnalysisResult) => {
+  const selectedCluster = result && selected !== null ? result.clusters[selected] : null;
     const next = [data, ...history].slice(0, 5);
     setHistory(next);
     try {
