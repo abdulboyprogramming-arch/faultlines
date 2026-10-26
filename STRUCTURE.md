@@ -14,13 +14,20 @@ faultlines/
 │   └── api/analyze/route.ts # Serverless analysis endpoint
 ├── components/               # UI components
 │   ├── StrataMap.tsx        # Strata visualization
+│   ├── BandDetail.tsx       # Quotes + reteach card
+│   ├── ExportBar.tsx        # Copy/print/Md/CSV/JSON/share
+│   ├── SiteHeader.tsx       # Shared nav
 │   ├── Logo.tsx             # Animated logo
 │   ├── InstallPrompt.tsx    # PWA install prompt
 │   └── ThemeProvider.tsx    # Light/dark/system theme
 ├── lib/                      # Core logic
-│   ├── schema.ts            # Zod schemas + types
-│   └── llm/                 # Provider interface + mock
-├── data/                     # Cached example classroom
+│   ├── schema.ts            # Zod schemas + shared limits
+│   ├── validate.ts          # Normalisation, verbatim enforcement
+│   ├── export.ts / share.ts / parse-input.ts / history.ts / i18n.ts
+│   └── llm/                 # Provider interface, heuristic mock, OpenAI-compatible real
+├── data/                     # 3 cached example classrooms + examples.ts
+├── tests/                    # Vitest unit + API tests
+├── docs/recovery/            # PRSIC recovery pack (state→handoff)
 ├── public/                   # Static assets, manifest, sw
 ├── devpost/                  # Planning docs (scope, prd, spec, checklist)
 ├── presentation/             # Pitch assets + AI prompt

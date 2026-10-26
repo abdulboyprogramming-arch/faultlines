@@ -1,13 +1,13 @@
 # Roadmap
 
-Possible upcoming improvements (post-MVP):
+MVP (v1.0.0) is complete: paste/upload → faithful belief map → reteach → export/share, heuristic + optional LLM, examples, history, i18n, tests, CI. Possible post-MVP directions:
 
-- Real LLM provider integration (OpenAI/Anthropic) behind the existing interface.
-- CSV upload and multi-question sessions.
-- Persistent sessions with accounts (optional, privacy-reviewed).
-- Browser extension (manifest scaffold exists in `extension/`).
-- Multi-language expansion beyond en/fr.
-- Richer export (PDF with print stylesheet).
-- Admin/teacher dashboard for tracking misconceptions over time.
-- Accessibility audit (WCAG 2.1 AA) and i18n of all UI strings.
-- Performance: streaming analysis, caching.
+- **Tracking over time**: opt-in accounts and a dashboard showing whether a belief shrinks after reteaching (requires re-running the SECURITY.md tenancy audit first).
+- **Multi-question sessions**: several questions per class set, cross-question belief view.
+- **Richer analysis**: per-answer confidence, "borderline" band between two beliefs, teacher drag-to-regroup corrections that refine the map.
+- **Browser extension**: `extension/` manifest scaffold → select answers in Google Classroom/your VLE and map them in place.
+- **Exports**: first-class PDF, department-shared template formats, slide-per-belief deck.
+- **More languages**: full UI localisation beyond en/fr/es chrome strings; right-to-left support.
+- **Accessibility**: formal WCAG 2.1 AA audit with assistive-tech testing.
+- **Providers**: native Anthropic adapter, streaming progress for large classes, response caching for identical inputs.
+- **Self-hosted fonts** so production builds don't depend on Google Fonts at build time.
