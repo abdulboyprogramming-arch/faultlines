@@ -1,7 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "Fault Lines",
-  "version": "0.1.0",
-  "description": "Misconception map for teachers. Coming soon.",
-  "action": { "default_title": "Fault Lines" }
+  "name": "Fault Lines — Misconception Mapper",
+  "version": "1.1.0",
+  "description": "Select or paste your class's answers anywhere on the web and open them in Fault Lines to see the beliefs underneath, ranked by exam risk.",
+  "author": "Abdulrahman Adeeyo",
+  "homepage_url": "https://github.com/abdulboyprogramming-arch/faultlines",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Fault Lines — send answers",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" }
+  },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "options_page": "options.html",
+  "permissions": ["activeTab", "scripting", "contextMenus", "storage"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
+  }
 }

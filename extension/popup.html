@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Fault Lines</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <svg viewBox="0 0 120 120" class="logo" aria-hidden="true">
+      <defs><clipPath id="l"><path d="M6 6 H58 L52 30 L62 52 L50 76 L60 96 L54 114 H6 Z"/></clipPath>
+      <clipPath id="g"><path d="M58 6 H114 V114 H54 L60 96 L50 76 L62 52 L52 30 Z"/></clipPath></defs>
+      <g clip-path="url(#l)"><rect x="6" y="8" width="108" height="24" fill="#B5471F"/><rect x="6" y="36" width="108" height="22" fill="#C98A2E"/><rect x="6" y="62" width="108" height="22" fill="#3E5C63"/><rect x="6" y="88" width="108" height="24" fill="#14110E"/></g>
+      <g clip-path="url(#g)"><g transform="translate(0 6)"><rect x="6" y="8" width="108" height="24" fill="#B5471F"/><rect x="6" y="36" width="108" height="22" fill="#C98A2E"/><rect x="6" y="62" width="108" height="22" fill="#3E5C63"/><rect x="6" y="88" width="108" height="24" fill="#14110E"/></g></g>
+      <path d="M58 6 L52 30 L62 52 L50 76 L60 96 L54 114" fill="none" stroke="#F4F1EA" stroke-width="2.4" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Fault Lines</h1>
+      <p>See what your class actually misunderstands.</p>
+    </div>
+  </header>
+
+  <label for="q">Question (optional)</label>
+  <input id="q" type="text" maxlength="300" placeholder="e.g. Why do we have seasons?" />
+
+  <label for="answers">Class answers — one per line. Remove student names first.</label>
+  <textarea id="answers" rows="8" placeholder="Paste answers, or grab them from this page below…"></textarea>
+  <p id="count" class="hint">0 answers</p>
+
+  <div class="row">
+    <button id="grab" type="button" class="ghost">Grab selected text from page</button>
+    <button id="example" type="button" class="ghost">Fill example</button>
+  </div>
+
+  <button id="open" type="button" class="primary">Map my class in Fault Lines →</button>
+  <p id="msg" class="hint" role="status"></p>
+
+  <details>
+    <summary>Fault Lines address</summary>
+    <input id="base" type="url" placeholder="https://your-faultlines.example" />
+    <p class="hint">Where your Fault Lines app lives (your school deployment, Vercel, or http://localhost:3000 while developing). Saved on this device only.</p>
+  </details>
+
+  <footer>
+    Answers travel inside the link (URL hash) — never through a third-party server.
+    <a href="#" id="opts">Options</a> · <a href="https://github.com/abdulboyprogramming-arch/faultlines" target="_blank" rel="noreferrer">GitHub</a>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>
