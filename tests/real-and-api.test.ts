@@ -33,8 +33,10 @@ describe("POST /api/analyze", () => {
     expect((await POST(req({ answers: [] }))).status).toBe(400);
     expect((await POST(req({ answers: ["  "] }))).status).toBe(400);
     expect((await POST(req({ nope: true }))).status).toBe(400);
-    const bad = await POST(new Request("http://test/api/analyze", { method: "POST", body: "{" }));
+    const bad = await POST(new Request("http://test/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{" }));
     expect(bad.status).toBe(400);
+    const wrongType = await POST(new Request("http://test/api/analyze", { method: "POST", headers: { "Content-Type": "text/plain" }, body: "{}" }));
+    expect(wrongType.status).toBe(415);
   });
   it("rejects over-cap payloads", async () => {
     const res = await POST(req({ answers: Array.from({ length: 121 }, () => "some answer text here") }));

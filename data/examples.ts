@@ -5,6 +5,8 @@ import fractionsAnswers from "./example-fractions-answers.json";
 import fractionsResult from "./example-fractions-result.json";
 import photoAnswers from "./example-photosynthesis-answers.json";
 import photoResult from "./example-photosynthesis-result.json";
+import ww1Answers from "./example-ww1-answers.json";
+import ww1Result from "./example-ww1-result.json";
 
 export interface ExampleClassroom {
   id: string;
@@ -44,5 +46,13 @@ export const EXAMPLES: ExampleClassroom[] = [
     question: (photoAnswers as { question: string }).question,
     answers: (photoAnswers as { answers: string[] }).answers,
     result: photoResult as unknown as AnalysisResult,
+  },
+  {
+    id: "ww1",
+    name: "What caused the First World War?",
+    subject: "History · Causation",
+    question: (ww1Answers as { question: string }).question,
+    answers: (ww1Answers as { answers: string[] }).answers,
+    result: ww1Result as unknown as AnalysisResult,
   },
 ];
