@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #F4F1EA;
+  --color-ink: #14110E;
+  --color-rust: #B5471F;
+  --color-slate: #3E5C63;
+  --color-ochre: #C98A2E;
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+}
+
+body { font-family: var(--font-ui); }
+.font-display { font-family: var(--font-display), serif; }

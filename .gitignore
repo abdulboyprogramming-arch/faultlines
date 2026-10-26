@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+.next/
+
+# Personal learning context
+/devpost/learner-profile.md
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+

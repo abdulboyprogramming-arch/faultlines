@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fault Lines — Scope</title>
+<style>
+body{font-family:Georgia,serif;background:#F4F1EA;color:#14110E;margin:0;padding:2rem;line-height:1.5}
+h1{font-size:2.4rem;margin:0} h2{margin-top:1.8rem;font-size:1.2rem;text-transform:uppercase;letter-spacing:.08em;color:#B5471F}
+.card{background:#fff;border:1px solid #d9d3c7;border-radius:8px;padding:1.2rem;margin:1rem 0}
+.strata{display:flex;flex-direction:column;gap:2px;margin:1rem 0}
+.band{padding:.6rem .8rem;border-radius:4px;color:#fff;font-weight:600}
+.b1{background:#B5471F;width:64%}.b2{background:#C98A2E;width:25%}.b3{background:#3E5C63;width:11%}.b4{background:#888;width:4%}
+details{margin:.5rem 0} summary{cursor:pointer;font-weight:600}
+.mermaid{background:#fff;padding:1rem;border-radius:8px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<h1>Fault Lines</h1>
+<p>A misconception map for teachers — paste a class's written answers to one question, see the distinct beliefs underneath and what to reteach.</p>
+<div class="card"><h2>Core Loop (strata)</h2>
+<div class="strata">
+<div class="band b1">18 — The distance myth · HIGH</div>
+<div class="band b2">7 — Tilt without cause · MED</div>
+<div class="band b3">3 — Correct, unexplained · LOW</div>
+<div class="band b4">2 — Not sure — needs your eyes</div>
+</div></div>
+<div class="card"><h2>Flow</h2>
+<div class="mermaid">
+flowchart LR
+A[Paste answers] --> B[Map my class]
+B --> C[Strata by belief]
+C --> D[Click band: quotes + reteach]
+D --> E[Export plan]
+</div></div>
+<div class="card"><h2>Scope layers</h2>
+<details open><summary>In (POC)</summary><ul><li>Paste → analysis → map with counts, names, quotes</li><li>Reteach card + export</li><li>Load example classroom (cached)</li><li>Not sure bucket</li><li>Re-check diagnostic question</li></ul></details>
+<details><summary>Later</summary><ul><li>CSV upload, saving session, print stylesheet</li></ul></details>
+<details><summary>Cut</summary><ul><li>Accounts, logins, database, grades, LMS, multi-question history, mobile, real names</li></ul></details>
+</div>
+<script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>
