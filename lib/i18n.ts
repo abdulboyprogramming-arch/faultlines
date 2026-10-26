@@ -313,11 +313,17 @@ export function localeDir(l: Locale): "ltr" | "rtl" {
 }
 
 export function detectLocale(): Locale {
-  if (typeof localStorage === "undefined" || typeof navigator === "undefined") return "en";
-  const stored = localStorage.getItem("faultlines-locale");
-  if (stored && stored in locales) return stored as Locale;
-  const lang = (navigator.language || "en").slice(0, 2).toLowerCase();
-  return (lang in locales ? lang : "en") as Locale;
+  try {
+    if (typeof localStorage !== "undefined") {
+      const stored = localStorage.getItem("faultlines-locale");
+      if (stored && stored in locales) return stored as Locale;
+    }
+  } catch { /* storage blocked (private mode) — fall through to detection */ }
+  if (typeof navigator !== "undefined") {
+    const lang = (navigator.language || "en").slice(0, 2).toLowerCase();
+    if (lang in locales) return lang as Locale;
+  }
+  return "en";
 }
 
 export function getLocale(): Locale {
