@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StrataMap from "@/components/StrataMap";
 import type { AnalysisResult } from "@/lib/schema";
 import exampleResult from "@/data/example-result.json";
@@ -11,7 +11,27 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
-  const [mode, setMode] = useState<"sample" | null>(null);
+  const [history, setHistory] = useState<AnalysisResult[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem("faultlines-history");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      try {
+        const data = JSON.parse(atob(hash)) as AnalysisResult;
+        setResult(data);
+        setSelected(0);
+      } catch {}
+    }
+  }, []);
 
   async function analyze(input?: string) {
     const answers = (input ?? text).split("\n").map((s) => s.trim()).filter(Boolean);
@@ -31,6 +51,7 @@ export default function Home() {
       const data = await res.json();
       setResult(data);
       setSelected(0);
+      saveHistory(data);
     } catch {
       setError("Something went wrong. Showing the example classroom instead.");
       setResult(exampleResult as AnalysisResult);
@@ -45,9 +66,16 @@ export default function Home() {
     setResult(exampleResult as AnalysisResult);
     setSelected(0);
     setMode("sample");
+    saveHistory(exampleResult as AnalysisResult);
   }
 
-  const selectedCluster = result && selected !== null ? result.clusters[selected] : null;
+  const saveHistory = (data: AnalysisResult) => {
+    const next = [data, ...history].slice(0, 5);
+    setHistory(next);
+    try {
+      localStorage.setItem("faultlines-history", JSON.stringify(next));
+    } catch {}
+  };
 
   return (
     <main className="max-w-5xl mx-auto px-6 py-10">
@@ -86,7 +114,23 @@ export default function Home() {
               Load example classroom
             </button>
           </div>
-          {loading && <p className="text-sm text-ink/60">Reading {text.split("\n").filter(Boolean).length} answers…</p>}
+          {history.length > 0 && (
+            <div className="pt-4">
+              <p className="text-xs uppercase tracking-wide text-ink/50 mb-2">Recent (local only)</p>
+              <ul className="space-y-1">
+                {history.map((h, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => { setResult(h); setSelected(0); }}
+                      className="text-sm text-ink/70 underline"
+                    >
+                      {h.clusters.length} beliefs · {h.clusters.reduce((s, c) => s + c.count, 0) + h.unsure.length} answers
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
 
@@ -127,14 +171,23 @@ export default function Home() {
               </div>
               <button
                 onClick={() => {
-                  const plan = `${result.clusters.length} beliefs\n` + result.clusters
-                    .map((c) => `${c.count} — ${c.plain_name}\n  ${c.reteach.title} (${c.reteach.minutes} min)\n  ${c.reteach.steps.join("; ")}\n  Check: ${c.reteach.check_question}\n  Diagnostic: ${c.diagnostic_question}`)
-                    .join("\n");
+                  const plan = `${result.clusters.length} beliefs\\n` + result.clusters
+                    .map((c) => `${c.count} — ${c.plain_name}\\n  ${c.reteach.title} (${c.reteach.minutes} min)\\n  ${c.reteach.steps.join("; ")}\\n  Check: ${c.reteach.check_question}\\n  Diagnostic: ${c.diagnostic_question}`)
+                    .join("\\n");
                   navigator.clipboard.writeText(plan);
                 }}
                 className="px-4 py-2 bg-rust text-paper rounded-md text-sm"
               >
                 Export plan
+              </button>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}${window.location.pathname}#${btoa(JSON.stringify(result))}`;
+                  navigator.clipboard.writeText(url);
+                }}
+                className="px-4 py-2 border border-ink/30 rounded-md text-sm"
+              >
+                Copy shareable link
               </button>
             </div>
           )}
