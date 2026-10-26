@@ -21,8 +21,8 @@ export default function Landing() {
       <SiteHeader />
       <section className="relative overflow-hidden px-6 py-20 text-center">
         <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-rust/30 to-slate/30" aria-hidden="true" />
-        <div className="relative max-w-3xl mx-auto">
-          <Logo className="w-20 h-20 mx-auto" />
+        <div className="relative max-w-3xl mx-auto animate-fade-up">
+          <Logo className="w-20 h-20 mx-auto" variant="animated" />
           <h1 className="font-display text-6xl md:text-7xl mt-4">Fault Lines</h1>
           <p className="mt-4 text-xl text-ink/70">Every class has fault lines. See them before the exam does.</p>
           <p className="mt-6 text-ink/60 max-w-2xl mx-auto">
@@ -34,7 +34,7 @@ export default function Landing() {
             <Link href="/tool" className="px-8 py-3 bg-ink text-paper rounded-md font-ui text-lg hover:opacity-90">Map my class</Link>
             <Link href="/tool" className="px-8 py-3 border border-ink/30 rounded-md font-ui text-lg hover:bg-ink/5">Try an example classroom</Link>
           </div>
-          <p className="mt-4 text-xs text-ink/50">No accounts · No stored student data · Works with no API key</p>
+          <p className="mt-4 text-xs text-ink/50">No accounts · No stored student data · Works offline &amp; with no API key · 7 languages</p>
         </div>
       </section>
 
@@ -66,7 +66,7 @@ export default function Landing() {
             ["2 · See the beliefs", "Answers are grouped by the idea underneath, named, sized, and ranked by exam risk — vague answers are set aside honestly instead of being invented."],
             ["3 · Reteach & re-check", "Each belief gets a ~5-minute reteach card plus a diagnostic question. Export the one-page plan (copy, print, Markdown, CSV) and teach it tomorrow."],
           ].map(([h, p]) => (
-            <li key={h} className="border border-ink/10 rounded-md p-6 bg-white/40 dark:bg-white/5">
+            <li key={h} className="border border-ink/10 rounded-md p-6 bg-white/40 dark:bg-white/5 card-lift animate-fade-up">
               <h3 className="font-display text-2xl">{h}</h3>
               <p className="text-sm text-ink/70 mt-2">{p}</p>
             </li>
@@ -75,15 +75,15 @@ export default function Landing() {
       </section>
 
       <section className="max-w-5xl mx-auto px-6 py-8 grid md:grid-cols-3 gap-8" aria-label="Why">
-        <div className="border border-ink/10 rounded-md p-6">
+        <div className="border border-ink/10 rounded-md p-6 card-lift animate-fade-up">
           <h2 className="font-display text-2xl">For teachers</h2>
           <p className="text-sm text-ink/70 mt-2">Mark 120 scripts, write “see me” on 30, and still miss the one belief the whole class shares. Fault Lines makes that belief visible.</p>
         </div>
-        <div className="border border-ink/10 rounded-md p-6">
+        <div className="border border-ink/10 rounded-md p-6 card-lift animate-fade-up">
           <h2 className="font-display text-2xl">Not a grader</h2>
           <p className="text-sm text-ink/70 mt-2">An answer is not a mark. It&apos;s evidence of a belief. We group by belief, name it, and rank by damage — misconception cartography, not scoring.</p>
         </div>
-        <div className="border border-ink/10 rounded-md p-6">
+        <div className="border border-ink/10 rounded-md p-6 card-lift animate-fade-up">
           <h2 className="font-display text-2xl">Honest about gaps</h2>
           <p className="text-sm text-ink/70 mt-2">When an answer is too vague to classify, it says “Not sure — needs your eyes” instead of inventing a misconception. Verbatim quotes, exact counts. Trust over hallucination.</p>
         </div>
@@ -107,6 +107,7 @@ export default function Landing() {
           <a href="https://github.com/abdulboyprogramming-arch/faultlines" className="px-4 py-2 bg-ink text-paper rounded-md">Star on GitHub</a>
           <a href="https://github.com/abdulboyprogramming-arch/faultlines/issues" className="px-4 py-2 border border-ink/30 rounded-md">Report feedback</a>
           <Link href="/settings" className="px-4 py-2 border border-ink/30 rounded-md">Settings</Link>
+          <Link href="/play" className="px-4 py-2 border border-ink/30 rounded-md">Play Strata Drop</Link>
         </div>
       </footer>
     </main>

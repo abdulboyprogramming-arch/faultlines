@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
-import { getLocale, setLocale, type Locale } from "@/lib/i18n";
+import { getLocale, setLocale, t, LOCALE_NAMES, locales, type Locale } from "@/lib/i18n";
 import { clearAllLocalData, loadHistory } from "@/lib/history";
 
 type Theme = "light" | "dark" | "system";
@@ -38,7 +38,7 @@ export default function Settings() {
     <div className="min-h-screen bg-paper text-ink">
       <SiteHeader />
       <main className="max-w-xl mx-auto px-6 py-10">
-        <h1 className="font-display text-4xl">Settings</h1>
+        <h1 className="font-display text-4xl">{t("settings")}</h1>
         {message && <p role="status" className="mt-4 border border-ochre bg-ochre/10 rounded-md px-4 py-3 text-sm">{message}</p>}
 
         <div className="mt-6 space-y-5">
@@ -61,9 +61,9 @@ export default function Settings() {
           <div>
             <label htmlFor="language" className="block text-sm mb-1 font-ui">Language</label>
             <select id="language" value={locale} onChange={(e) => { setLoc(e.target.value as Locale); setLocale(e.target.value as Locale); }} className={selectCls} suppressHydrationWarning>
-              <option value="en">English</option>
-              <option value="fr">Français</option>
-              <option value="es">Español</option>
+              {(Object.keys(locales) as Locale[]).map((l) => (
+                <option key={l} value={l}>{LOCALE_NAMES[l]}</option>
+              ))}
             </select>
             <p className="text-xs text-ink/50 mt-1">Translates the main tool labels. Analysis works in any language you paste.</p>
           </div>

@@ -22,7 +22,7 @@ export default function BandDetail({ cluster, total }: { cluster: Cluster; total
   }
 
   return (
-    <article className="border border-ink/15 rounded-md p-5 space-y-4 bg-white/40 dark:bg-white/5" aria-label={`Detail for ${cluster.plain_name}`}>
+    <article className="border border-ink/15 rounded-md p-5 space-y-4 bg-white/40 dark:bg-white/5 animate-fade-up" aria-label={`Detail for ${cluster.plain_name}`}>
       <div>
         <h2 className="font-display text-2xl">{cluster.plain_name}</h2>
         <p className="text-sm text-ink/60 mt-1">

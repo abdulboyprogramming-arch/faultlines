@@ -15,7 +15,7 @@ const LEGACY_KEY = "faultlines-history";
 export const MAX_HISTORY = 8;
 
 export function loadHistory(): HistoryEntry[] {
-  if (typeof window === "undefined") return [];
+  if (typeof localStorage === "undefined") return [];
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {

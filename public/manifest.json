@@ -1,12 +1,43 @@
 {
-  "name": "Fault Lines",
-  "short_name": "FaultLines",
-  "description": "See what your class actually misunderstands.",
-  "start_url": "/",
+  "id": "/",
+  "name": "Fault Lines — misconception map for teachers",
+  "short_name": "Fault Lines",
+  "description": "See what your class actually misunderstands. Paste answers, get beliefs ranked by exam risk with verbatim evidence and 5-minute reteach plans. Works offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/tool",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#F4F1EA",
   "theme_color": "#14110E",
+  "categories": ["education", "productivity", "utilities"],
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Map my class",
+      "short_name": "Map class",
+      "description": "Paste answers and map the beliefs underneath",
+      "url": "/tool",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Play Strata Drop",
+      "short_name": "Strata Drop",
+      "description": "The built-in offline drilling game",
+      "url": "/play",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "url": "/settings",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }

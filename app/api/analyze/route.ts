@@ -38,6 +38,8 @@ export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (rateLimited(ip)) return fail(429, "Too many requests — wait a minute and try again.");
 
+  const ctype = req.headers.get("content-type") ?? "";
+  if (!ctype.includes("application/json")) return fail(415, "Send JSON (Content-Type: application/json).");
   const len = Number(req.headers.get("content-length") ?? 0);
   if (len > MAX_BODY_BYTES) return fail(413, "That paste is too large.");
 

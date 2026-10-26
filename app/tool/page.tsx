@@ -10,7 +10,8 @@ import { normalizeAnalysis, resultTotal } from "@/lib/validate";
 import { MockProvider } from "@/lib/llm/mock";
 import { EXAMPLES } from "@/data/examples";
 import { answersFromCsv, looksLikeCsv, parseLines, prepareAnswers } from "@/lib/parse-input";
-import { decodeShare } from "@/lib/share";
+import { decodeAnswersPayload, decodeShare } from "@/lib/share";
+import StrataLoader from "@/components/StrataLoader";
 import { entryFor, loadHistory, saveHistory, type HistoryEntry } from "@/lib/history";
 import { t } from "@/lib/i18n";
 
@@ -36,8 +37,20 @@ export default function Tool() {
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (!hash) return;
-    const shared = decodeShare(hash);
     /* eslint-disable react-hooks/set-state-in-effect */
+    if (hash.startsWith("a=")) {
+      // Prefill from the browser extension / a "send to Fault Lines" link.
+      const payload = decodeAnswersPayload(hash.slice(2));
+      if (payload && payload.answers.length) {
+        if (payload.q) setQuestion(payload.q);
+        setText(payload.answers.join("\n"));
+        setNotice(`${payload.answers.length} answers received — check names are removed, then map your class.`);
+      } else {
+        setError("That incoming link didn't contain usable answers.");
+      }
+      return;
+    }
+    const shared = decodeShare(hash);
     if (shared) {
       setResult(normalizeAnalysis(shared));
       setSelected(0);
@@ -150,7 +163,7 @@ export default function Tool() {
   return (
     <div className="min-h-screen bg-paper text-ink">
       <SiteHeader />
-      <main className="max-w-5xl mx-auto px-6 py-10">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <header className="mb-8 print:block">
           <h1 className="font-display text-5xl">Fault Lines</h1>
           <p className="text-ink/70 mt-2">{t("subtitle")}</p>
@@ -168,8 +181,14 @@ export default function Tool() {
           </div>
         )}
 
-        {!result && (
-          <section className="space-y-4 no-print" aria-label="Paste answers">
+        {loading && !result && (
+          <div className="py-10 no-print animate-fade-in">
+            <StrataLoader label={`${t("reading")} ${live.answers.length} ${t("answers")}…`} />
+          </div>
+        )}
+
+        {!result && !loading && (
+          <section className="space-y-4 no-print animate-fade-up" aria-label="Paste answers">
             <div>
               <label htmlFor="question" className="block text-sm font-ui mb-1">{t("questionLabel")}</label>
               <input
@@ -219,7 +238,7 @@ export default function Tool() {
               {text && (
                 <button type="button" onClick={() => { setText(""); setQuestion(""); }} className="text-sm text-ink/60 underline">{t("clear")}</button>
               )}
-              <span className="text-xs text-ink/50" role="status">{loading ? "Grouping answers by belief — no fake spinner, just waiting on the analysis." : ""}</span>
+              <span className="text-xs text-ink/50" role="status">{loading ? "Grouping answers by belief…" : ""}</span>
             </div>
 
             <div className="pt-4 border-t border-ink/10">
@@ -289,7 +308,7 @@ export default function Tool() {
               </div>
             )}
 
-            {selectedCluster && <div className="print:hidden"><BandDetail cluster={selectedCluster} total={total} /></div>}
+            {selectedCluster && <div className="print:hidden" key={selected}><BandDetail cluster={selectedCluster} total={total} /></div>}
 
             {/* Print-only: every band, so the printed page is the full one-page plan */}
             <div className="hidden print:block space-y-4">
