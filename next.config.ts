@@ -1,17 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
+  ...(process.env.GITHUB_PAGES === "true" ? { output: "export", basePath: "/devpost-hackathon", assetPrefix: "/devpost-hackathon/" } : {}),
 };
 
 export default nextConfig;
