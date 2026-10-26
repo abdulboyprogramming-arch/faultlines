@@ -31,8 +31,10 @@ Capture at 1440×900 (browser zoom 100%), in this order — Devpost gallery orde
 6. **Mobile shot**: DevTools device toolbar (iPhone width) on the results, or the installed PWA home-screen icon + app open.
 7. **Delight shot**: the 404 page mid-game of Strata Drop.
 
-**AI prompt (thumbnail/cover, optional):**
-> "Minimal editorial illustration, geological strata layers in rust orange, ochre, slate teal and ink black on warm off-white paper (#F4F1EA), a white zigzag fault crack displacing the layers, flat vector style, generous negative space, no text."
+**AI prompt (thumbnail/cover — locked in):**
+> "A minimal editorial vector illustration for a teacher's tool called Fault Lines, landscape 16:9. Four flat geological strata bands stacked across a warm off-white paper background (#F4F1EA): rust orange (#B5471F), ochre (#C98A2E), slate teal (#3E5C63) and deep ink (#14110E), confident slightly hand-drawn edges. A single clean diagonal fault crack slices through the bands from top-left to bottom-right, offsetting the layers on each side so the strata visibly slip out of alignment. One thin ochre survey line and three small circular sample markers suggest a map being read. Large empty paper space in the upper-left third for a title. Flat vector, subtle paper grain, no gradients, no shadows, no text, no letters, no logos, no people."
+>
+> **Negative:** no text, no letters, no gibberish words, no gradients, no photorealism, no 3D render, no stock-photo people, no lens flare, no watermark, no busy texture.
 
 ## Stage 2 — Demo video (20 min, 90 seconds max)
 
@@ -51,8 +53,10 @@ Capture at 1440×900 (browser zoom 100%), in this order — Devpost gallery orde
 
 ## Stage 3 — Devpost form (copy-paste blocks) (15 min)
 
-**Project name:** Fault Lines
-**Tagline:** See what your class actually misunderstands — grouped by belief, ranked by exam risk, proven in their own words.
+**Project name (60-char limit):** `Fault Lines` (11) — recommended. Alt: `Fault Lines — Misconception Map for Teachers` (44).
+**Elevator pitch (200-char limit):** `Paste your class's answers and see the beliefs underneath — sized by how many share each one, ranked by exam risk, proven in their own words.` (141)
+Alt pitch: `Paste your class's answers. Fault Lines maps the beliefs underneath — sized by share of class, ranked by exam risk, proven in their own words, with a 5-minute reteach each.` (172)
+**Thumbnail prompt:** see Stage 1 — final copy-paste prompt (16:9, no text; add the title in Canva/Figma if needed). Export 1600×900 PNG, under 5 MB, with the artwork's focal fault line inside the middle 80 % so the card crop never cuts it.
 **Built with:** `nextjs` `typescript` `react` `tailwindcss` `zod` `vitest` `pwa` `openai-api` `vercel`
 
 **Inspiration**
