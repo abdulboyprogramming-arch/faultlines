@@ -39,7 +39,7 @@ Build mode: learn
   Learner check: Click the biggest band, read the quotes and reteach, then export and confirm the plan.
   Commit: `Add reteach cards, diagnostic question, and export`
 
-- [ ] **4. Real provider adapter (env-gated) + graceful failures**
+- [x] **4. Real provider adapter (env-gated) + graceful failures**
   Becomes usable: With env vars set, real LLM analysis runs; without them, mock mode; failures fall back calmly.
   Why now: Risky integration last, after the demo already works; env-gated keeps demo safe.
   PRD ref: `prd.md > States and Boundaries`, `prd.md > Product Decisions`
@@ -49,7 +49,7 @@ Build mode: learn
   Learner check: Run with no key (mock) and confirm it still works; confirm no stack traces on bad input.
   Commit: `Add env-gated real provider with graceful fallbacks`
 
-- [ ] **5. Polish and final verification**
+- [x] **5. Polish and final verification**
   Becomes usable: Empty/error states, responsive layout, motion reveal, final acceptance checks.
   Why now: Last mile after core works.
   PRD ref: `prd.md > Acceptance Criteria`

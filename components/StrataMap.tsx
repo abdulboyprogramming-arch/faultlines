@@ -11,7 +11,6 @@ export default function StrataMap({
   onSelect: (i: number) => void;
 }) {
   const total = result.clusters.reduce((s, c) => s + c.count, 0) + result.unsure.length;
-  const all = [...result.clusters, ...result.unsure.map((u) => ({ count: 1, plain_name: "Not sure — needs your eyes", risk: "low" as const, _unsure: true }))];
   return (
     <div className="space-y-1">
       {result.clusters.map((c, i) => {

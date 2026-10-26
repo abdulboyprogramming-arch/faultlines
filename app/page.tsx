@@ -31,7 +31,7 @@ export default function Home() {
       const data = await res.json();
       setResult(data);
       setSelected(0);
-    } catch (e) {
+    } catch {
       setError("Something went wrong. Showing the example classroom instead.");
       setResult(exampleResult as AnalysisResult);
       setSelected(0);
@@ -61,7 +61,7 @@ export default function Home() {
       {!result && (
         <section className="space-y-4">
           <p className="text-sm text-ink/60">
-            Paste your class's answers to one question, one per line. Remove student names first.
+            Paste your class&apos;s answers to one question, one per line. Remove student names first.
           </p>
           <textarea
             value={text}
