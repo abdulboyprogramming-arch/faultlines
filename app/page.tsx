@@ -50,6 +50,9 @@ export default function Landing() {
       </section>
 
       <section className="max-w-3xl mx-auto px-6 py-12 text-center">
+        <p className="text-sm text-ink/60">
+          Browser extension and additional platforms coming soon. Available now on web, PWA, GitHub Pages, and Vercel.
+        </p>
         <Link href="/tool" className="text-rust underline">
           Open the tool →
         </Link>
