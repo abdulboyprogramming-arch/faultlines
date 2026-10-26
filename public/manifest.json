@@ -1,0 +1,12 @@
+{
+  "name": "Fault Lines",
+  "short_name": "FaultLines",
+  "description": "See what your class actually misunderstands.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F1EA",
+  "theme_color": "#14110E",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
