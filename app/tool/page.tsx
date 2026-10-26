@@ -189,12 +189,34 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  const url = `${window.location.origin}${window.location.pathname}#${btoa(JSON.stringify(result))}`;
-                  navigator.clipboard.writeText(url);
+                  const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "fault-lines-report.json";
+                  a.click();
+                  URL.revokeObjectURL(url);
                 }}
                 className="px-4 py-2 border border-ink/30 rounded-md text-sm"
               >
-                Copy shareable link
+                Download JSON
+              </button>
+              <button
+                onClick={() => {
+                  const md = `# Fault Lines Report\\n\\n${result.clusters.length} beliefs\\n\\n` +
+                    result.clusters.map((c) => `## ${c.plain_name} (${c.count})\\n- Risk: ${c.risk}\\n- ${c.why_it_matters}\\n- Quotes: ${c.quotes.map((q) => `"${q}"`).join("; ")}\\n- Reteach: ${c.reteach.title} (${c.reteach.minutes} min)\\n  - ${c.reteach.steps.join("\\n  - ")}\\n- Check: ${c.reteach.check_question}\\n- Diagnostic: ${c.diagnostic_question}\\n`).join("\\n") +
+                    (result.unsure.length ? `\\n## Not sure\\n${result.unsure.map((u) => `- ${u.answer} (${u.why})`).join("\\n")}\\n` : "");
+                  const blob = new Blob([md], { type: "text/markdown" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "fault-lines-report.md";
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="px-4 py-2 border border-ink/30 rounded-md text-sm"
+              >
+                Download Markdown
               </button>
             </div>
           )}
