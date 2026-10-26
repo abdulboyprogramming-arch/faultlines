@@ -329,10 +329,30 @@ export function detectLocale(): Locale {
 export function getLocale(): Locale {
   return detectLocale();
 }
+
+/** Broadcast so mounted components can re-render without a full page reload. */
+export const LOCALE_EVENT = "faultlines:locale";
+
 export function setLocale(l: Locale) {
-  localStorage.setItem("faultlines-locale", l);
-  location.reload();
+  try {
+    localStorage.setItem("faultlines-locale", l);
+  } catch {
+    /* storage blocked — still apply for this session */
+  }
+  if (typeof document !== "undefined") {
+    document.documentElement.lang = l;
+    document.documentElement.dir = localeDir(l);
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent<Locale>(LOCALE_EVENT, { detail: l }));
+  }
 }
+
+/** Translate for an explicit locale — the hydration-safe path used by `useT()`. */
+export function tFor(locale: Locale, key: I18nKey): string {
+  return locales[locale]?.[key] ?? en[key];
+}
+
 export function t(key: I18nKey): string {
   return locales[getLocale()][key] ?? en[key];
 }

@@ -1,21 +1,81 @@
 @import "tailwindcss";
 
+/*
+  Fault Lines design system.
+
+  Brand idea: a geological survey of a classroom. Warm paper, iron-gall ink,
+  rust / ochre / slate as both the palette and the product's risk language
+  (high / medium / low), Fraunces for editorial display type and Inter for UI.
+
+  Dark mode is implemented by re-declaring the same `--color-*` theme tokens
+  inside `.dark`. Tailwind utilities compile to `var(--color-x)`, so every
+  `bg-paper`, `text-ink`, `border-ink/10` flips automatically — no per-component
+  `dark:` variants to forget.
+*/
+
 @theme {
-  --color-paper: #F4F1EA;
-  --color-ink: #14110E;
-  --color-rust: #B5471F;
-  --color-slate: #3E5C63;
-  --color-ochre: #C98A2E;
-  --font-display: var(--font-display);
-  --font-ui: var(--font-ui);
-  --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Paper & ink */
+  --color-paper: #f4f1ea;
+  --color-paper-deep: #ebe6da;
+  --color-card: #fbfaf5;
+  --color-card-deep: #f0ece2;
+  --color-ink: #14110e;
+  --color-ink-soft: #3a342c;
+
+  /* Risk language — also the accent palette */
+  --color-rust: #b5471f;
+  --color-rust-deep: #8e3415;
+  --color-ochre: #c98a2e;
+  --color-slate: #3e5c63;
+  --color-moss: #4d6b45;
+
+  /* Type */
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-ui: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-arabic: "Noto Naskh Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+
+  /* Elevation */
+  --shadow-card: 0 1px 1px rgba(20, 17, 14, 0.04), 0 8px 24px -16px rgba(20, 17, 14, 0.35);
+  --shadow-lift: 0 2px 4px rgba(20, 17, 14, 0.05), 0 18px 40px -22px rgba(20, 17, 14, 0.45);
+  --shadow-pop: 0 24px 60px -28px rgba(20, 17, 14, 0.55);
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-up: fade-up 0.7s var(--ease-out-soft) both;
   --animate-fade-in: fade-in 0.5s ease both;
-  --animate-slide-up: slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  --animate-strata-load: strata-load 1.4s ease-in-out infinite;
-  --animate-seismic: seismic 3.2s ease-in-out infinite;
+  --animate-slide-up: slide-up 0.45s var(--ease-out-soft) both;
+  --animate-strata-load: strata-load 1.5s ease-in-out infinite;
+  --animate-seismic: seismic 3.4s ease-in-out infinite;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
   --animate-crack-draw: crack-draw 1.2s ease-out both;
+  --animate-drift: drift 26s ease-in-out infinite alternate;
+  --animate-scan: scan 5s linear infinite;
+  --animate-shimmer: shimmer 2.4s ease-in-out infinite;
+  --animate-pop: pop 0.28s var(--ease-out-soft) both;
 }
+
+/* Dark surface set — same token names, so utilities flip by themselves. */
+.dark {
+  --color-paper: #12100d;
+  --color-paper-deep: #0b0908;
+  --color-card: #1b1815;
+  --color-card-deep: #221e19;
+  --color-ink: #f3efe6;
+  --color-ink-soft: #d9d2c4;
+  --color-rust: #e2733f;
+  --color-rust-deep: #f08a55;
+  --color-ochre: #e0a94b;
+  --color-slate: #83a8b0;
+  --color-moss: #8fb584;
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+  --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -26px rgba(0, 0, 0, 0.9);
+  color-scheme: dark;
+}
+
+/* Lets components opt into class-based dark mode styling if ever needed. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------- keyframes */
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(14px); }
@@ -50,39 +110,273 @@
   from { stroke-dashoffset: 220; }
   to { stroke-dashoffset: 0; }
 }
+/* Slow geological drift for the hero strata field. */
+@keyframes drift {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+  to { transform: translate3d(1.5%, 1.5%, 0) scale(1.06); }
+}
+@keyframes scan {
+  0% { transform: translateY(-12%); opacity: 0; }
+  12% { opacity: 0.9; }
+  88% { opacity: 0.9; }
+  100% { transform: translateY(112%); opacity: 0; }
+}
+@keyframes shimmer {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
 
-.logo-half-l { animation: seismic 3.2s ease-in-out infinite; }
-.logo-half-r { animation: seismic 3.2s ease-in-out infinite reverse; }
+/* -------------------------------------------------------------- logo motion */
+
+.logo-half-l { animation: seismic 3.4s ease-in-out infinite; }
+.logo-half-r { animation: seismic 3.4s ease-in-out infinite reverse; }
 .logo-crack { stroke-dasharray: 220; animation: crack-draw 1.2s ease-out both; }
 
-.dark body, .dark { background: #14110E; color: #F4F1EA; }
-.dark .bg-paper { background: #14110E; }
-.dark .text-ink { color: #F4F1EA; }
-[data-size="sm"] { font-size: 14px; }
-[data-size="md"] { font-size: 16px; }
-[data-size="lg"] { font-size: 18px; }
-.font-display { font-family: var(--font-display), Georgia, serif; }
-.font-ui { font-family: var(--font-ui), system-ui, sans-serif; }
+/* -------------------------------------------------------------------- base */
 
-html { scroll-behavior: smooth; }
-::selection { background: #B5471F; color: #F4F1EA; }
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    font-size: 16px;
+  }
+  [data-size="sm"] { font-size: 14px; }
+  [data-size="md"] { font-size: 16px; }
+  [data-size="lg"] { font-size: 18px; }
 
-/* Professional micro-interactions, applied site-wide. */
-button, a, input, select, textarea, summary { transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease, opacity 0.18s ease; }
-button:active, a:active { transform: translateY(1px); }
-.card-lift { transition: transform 0.22s ease, box-shadow 0.22s ease; }
-.card-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(20, 17, 14, 0.10); }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+  }
 
-/* Print: the one-page reteach plan. Hide controls, show the full report. */
+  /* Faint paper grain: keeps the warm surfaces from looking like flat plastic. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .dark body::before { opacity: 0.035; mix-blend-mode: screen; }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+  p, li { text-wrap: pretty; }
+
+  [dir="rtl"] body { font-family: var(--font-arabic); }
+
+  ::selection { background: var(--color-rust); color: #f4f1ea; }
+
+  :focus-visible {
+    outline: 2px solid var(--color-rust);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  a { text-underline-offset: 3px; }
+
+  input, textarea, select, button { font: inherit; color: inherit; }
+  textarea { resize: vertical; }
+  ::placeholder { color: color-mix(in oklab, var(--color-ink) 42%, transparent); }
+
+  /* Slim, on-brand scrollbars (WebKit + Firefox). */
+  * { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--color-ink) 28%, transparent) transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: color-mix(in oklab, var(--color-ink) 38%, transparent); background-clip: content-box; }
+}
+
+/* -------------------------------------------------------------- primitives */
+
+/* Page shell: one shared measure so every page lines up. */
+@utility shell {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (min-width: 640px) { padding-inline: 2rem; }
+  @media (min-width: 1024px) { padding-inline: 2.5rem; }
+}
+
+@utility shell-narrow {
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (min-width: 640px) { padding-inline: 2rem; }
+}
+
+@utility card {
+  background-color: var(--color-card);
+  border: 1px solid color-mix(in oklab, var(--color-ink) 12%, transparent);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-card);
+}
+
+@utility card-flat {
+  background-color: color-mix(in oklab, var(--color-card) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+  border-radius: 0.875rem;
+}
+
+@utility eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-ink) 55%, transparent);
+}
+
+@utility hairline {
+  border-top: 1px solid color-mix(in oklab, var(--color-ink) 12%, transparent);
+}
+
+/* Buttons — composed as `btn btn-primary`, so utilities never fight each other. */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 0.65rem 1.1rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.22s ease, transform 0.14s var(--ease-out-soft);
+  &:disabled, &[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+  &:not(:disabled):active { transform: translateY(1px); }
+}
+
+@utility btn-sm {
+  font-size: 0.8125rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.45rem;
+}
+
+@utility btn-lg {
+  font-size: 1rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 0.6rem;
+}
+
+@utility btn-primary {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-ink) 40%, transparent);
+  &:hover:not(:disabled) { background-color: color-mix(in oklab, var(--color-ink) 86%, var(--color-rust)); box-shadow: var(--shadow-lift); }
+}
+
+@utility btn-accent {
+  background-color: var(--color-rust);
+  color: #fdfaf4;
+  &:hover:not(:disabled) { background-color: var(--color-rust-deep); box-shadow: var(--shadow-lift); }
+}
+
+@utility btn-outline {
+  border-color: color-mix(in oklab, var(--color-ink) 26%, transparent);
+  color: var(--color-ink);
+  background-color: transparent;
+  &:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-ink) 6%, transparent);
+    border-color: color-mix(in oklab, var(--color-ink) 45%, transparent);
+  }
+}
+
+@utility btn-ghost {
+  color: color-mix(in oklab, var(--color-ink) 72%, transparent);
+  background-color: transparent;
+  &:hover:not(:disabled) { background-color: color-mix(in oklab, var(--color-ink) 6%, transparent); color: var(--color-ink); }
+}
+
+/* Pills / chips */
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-ink) 14%, transparent);
+  padding: 0.2rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Form fields */
+@utility field {
+  width: 100%;
+  border-radius: 0.55rem;
+  border: 1px solid color-mix(in oklab, var(--color-ink) 20%, transparent);
+  background-color: color-mix(in oklab, var(--color-card) 92%, transparent);
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+  &:hover { border-color: color-mix(in oklab, var(--color-ink) 32%, transparent); }
+  &:focus { outline: none; border-color: var(--color-rust); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-rust) 22%, transparent); }
+}
+
+/* Scroll-reveal: only hidden when JS is present, so no-JS users see everything. */
+@utility reveal {
+  transition: opacity 0.65s var(--ease-out-soft), transform 0.65s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+html.has-js .reveal:not(.is-visible) { opacity: 0; transform: translateY(18px); }
+html.has-js .reveal.is-visible { opacity: 1; transform: none; }
+
+/* Legacy helpers kept for print + cards */
+.card-lift { transition: transform 0.24s var(--ease-out-soft), box-shadow 0.24s var(--ease-out-soft), border-color 0.24s ease; }
+.card-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: color-mix(in oklab, var(--color-ink) 22%, transparent); }
+
+/* --------------------------------------------------------------- print plan */
+
 @media print {
   .no-print { display: none !important; }
-  body { background: #fff !important; color: #14110E !important; }
+  body { background: #fff !important; color: #14110e !important; }
+  body::before { display: none !important; }
+  .card, .card-flat { box-shadow: none !important; border-color: #cfc8b8 !important; background: #fff !important; }
   main { max-width: none !important; padding: 0 !important; }
   a { text-decoration: none; color: inherit; }
   article, section { break-inside: avoid; }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
   html { scroll-behavior: auto; }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }
