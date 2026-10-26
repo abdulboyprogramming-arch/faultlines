@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { AnalysisResultSchema } from "@/lib/schema";
-import { MockProvider } from "@/lib/llm/mock";
+import { getProvider } from "@/lib/llm";
 
 const BodySchema = z.object({ answers: z.array(z.string()).min(1).max(60) });
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No answers" }, { status: 400 });
   }
 
-  const provider = new MockProvider();
+  const provider = getProvider();
   const result = await provider.analyze(answers);
   const validated = AnalysisResultSchema.safeParse(result);
   if (!validated.success) {
