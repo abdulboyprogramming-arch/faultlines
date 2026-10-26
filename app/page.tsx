@@ -49,13 +49,17 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="max-w-3xl mx-auto px-6 py-12 text-center">
-        <p className="text-sm text-ink/60">
-          Browser extension and additional platforms coming soon. Available now on web, PWA, GitHub Pages, and Vercel.
-        </p>
-        <Link href="/tool" className="text-rust underline">
-          Open the tool →
-        </Link>
+      <section className="max-w-5xl mx-auto px-6 py-12 text-center">
+        <h2 className="font-display text-3xl">Contribute</h2>
+        <p className="text-ink/70 mt-2">Star the repo, open issues, or send feedback.</p>
+        <div className="mt-4 flex justify-center gap-4">
+          <a href="https://github.com/abdulboyprogramming-arch/faultlines" className="px-4 py-2 bg-ink text-paper rounded-md text-sm">
+            Star on GitHub
+          </a>
+          <a href="https://github.com/abdulboyprogramming-arch/faultlines/issues" className="px-4 py-2 border border-ink/30 rounded-md text-sm">
+            Report feedback
+          </a>
+        </div>
       </section>
     </main>
   );
