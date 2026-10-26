@@ -135,7 +135,7 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `docs/operations/*.md` | Release engineering, operational readiness, capacity planning, disaster recovery, independent verification |
 | `docs/i18n.md` | The localisation system: where copy lives, how it reaches the screen, why some things stay English, how to add a language |
 | `devpost/{scope,prd,spec,checklist}.md`, `scope.html` | Original plan-first product documents |
-| `presentation/` | Pitch assets + prompt |
+| `presentation/` | Submitted deck (`Fault-Lines.pdf`, 10 slides) + the Gamma prompt pack that generates it |
 
 ## Config & tooling (root)
 
