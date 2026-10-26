@@ -1,5 +1,58 @@
 # Changelog
 
+## 1.2.0 — 2026-10-26 (Frontend: the design system actually ships)
+
+### Fixed (why the deployed site looked half-built)
+- **Tailwind CSS was never compiled.** There was no `postcss.config.mjs` and the
+  `@tailwindcss/turbopack` loader was installed but never registered, so
+  `@import "tailwindcss"` and `@theme` were passed through untouched: every
+  utility class (`bg-paper`, `grid`, `text-ink`, …) was missing from the build
+  and the whole product rendered as unstyled HTML. Added
+  `@tailwindcss/postcss` + `postcss.config.mjs`; the compiled stylesheet now
+  contains the full utility set (verified: 65 KB production CSS).
+- **Circular font token**: `--font-display: var(--font-display)` made the brand
+  type fall back to Times. Tokens now resolve to real families.
+- **Fonts no longer fetched from Google at build time.** A blocked
+  `fonts.googleapis.com` fails `next build` outright; switched to self-hosted
+  `@fontsource-variable` (Fraunces + Inter), which also makes the PWA render real
+  typography offline.
+- **Dark mode was half-broken**: `ThemeProvider` toggled a `.dark` class while
+  Tailwind's `dark:` variant followed the OS preference. Dark is now
+  class-driven (`@custom-variant`), and the whole palette is re-declared as
+  theme tokens inside `.dark`, so every surface flips — not just the two rules
+  that were hand-patched.
+- **Hydration mismatches** for non-English users and for stored themes:
+  `t()` and the theme settings read `localStorage` during render. Language now
+  goes through a hydration-safe `useT()` hook, and settings through
+  `useSyncExternalStore` (`lib/use-local-store.ts`).
+- **Changing theme or text size reloaded the page.** Both now apply instantly
+  (and cross-tab).
+- **CSP/COOP blocked local previews** (no `unsafe-eval` for Turbopack dev,
+  `frame-ancestors 'none'`). Dev and production policies are now separate.
+- Starter-template SVGs removed from `public/`; service worker bumped to v4.
+
+### Added
+- **Real design system** (`app/globals.css`): paper/ink/rust/ochre/slate/moss
+  token set with dark overrides, Fraunces + Inter type scale, elevation tokens,
+  shared primitives (`shell`, `card`, `btn` family, `field`, `chip`, `eyebrow`),
+  paper grain, on-brand focus rings and scrollbars, scan/drift/strata keyframes.
+- **Rebuilt landing page**: interactive live example map (click a band for its
+  verbatim evidence), topographic hero, stat rail, "the gap" narrative section,
+  three-step how-it-works, feature grid, evidence-principles panel, example
+  classroom cards, richer FAQ, closing CTA and a full site footer.
+- **Rebuilt tool workspace**: two-column composer with drag-and-drop, cap/duplicate
+  meter and `⌘/Ctrl + ↵` shortcut; example rail and local-history rail; results
+  view with a belief map (risk filters, staggered bars, keyboard/screen-reader
+  labels), sticky detail panel with prev/next, share/export card, and a
+  `?example=` deep link.
+- **Settings**: live theme/text-size segmented controls with previews, language
+  grid, engine status, local-data controls and an About block.
+- **Chrome**: sticky header with active-route underline, theme toggle, mobile
+  sheet, skip link, shared footer; consistent 404/error/offline/play pages.
+- **SEO/a11y**: `metadataBase`, OpenGraph/Twitter metadata, JSON-LD
+  `SoftwareApplication`, `sitemap.xml`, `robots.txt`, canonical URLs,
+  reduced-motion-safe reveal animations.
+
 ## 1.1.0 — 2026-10-26 (Polish, play, reach & proof)
 
 ### Added

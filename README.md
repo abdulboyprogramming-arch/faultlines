@@ -27,6 +27,7 @@ Open http://localhost:3000 → **Map my class**. It works with **no API key**: a
 - **PWA** — installable on phone/tablet/laptop/desktop with a cross-device install sheet (incl. iOS steps); examples, heuristic and history work offline; custom offline page.
 - **Browser extension** — select answers anywhere on the web and send them into the tool (`extension/`, MV3, minimal permissions).
 - **Strata Drop** — our own little offline game built into the 404/error/offline pages and at `/play`. Catch solid understanding, dodge the fault cracks.
+- **Designed, not just built** — a real design system (paper/ink/rust/ochre/slate), self-hosted Fraunces + Inter, a working dark mode, instant theme and text-size switching, scroll-reveal motion that respects `prefers-reduced-motion`, keyboard-accessible belief map and a print-ready one-page plan.
 
 ## Using a real AI provider (optional)
 
@@ -57,7 +58,7 @@ npm test           # vitest — 61 tests across every core system
 npm run check      # all three
 ```
 
-Stack: Next.js App Router + TypeScript + Tailwind 4 + Zod. One API route (`app/api/analyze`). Provider interface in `lib/llm/` (`mock` heuristic + `real` OpenAI-compatible). Structure: see `STRUCTURE.md`; design decisions: `ARCHITECTURE.md`; product docs: `devpost/`.
+Stack: Next.js App Router + TypeScript + Tailwind 4 (via PostCSS) + Zod. Fonts are self-hosted with `@fontsource-variable/*` — no build-time Google Fonts fetch. One API route (`app/api/analyze`). Provider interface in `lib/llm/` (`mock` heuristic + `real` OpenAI-compatible). Structure: see `STRUCTURE.md`; design decisions: `ARCHITECTURE.md`; product docs: `devpost/`.
 
 ## Deployment
 
