@@ -23,6 +23,9 @@ Open http://localhost:3000 → **Map my class**. It works with **no API key**: a
 - **Exports** — copy/print one-page plan, Markdown, CSV, JSON, and shareable links (the report travels inside the link; no server storage).
 - **Inputs** — paste, drag-and-drop, or upload `.txt`/`.csv` (answer column auto-detected). Optional question field improves grouping. Live counter, duplicate detection, calm 120-answer cap.
 - **Local history** — your last 8 maps in *this browser only*, labelled, individually deletable (Settings can wipe everything — use it on shared computers).
+- **Name guard** — the composer warns about emails, phone-like numbers, “Name:” labels and name-like pairs before anything is mapped, quoted or shared. It runs in your browser.
+- **“Since your last run”** — re-map the same question and see which beliefs shrank after a reteach (diffed against local history; refuses to compare classes of very different sizes).
+- **Backup & restore** — download every local setting and saved map as one JSON file, restore it on another machine. Validated before import; nothing leaves the browser.
 - **Languages** — UI in 7 languages (English, Français, Español, Deutsch, Português, Yorùbá, العربية with RTL), auto-detected; analysis works on answers in any language.
 - **PWA** — installable on phone/tablet/laptop/desktop with a cross-device install sheet (incl. iOS steps); examples, heuristic and history work offline; custom offline page.
 - **Browser extension** — select answers anywhere on the web and send them into the tool (`extension/`, MV3, minimal permissions).
@@ -45,6 +48,9 @@ The model returns *member indexes* per belief; counts and quotes are then derive
 
 ## Privacy
 
+The plain-language version lives at `/privacy` in the app; the technical audit is `SECURITY.md`.
+
+
 No accounts, no database, no server-side storage of answers or results. Remove student names before pasting (the UI reminds you). Share links embed the anonymised report in the URL hash — anyone with the link can view it, and the UI says so. See `SECURITY.md` for the full client-secrets/tenancy audit.
 
 ## Develop
@@ -54,7 +60,7 @@ npm run dev        # develop
 npm run build      # production build
 npm run lint       # eslint (zero problems expected)
 npm run typecheck  # tsc --noEmit
-npm test           # vitest — 61 tests across every core system
+npm test           # vitest — 76 tests across every core system
 npm run check      # all three
 ```
 

@@ -10,4 +10,7 @@ MVP (v1.0.0) + polish release (v1.1.0) are complete: faithful belief map, heuris
 - **More languages**: ✅ 7 locales + RTL (v1.1.0) → next: localise landing long-form copy, community translations, locale-aware number/date formats.
 - **Accessibility**: formal WCAG 2.1 AA audit with assistive-tech testing.
 - **Providers**: native Anthropic adapter, streaming progress for large classes, response caching for identical inputs.
-- **Self-hosted fonts** so production builds don't depend on Google Fonts at build time.
+- ✅ **Self-hosted fonts** so production builds don't depend on Google Fonts at build time (v1.2.0).
+- ✅ **Local-only backup/restore** for saved maps (v1.2.0) — a lighter answer to "tracking over time" that needs no accounts.
+- ✅ **Reteach effect on one device**: "since your last run" comparison of the same question (v1.2.0).
+- Next: a printable *student-facing* version of the diagnostic question list; dept-level aggregation without accounts (export-based).

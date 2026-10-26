@@ -2,6 +2,37 @@
 
 ## 1.2.0 — 2026-10-26 (Frontend: the design system actually ships)
 
+### Added in the follow-up pass (privacy, continuity, resilience)
+- **Name & personal-data guard**: the composer scans pastes for emails, phone-shaped
+  numbers, “Name:” labels and name-like word pairs (`lib/privacy.ts`) and warns before
+  anything is mapped, quoted or shared. Runs entirely in the browser; the warning
+  clears itself when the answers change. No false positives on place names or
+  determiners (`The Earth`, `World War`).
+- **“Since your last run of this question”**: local history is diffed against the
+  current map by belief name (`lib/compare.ts`), showing which beliefs shrank or grew —
+  the reteach-effect signal the product is really about. Refuses to compare classes
+  of clearly different sizes and says so honestly when nothing moved.
+- **Local data backup & restore** (`lib/backup.ts` + Settings): download every
+  `faultlines-*` key as one JSON file, restore it later on another machine. The file
+  is validated (app, version, key namespace, strings only, size cap) before a single
+  key is written; nothing leaves the browser.
+- **Plain-language `/privacy` page**: what is stored (nothing, server-side), where
+  local data lives, what the AI provider setting actually sends, how share links work,
+  and what to do on a shared school computer. Linked from the footer and FAQ.
+- **Social preview image** generated at build time (`app/opengraph-image.tsx`) — shared
+  links now show the product's own strata map instead of a blank card.
+- **Offline awareness**: a quiet on-brand banner says what still works when the network
+  drops, instead of letting the app look broken.
+- **Tool-level error boundary** (`app/tool/error.tsx`): retry, start a fresh map, or
+  check saved data — no dead white page.
+- **Keyboard + assistive tech**: `j`/`k` move between beliefs, focus moves to the result
+  when a map finishes, results are announced through a live region, and the question
+  field offers the example questions as presets.
+- **Result insight**: a risk-mix bar shows the class distribution (high / medium / low /
+  not sure) at a glance.
+- **10 new tests** (`tests/privacy-backup.test.ts`, `tests/compare.test.ts`) → 76 total.
+
+
 ### Fixed (why the deployed site looked half-built)
 - **Tailwind CSS was never compiled.** There was no `postcss.config.mjs` and the
   `@tailwindcss/turbopack` loader was installed but never registered, so

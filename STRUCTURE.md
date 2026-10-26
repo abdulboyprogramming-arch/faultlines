@@ -7,16 +7,20 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | File | Role |
 |---|---|
 | `app/layout.tsx` | Root layout: fonts, metadata/OG, viewport + theme-color, PWA icons, ThemeProvider, install prompt |
-| `app/page.tsx` | Landing: hero, live example strata, how-it-works, why, FAQ, footer |
-| `app/tool/page.tsx` | **The core loop**: paste/upload → counters → analyse → map → detail → export → local history; share-link (`#…`) and extension-prefill (`#a=…`) readers |
+| `app/page.tsx` | Landing: topographic hero, interactive live example map, stat rail, the gap, how-it-works, features, evidence panel, example cards, FAQ, CTA, footer |
+| `app/tool/page.tsx` | **The core loop**: paste/upload → name guard → counters → analyse → risk mix → "since last run" → map → detail → export → history; share-link (`#…`), extension-prefill (`#a=…`) and `?example=` readers; `j`/`k` navigation, live-region announcements |
+| `app/tool/error.tsx` | Route-level error boundary for the workspace: retry, fresh map, check saved data |
 | `app/tool/loading.tsx` | Route loading screen (StrataLoader) for the tool |
-| `app/settings/page.tsx` | Theme, text size, 7-language picker, analysis-engine status, clear-all-local-data |
+| `app/settings/page.tsx` | Live theme/text-size controls, 7-language picker, engine status, **backup / restore / clear** local data, About |
+| `app/privacy/page.tsx` | Plain-language privacy page for teachers and schools |
+| `app/opengraph-image.tsx` | Build-time social preview card (1200×630, no external assets) |
+| `app/sitemap.ts` / `app/robots.ts` | Generated `sitemap.xml` / `robots.txt` |
 | `app/play/page.tsx` | Strata Drop game page (also a PWA shortcut) |
 | `app/offline/page.tsx` | Custom offline page: what still works offline + the game; served by the service worker when navigation fails |
 | `app/not-found.tsx` | 404 with the built-in game and recovery links |
 | `app/error.tsx` | Error boundary with retry + the game |
 | `app/loading.tsx` | Global route loading screen (StrataLoader) |
-| `app/globals.css` | Tailwind theme (paper/ink/rust/ochre/slate), keyframes (fade-up, strata-load, seismic…), dark/text-size variants, print stylesheet, reduced-motion |
+| `app/globals.css` | **Design system**: @theme tokens (paper/ink/rust/ochre/slate/moss) with dark overrides, type scale, elevation, motion keys, primitives (`shell`, `card`, `btn*`, `field`, `chip`, `eyebrow`, `reveal`), print stylesheet, reduced motion |
 | `app/icon.svg` / `app/favicon.ico` | Favicon (programmatic strata mark) |
 | `app/api/analyze/route.ts` | **The single analysis endpoint**: rate limit → JSON/size guards → Zod → provider → normalise → Zod → result |
 | `app/api/health/route.ts` | `{ ok, provider }` only — engine status for Settings/monitoring, zero secrets |
@@ -26,12 +30,15 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | File | Role |
 |---|---|
 | `components/Logo.tsx` | Programmatic SVG logo, `static` + `animated` (crack draw-in + seismic fault-slip) variants |
-| `components/StrataMap.tsx` | Belief bands sized by class share, risk-sorted, staggered 900ms reveal, keyboard/ARIA |
+| `components/StrataMap.tsx` | Belief bands sized by class share, risk-sorted, risk filters, staggered reveal, keyboard/ARIA |
+| `components/SiteHeader.tsx` / `SiteFooter.tsx` | Sticky nav (active route, theme toggle, mobile sheet) and shared footer |
+| `components/Reveal.tsx` | IntersectionObserver reveal (progressive enhancement, `as` tag, reduced-motion safe) |
+| `components/OfflineBanner.tsx` | Quiet "you're offline — this still works" indicator |
+| `components/landing/DemoMap.tsx` | Interactive example map on the landing page |
 | `components/BandDetail.tsx` | Selected belief: verbatim quotes, reteach card, diagnostic, copy-card |
 | `components/ExportBar.tsx` | Copy plan, print/PDF, Markdown, CSV, JSON, share link (+ bearer-data warning) |
 | `components/StrataGame.tsx` | **Strata Drop** — original offline canvas game (404/error/offline/play) |
 | `components/StrataLoader.tsx` | Animated programmatic loading object (breathing strata + animated logo) |
-| `components/SiteHeader.tsx` | Sticky nav with backdrop blur, localised |
 | `components/InstallPrompt.tsx` | Cross-device PWA install sheet (Chromium prompt, iOS instructions, update-ready toast, 14-day dismissal memory) |
 | `components/ThemeProvider.tsx` | Light/dark/system theme, text size, `lang`/`dir` (RTL) sync |
 
@@ -48,8 +55,13 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `lib/parse-input.ts` | Line splitting, real CSV parsing (quoted cells; header/longest-column detection), caps + duplicate counting |
 | `lib/export.ts` | Plain-text/Markdown/CSV plan builders (CSV formula-injection safe) + download helper |
 | `lib/share.ts` | Share-report codec (`#…`) and answers-prefill codec (`#a=…`, shared with the extension), Zod/size-validated |
-| `lib/history.ts` | Local-only history v2 (localStorage): labels, cap, v1 migration, clear-all |
-| `lib/i18n.ts` | 7 locales (en fr es de pt yo ar), identical keys, auto-detect, RTL flag |
+| `lib/i18n.ts` | 7 locales (en fr es de pt yo ar), identical keys, auto-detect, RTL flag, `setLocale` broadcast |
+| `lib/use-i18n.ts` | Hydration-safe `useT()` / `useLocale()` hooks |
+| `lib/use-local-store.ts` | `useSyncExternalStore` helpers for localStorage + media queries |
+| `lib/history.ts` | Local history v2 (labels, cap, v1 migration, clear-all, change broadcast) |
+| `lib/privacy.ts` | Browser-side personal-data scan (emails, phones, labels, name pairs) |
+| `lib/compare.ts` | "Since your last run" belief diff with size sanity checks |
+| `lib/backup.ts` | Local data export/import with validation (namespace, version, size) |
 
 ## Data (`data/`) — cached example classrooms (zero-network demo)
 
@@ -77,12 +89,11 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | File | Role |
 |---|---|
 | `public/manifest.json` | Full PWA manifest: any+maskable icons, shortcuts, standalone, any orientation |
-| `public/sw.js` | Service worker v3: precache shell + `/offline`, network-first navigations, cache-first assets, network-only `/api`, update flow |
+| `public/sw.js` | Service worker v4: precache shell incl. `/privacy` + `/offline`, network-first navigations, cache-first assets, network-only `/api`, update flow |
 | `public/icon.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | Generated brand icon set (static logo variant) |
 | `public/.well-known/security.txt` | Responsible-disclosure contact |
-| `public/{file,globe,next,vercel,window}.svg` | Leftover create-next-app samples (unused, harmless) |
 
-## Tests (`tests/` — Vitest, 61 tests, `npm test`)
+## Tests (`tests/` — Vitest, 76 tests, `npm test`)
 
 | File | Covers |
 |---|---|
@@ -94,6 +105,8 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 | `tests/validate.test.ts` | Normalisation: sorting, dedupe, verbatim enforcement |
 | `tests/export-share-parse.test.ts` | Exports (incl. newline regression), share codec, input prep, example integrity |
 | `tests/i18n-and-history.test.ts` | Locale key parity ×7, RTL, detection; history round-trip/cap/migration/corruption/clear |
+| `tests/privacy-backup.test.ts` | Name/email/phone scan (incl. no false positives), backup round-trip, foreign/oversized/future-file rejection, namespace filtering |
+| `tests/compare.test.ts` | Run-to-run belief deltas, question matching, class-size guard, "no change" honesty |
 | `tests/fixtures.ts` | Shared messy datasets (multilingual, unicode, duplicates, vague, big class, tricky CSV) |
 
 ## Docs & process
@@ -114,10 +127,11 @@ _Inspector's map: each path has a one-line purpose. Start at `README.md` for the
 
 | File | Role |
 |---|---|
-| `package.json` / `package-lock.json` | faultlines v1.1.0; scripts: dev/build/start/lint/typecheck/test/check |
-| `next.config.ts` | Security headers + CSP, GitHub-Pages static-export mode |
+| `package.json` / `package-lock.json` | faultlines v1.2.0; scripts: dev/build/start/lint/typecheck/test/check |
+| `postcss.config.mjs` | **Required**: wires Tailwind v4 into the build (`@tailwindcss/postcss`) |
+| `next.config.ts` | Dev/prod security headers + CSP, `poweredByHeader: false`, GitHub-Pages static-export mode |
 | `tsconfig.json`, `eslint.config.mjs`, `vitest.config.mts`, `next-env.d.ts` | TS / lint / tests configuration |
-| `.env.example` | Server-side-only `LLM_*` variables (mock default) |
+| `.env.example` | Server-side-only `LLM_*` variables (mock default) + `NEXT_PUBLIC_SITE_URL` |
 | `.github/workflows/ci.yml` | lint → typecheck → test → build on push/PR |
 | `.github/workflows/deploy.yml` | GitHub Pages static deploy from `main` |
 | `vercel.json`, `.gitignore`, `skills-lock.json` | Vercel config, ignores, agent-skills lock |
