@@ -7,7 +7,7 @@
 - The only secret the system can hold is `LLM_API_KEY`, read **server-side only** in `lib/llm/index.ts` / `lib/llm/real.ts`. It is never prefixed `NEXT_PUBLIC_`, never imported by a client component, and never returned by an API route.
 - `GET /api/health` exposes only `{ ok, provider: "mock" | "llm" }` — enough for the Settings page, useless to an attacker.
 - `.env.example` documents the server-side variables and explicitly warns against `NEXT_PUBLIC_`.
-- Security headers on every response (`next.config.ts`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
+- Security headers on every response (`next.config.ts`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera/microphone/geolocation/payment/usb all off), `Strict-Transport-Security`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, and a `Content-Security-Policy` anchored on `default-src 'self'` with `object-src 'none'` and `frame-ancestors 'none'` (script/style keep `'unsafe-inline'` for Next.js hydration — a nonce-based CSP is the documented future hardening). Responsible-disclosure contact at `/.well-known/security.txt`.
 
 ## Data (the real risk is student text, not secrets)
 
@@ -15,7 +15,9 @@
 - **Remove names first.** The UI instructs this above the paste box and after file upload.
 - **Local history** lives in `localStorage` (this browser only), is labelled as such, per-item deletable, and wipeable in one click (Settings → Clear all local data). On shared school computers, treat it like a notebook left on a desk.
 - **Share links** encode the full report (including anonymised quotes) into the URL hash. The hash is never sent to a server, but the link is bearer data: anyone with it can view the report. The UI states this next to the share button. Shared payloads are Zod-validated on open; malformed links fail calmly.
-- **API hardening:** input capped (120 answers × 2000 chars, 300 KB body), rate-limited (30/min/IP, self-cleaning map), all provider output Zod-validated and normalised (quotes verified verbatim against the submitted answers) before it is returned; errors are calm messages, never stack traces.
+- **API hardening:** JSON content-type enforced (415), input capped (120 answers × 2000 chars, 300 KB body → 413), rate-limited (30/min/IP → 429, self-cleaning map), all provider output Zod-validated and normalised (quotes verified verbatim against the submitted answers) before it is returned; errors are calm messages, never stack traces. All of it test-pinned (`tests/api-hardening.test.ts`).
+- **Export safety:** CSV cells beginning with `= + - @` are quote-prefixed so a crafted student answer can never become a live spreadsheet formula when a teacher opens the export.
+- **Extension:** MV3, no host permissions, reads selections only on explicit click, strict `script-src 'self'` CSP, answers carried in URL hash (never transmitted to servers by the extension).
 
 ## Tenancy audit
 
