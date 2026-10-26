@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>Fault Lines — Options</title><link rel="stylesheet" href="popup.css" /></head>
+<body style="width:auto; max-width:560px; margin:2rem auto;">
+  <header>
+    <svg viewBox="0 0 120 120" class="logo" aria-hidden="true"><rect x="6" y="8" width="108" height="24" fill="#B5471F"/><rect x="6" y="36" width="108" height="22" fill="#C98A2E"/><rect x="6" y="62" width="108" height="22" fill="#3E5C63"/><rect x="6" y="88" width="108" height="24" fill="#14110E"/><path d="M58 6 L52 30 L62 52 L50 76 L60 96 L54 114" fill="none" stroke="#F4F1EA" stroke-width="2.4"/></svg>
+    <div><h1>Fault Lines options</h1><p>Stored locally on this device. Nothing is sent anywhere by the extension itself.</p></div>
+  </header>
+  <label for="base">Fault Lines app address</label>
+  <input id="base" type="url" placeholder="https://faultlines.your-school.example" />
+  <p class="hint">Examples: your Vercel deployment, a school server, GitHub Pages build, or http://localhost:3000 while developing.</p>
+  <button id="save" class="primary" type="button">Save</button>
+  <p id="msg" class="hint" role="status"></p>
+  <h2 style="font-family:Georgia,serif;">Privacy</h2>
+  <p class="hint" style="font-size:12px;">The extension only reads text you explicitly select or paste, only when you click. Answers are placed in the opened tab's URL hash (never sent to a server by the extension, and URL hashes are not transmitted to web servers). Permissions used: activeTab + scripting (read your selection on click), contextMenus (right-click send), storage (remember the app address). No tracking, no remote code.</p>
+  <script src="options.js"></script>
+</body>
+</html>
