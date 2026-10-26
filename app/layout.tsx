@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
+import ThemeProvider from "@/components/ThemeProvider";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-ui" });
@@ -14,10 +16,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
-import InstallPrompt from "@/components/InstallPrompt";
-...
       <body className="bg-paper text-ink antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
         <InstallPrompt />
       </body>
     </html>

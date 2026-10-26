@@ -10,5 +10,10 @@
   --font-ui: var(--font-ui);
 }
 
-body { font-family: var(--font-ui); }
+.dark body, .dark { background: #14110E; color: #F4F1EA; }
+.dark .bg-paper { background: #14110E; }
+.dark .text-ink { color: #F4F1EA; }
+[data-size="sm"] { font-size: 14px; }
+[data-size="md"] { font-size: 16px; }
+[data-size="lg"] { font-size: 18px; }
 .font-display { font-family: var(--font-display), serif; }
