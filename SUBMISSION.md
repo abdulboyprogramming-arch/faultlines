@@ -214,6 +214,8 @@ Incognito window, live URL, no guidance: Can you reach a belief map in ≤3 clic
 
 ## Stage 3c — Additional info (judges & organizers)
 
+Every free-text answer below is **≤ 255 characters** (Devpost's limit on these fields).
+
 ### Individual / team
 **Individual** (solo build).
 
@@ -224,46 +226,44 @@ Incognito window, live URL, no guidance: Can you reach a belief map in ≤3 clic
 Leave blank — not applicable for an individual submission.
 
 ### Which of these did you actually use?
-Tick **only what is true**. If you did not attend a live build session, a Cup of Joe call, or the Discord, select **None** — organizers can cross-check this, and an honest "None" costs nothing. Everything else in this section (the Skill Pack use, the planning docs) is what actually counts.
+Tick **only what is true**. If you did not attend a live build session, a Cup of Joe call, or the Discord, select **None**. The Skill Pack use is what's scored.
 
 ### Did the cost of AI affect what you did?
-Recommended (and true to the build): **"It made me cut scope or switch to a cheaper model"** — Fault Lines ships a deterministic, in-browser heuristic as the default engine precisely so the product works with **zero API spend**, and the LLM path is an optional, server-configured upgrade. Pick **"No, I never thought about it"** instead only if that is genuinely how it went.
+**"It made me cut scope or switch to a cheaper model"** — the deterministic in-browser engine ships as the default so the product runs on zero API spend; the LLM path is an optional server-side upgrade.
 
 ### Confidence: plan and build a small, maintainable project with a coding agent
-**5 (Easily)** — the evidence is in the repo: six approved planning docs, a slice-by-slice checklist with verify steps per slice, 84 tests, green CI and a live deployment.
+**5 (Easily)** — six approved planning docs, a slice-by-slice checklist, 84 tests, green CI, live deploy.
 
-### If we could fix one thing before the next person tries this
-> Add an explicit **"prove the path end-to-end"** gate between the build and ship skills. My first build *looked* finished — the UI, the example classroom, the whole demo — but the `/api/analyze` route had never successfully executed once; it was silently falling back to a mock that understood exactly one topic. A single checklist item in `5-build` ("hit the real endpoint with a real payload and paste the response") would have caught it in ten seconds instead of three days. The same gate should cover the non-English locale path: my language switcher shipped switching locale state while every page still rendered English, because nothing asserted that a translated page actually contains translated strings. Two mechanical checks — "the real integration ran" and "the translated path renders translated output" — would save the next learner the two most expensive detours I took.
+### If we could fix one thing before the next person tries this (245 chars)
+> Add a "prove it end-to-end" gate to 5-build: hit /api/analyze once with a real payload and paste the response, and assert a translated page renders translated text. My route never ran; my 7 locales still showed English. Both checks take seconds.
+
+Alt (248): Add a "prove it end-to-end" gate to 5-build: hit /api/analyze once with a real payload and paste the response, and assert a translated page renders translated text. My route never ran and my 7 locales still showed English; both checks take seconds.
 
 ### Open-source license URL
-`https://github.com/abdulboyprogramming-arch/faultlines/blob/main/LICENSE`
-
-MIT, at the repo root, auto-detected by GitHub as "MIT license" in the About panel. (Housekeeping: fix the `taiwlindcss` typo in the repo topics — GitHub → repo → About → gear → Topics, replace with `tailwindcss`.)
+`https://github.com/abdulboyprogramming-arch/faultlines/blob/main/LICENSE` — MIT at repo root, already detected in the About panel.
 
 ### What kind of value did your project create for you?
-Tick: **"Let me do something I couldn't do before"** and **"Created delight / was just fun"**.
-Do not tick "Saved me time" or "Made or saved me money" unless true — the answers are read together with the essay below.
+**"Let me do something I couldn't do before"** + **"Created delight / was just fun"**.
 
-### Tell us more about the value your project provides for you
-> I set out to build a product, and came out with a way of working. The valuable part was not the app — it was learning that an agent is only as good as the documents you give it. Writing the scope, PRD and spec *before* any code turned a vague idea into a sequence of slices I could verify one at a time, and it meant I could stop, inspect and redirect instead of accepting whatever came back. The second thing it gave me was a working definition of "done" that isn't "it looks right in the browser". I now check claims mechanically: does the endpoint actually run, do the counts sum, is there a test that would fail if this broke. That habit came directly from the most embarrassing bug in this project. And on the delight side: I built a geological drilling game, a programmatic logo, a full seven-language interface and a privacy page, none of which any judge asked for — that freedom to add craft is what made it fun.
+### Tell us more about the value your project provides for you (241 chars)
+> An agent is only as good as the docs you give it. Writing scope, PRD and spec first turned a vague idea into verifiable slices I could stop and redirect, gave me a mechanical definition of done, and left room to add craft no judge asked for.
 
-### Explain how your project meets the main technology requirement
-> Fault Lines was designed and built with the **Devpost Learn Skill Pack** (`challengepost/learn-ai-basics`), pinned in `skills-lock.json` with the hash of all six skills: `1-start`, `2-scope`, `3-prd`, `4-spec`, `5-build`, `6-ship` (installed under `.agents/skills/` and `.claude/skills/`, invocation records in `agent/skills/`).
->
-> **Flipped interaction.** The learner owned every decision; the agent implemented. In `1-start` I chose the domain (teacher misconception mapping) and the unique kernel — *an answer is not a mark, it is evidence of a belief* — and the agent interrogated it rather than running with it. `2-scope` turned that into an approved one-pager with a defined core loop, non-goals and a "what working looks like" test. Only then did `3-prd` and `4-spec` produce the artefacts the build could actually be held to.
->
-> **Planning documents as the contract.** All four are committed, with front-matter status and traceability: `devpost/scope.md` (unique kernel, audience, core loop, identity), `devpost/prd.md` (seven-step core journey, screens, look and feel, feature behaviour), `devpost/spec.md` (file structure, components, data model, external services) and `devpost/checklist.md` (`Build mode: learn`, eight slices, each with *why now*, a PRD/spec reference, a mechanical verify step, a learner check and a commit message). Every slice was verified mechanically before the next began: build succeeds → endpoint returns validated JSON → counts sum → UI shows the band.
->
-> **Ship.** `6-ship` produced the release surface the judges see: CI on every push (lint → typecheck → 84 tests → build), a green Vercel production deploy, and the documentation set (`README`, `ARCHITECTURE`, `SECURITY`, `STRUCTURE`, `docs/i18n.md`).
->
-> **Where the process earned its keep.** When I audited the build against the spec (§ "A note on the API route"), the route I had marked done had never executed — the demo was riding a silent fallback. Because the plan defined what "working" meant, I could see the gap, and I documented the repair honestly in `docs/recovery/` (state → intent → completeness → integration → plan → log → acceptance → handoff). The finished product — verbatim quotes, counts that sum by construction, an honest "not sure" bucket, seven localised languages, offline PWA, 84 tests — is the output of that discipline, not of a single prompt.
+Alt (249): Learning that an agent is only as good as the docs you give it: scope, PRD and spec turned a vague idea into verifiable slices I could stop and redirect. I also gained a mechanical definition of done, and the freedom to add craft no judge asked for.
+
+### Explain how your project meets the main technology requirement (245 chars)
+> Devpost Learn Skill Pack, all six skills pinned in skills-lock.json, used with flipped interaction: I owned scope, PRD, spec and checklist (devpost/), the agent built to them, each slice verified mechanically, then 6-ship gave CI, tests, deploy.
+
+Alt (250): Devpost Learn Skill Pack, six skills pinned in skills-lock.json, flipped interaction: I owned scope, PRD, spec and checklist in devpost/, the agent built to them and every slice was verified mechanically; 6-ship gave CI, tests and the live deploy.
+
+_If Devpost relaxes the limit, the longer judge-facing versions (full route story, traceability detail) are in this file's git history. The short forms above keep every load-bearing fact: skill names, flipped interaction, the four planning docs, mechanical verification, ship._
 
 ### Eligibility checkboxes
-Both true: **age of majority**, and **eligibility + newly created during the Submission Period using the Devpost Learn Skill Pack** (first commit and every subsequent commit fall inside the period; the skill hashes are pinned in `skills-lock.json`).
+Both true: age of majority; eligibility + newly created during the Submission Period using the Learn Skill Pack (`skills-lock.json` pins all six hashes).
 
 ### Final gate before you press Save
-- [ ] Preview link opens and the gallery cover renders at card size
-- [ ] `https://faultlines-kappa.vercel.app` loads on mobile data (not just your wifi)
-- [ ] Repo About panel shows **MIT license** + a working homepage link
-- [ ] Video uploaded and public (unlisted is fine) and pasted into the submission
-- [ ] Every "Try it out" link opens without a login
+- [ ] Preview link opens and the cover renders at card size
+- [ ] Live URL loads on mobile data
+- [ ] Repo About shows MIT + working homepage link
+- [ ] Video uploaded (public/unlisted) and pasted in
+- [ ] Every "Try it out" link opens with no login
+- [ ] Fix the `taiwlindcss` repo topic typo → `tailwindcss`
