@@ -1,0 +1,90 @@
+{
+  "question": "A tree gains 50 kg as it grows. Where does most of that mass come from? Explain.",
+  "clusters": [
+    {
+      "label": "Believes plant mass mainly comes from the soil",
+      "plain_name": "Plants eat soil",
+      "count": 5,
+      "risk": "high",
+      "why_it_matters": "Missed by van Helmont's audience 400 years ago and by classes today: if mass 'comes from soil', the whole point of photosynthesis (carbon fixation) never lands.",
+      "quotes": [
+        "Plants get their food from the soil through the roots",
+        "Plants eat soil, that is why soil goes down in the pot"
+      ],
+      "reteach": {
+        "title": "Weigh the soil (van Helmont)",
+        "minutes": 6,
+        "steps": [
+          "Tell van Helmont's experiment: willow gained ~74 kg in 5 years; the soil lost ~57 g.",
+          "Ask: if the tree ate the soil, where did 74 kg of soil go?",
+          "Land the point: the carbon backbone is built from CO₂ in the air; soil gives water + minerals only."
+        ],
+        "check_question": "A potted plant doubles in mass but the dry soil barely changes. Where did the new mass come from?"
+      },
+      "diagnostic_question": "Explain to a younger student why a forest can grow on thin mountain soil without the ground disappearing."
+    },
+    {
+      "label": "Thinks sunlight itself is converted into plant mass",
+      "plain_name": "Light becomes wood",
+      "count": 3,
+      "risk": "med",
+      "why_it_matters": "Confuses energy with matter — sunlight powers the process but supplies (essentially) no atoms. This blocks understanding of conservation of mass in reactions.",
+      "quotes": [
+        "Sunlight gives the plant energy and it turns the light into wood",
+        "Light energy becomes the plant material as it grows"
+      ],
+      "reteach": {
+        "title": "Energy is not ingredients",
+        "minutes": 5,
+        "steps": [
+          "Analogy: an oven's heat bakes the cake, but the cake's mass is flour, eggs, sugar. Light = heat; CO₂ + water = ingredients.",
+          "Write the photosynthesis equation and count atoms in and out together.",
+          "Ask: if light became mass, would a plant in light but sealed from air gain weight?"
+        ],
+        "check_question": "In photosynthesis, which provides the atoms and which provides the energy?"
+      },
+      "diagnostic_question": "A plant is kept in bright light inside a sealed, CO₂-free chamber. Predict its mass change and justify it with atoms."
+    },
+    {
+      "label": "Correct: most mass is carbon fixed from CO₂ in the air",
+      "plain_name": "Built from air",
+      "count": 3,
+      "risk": "low",
+      "why_it_matters": "Core idea secure. Extend toward glucose → cellulose/starch and where the oxygen released comes from (water, not CO₂).",
+      "quotes": [
+        "Photosynthesis: carbon dioxide from the air is built into sugars, so most mass is from air",
+        "Leaves take in CO2 and make glucose, which becomes cellulose — so mainly air"
+      ],
+      "reteach": {
+        "title": "Follow one carbon atom",
+        "minutes": 4,
+        "steps": [
+          "Trace a single carbon atom: air → leaf → glucose → cellulose in a trunk.",
+          "Stretch question: the O₂ released — which molecule did it come from? (Water.)",
+          "Have students write the two-sentence version for a younger student."
+        ],
+        "check_question": "Write two sentences: where did the carbon in a wooden chair spend the year before the tree was cut?"
+      },
+      "diagnostic_question": "Where does the oxygen released in photosynthesis come from? Design a test using labelled water."
+    }
+  ],
+  "unsure": [
+    {
+      "answer": "grows",
+      "why": "Too brief to show a belief"
+    },
+    {
+      "answer": "not sure",
+      "why": "Says they don't know yet"
+    },
+    {
+      "answer": "water mostly i think",
+      "why": "Vague — could be soil-group or its own idea; needs your eyes"
+    }
+  ],
+  "meta": {
+    "source": "example",
+    "total": 14,
+    "generatedAt": "2026-10-26T00:00:00.000Z"
+  }
+}
