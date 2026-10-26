@@ -17,6 +17,8 @@ import { decodeAnswersPayload, decodeShare } from "@/lib/share";
 import { entryFor, HISTORY_KEY, loadHistory, saveHistory } from "@/lib/history";
 import { useT } from "@/lib/use-i18n";
 import { useStoredString } from "@/lib/use-local-store";
+import { describeScan, scanForPersonalData } from "@/lib/privacy";
+import { compareRuns, describeComparison } from "@/lib/compare";
 
 export default function Tool() {
   const t = useT();
@@ -37,11 +39,24 @@ export default function Tool() {
     return loadHistory();
   }, [historyRaw]);
   const [dragging, setDragging] = useState(false);
+  const [privacyDismissedFor, setPrivacyDismissedFor] = useState<number | null>(null);
+  const [announcement, setAnnouncement] = useState("");
+  const [lastSavedId, setLastSavedId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLDivElement>(null);
 
   const live = useMemo(() => prepareAnswers(parseLines(text)), [text]);
+  const privacy = useMemo(() => scanForPersonalData(live.answers), [live.answers]);
+  const showPrivacyWarning =
+    privacy.answers > 0 && privacyDismissedFor !== live.answers.length;
+
+  // Question presets: the example questions, so teachers can reuse a phrasing
+  // that is known to group well instead of starting from a blank field.
+  const questionPresets = useMemo(
+    () => Array.from(new Set(EXAMPLES.map((e) => e.question))).slice(0, 8),
+    [],
+  );
 
   // One-time sync from an external system (URL hash of a share/extension link,
   // or ?example=… from the landing page). Runs after hydration because the
@@ -101,10 +116,16 @@ export default function Tool() {
       setSelected(0);
       setUnsureOpen(false);
       setIsSample(null);
+      setAnnouncement(
+        `Map ready. ${resultTotal(clean)} answers sorted into ${clean.clusters.length} beliefs` +
+          (clean.unsure.length ? `, ${clean.unsure.length} unclassified.` : "."),
+      );
       if (clean.meta?.degraded) {
         setNotice("The AI provider didn't respond, so this map uses the built-in heuristic instead. Quotes and counts are still exact.");
       }
-      saveHistory([entryFor(clean), ...loadHistory()].slice(0, 8));
+      const entry = entryFor(clean);
+      setLastSavedId(entry.id);
+      saveHistory([entry, ...loadHistory()].slice(0, 8));
     },
     [],
   );
@@ -157,11 +178,35 @@ export default function Tool() {
     return () => document.removeEventListener("keydown", onKey);
   }, [analyze, result, loading]);
 
+  // j / k move between beliefs once a map exists (arrow keys would fight with
+  // page scrolling, and every control is still reachable with Tab).
+  useEffect(() => {
+    if (!result) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (target?.isContentEditable) return;
+      if (e.key !== "j" && e.key !== "k") return;
+      e.preventDefault();
+      setSelected((current) => {
+        const next = e.key === "j" ? current + 1 : current - 1;
+        return Math.max(0, Math.min(result.clusters.length - 1, next));
+      });
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [result]);
+
   // Bring the result into view once it exists.
   useEffect(() => {
     if (result && resultsRef.current) {
-      const y = resultsRef.current.getBoundingClientRect().top + window.scrollY - 80;
+      const node = resultsRef.current;
+      const y = node.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: y, behavior: "smooth" });
+      // Move focus too, so keyboard and screen-reader users are not left at the
+      // composer while the result appears above them.
+      node.focus({ preventScroll: true });
     }
   }, [result]);
 
@@ -176,6 +221,10 @@ export default function Tool() {
     setIsSample(ex.name);
     setError(null);
     setNotice(null);
+    const normalized = normalizeAnalysis(ex.result, ex.answers);
+    setAnnouncement(
+      `Example loaded. ${resultTotal(normalized)} answers sorted into ${normalized.clusters.length} beliefs.`,
+    );
   }
 
   function onFile(file: File) {
@@ -216,6 +265,10 @@ export default function Tool() {
   const selectedCluster = result?.clusters[selected] ?? null;
   const topRisk = result?.clusters.find((c) => c.risk === "high") ?? result?.clusters[0] ?? null;
   const highCount = result?.clusters.filter((c) => c.risk === "high").length ?? 0;
+  const comparison = useMemo(
+    () => (result && !isSample ? compareRuns(result, history, lastSavedId ?? undefined) : null),
+    [result, history, isSample, lastSavedId],
+  );
   const sourceLabel =
     result?.meta?.source === "llm"
       ? "AI analysis"
@@ -234,6 +287,8 @@ export default function Tool() {
   return (
     <div className="min-h-screen bg-paper text-ink">
       <SiteHeader />
+
+      <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
 
       <main id="main-content" className="shell py-8 sm:py-12">
         {/* ─────────────────────────────────────────────────── composer */}
@@ -295,7 +350,17 @@ export default function Tool() {
                         maxLength={300}
                         placeholder="e.g. Why do we have seasons?"
                         className="field"
+                        list="question-presets"
+                        aria-describedby="question-hint"
                       />
+                      <datalist id="question-presets">
+                        {questionPresets.map((q) => (
+                          <option key={q} value={q} />
+                        ))}
+                      </datalist>
+                      <p id="question-hint" className="mt-1.5 text-xs text-ink/45">
+                        Optional — but naming the question sharpens the reteach wording and diagnostic.
+                      </p>
                     </div>
 
                     <div
@@ -359,6 +424,42 @@ export default function Tool() {
                         </p>
                       )}
                     </div>
+
+                    {showPrivacyWarning && (
+                      <div className="rounded-lg border border-ochre/50 bg-ochre/10 p-3.5 text-xs animate-fade-in">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="font-medium text-ink/85">
+                            <span aria-hidden="true">⚠ </span>
+                            {describeScan(privacy)}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setPrivacyDismissedFor(live.answers.length)}
+                            className="shrink-0 text-ink/40 hover:text-ink"
+                            aria-label="Dismiss name warning"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        {privacy.findings.length > 0 && (
+                          <ul className="mt-2 flex flex-wrap gap-1.5">
+                            {privacy.findings.map((f) => (
+                              <li
+                                key={`${f.kind}-${f.sample}`}
+                                className="rounded border border-ink/15 bg-card/70 px-1.5 py-0.5 font-mono text-[0.65rem] text-ink/60"
+                              >
+                                {f.sample}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <p className="mt-2 leading-relaxed text-ink/55">
+                          Nothing is stored on a server, but quotes appear verbatim in the report, exports and
+                          share links. Replace names with initials before mapping — this warning clears itself
+                          when the answers change.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="flex flex-wrap items-center gap-2.5 border-t border-ink/10 pt-4">
                       <button type="button" onClick={analyze} disabled={loading} className="btn btn-primary">
@@ -510,7 +611,7 @@ export default function Tool() {
 
         {/* ──────────────────────────────────────────────────── results */}
         {result && (
-          <div ref={resultsRef}>
+          <div ref={resultsRef} tabIndex={-1} className="focus:outline-none">
             {(error || notice) && (
               <div className="no-print mb-5 space-y-2">
                 {error && (
@@ -571,6 +672,97 @@ export default function Tool() {
               </p>
             )}
 
+            {/* Risk mix: one glance at how the class is distributed. */}
+            <div className="no-print card mb-5 px-4 py-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="eyebrow">Risk mix · share of class</p>
+                <p className="text-[0.7rem] text-ink/40">
+                  {total} answers · ordered high → low
+                </p>
+              </div>
+              <div className="mt-2.5 flex h-2.5 overflow-hidden rounded-full bg-ink/8" aria-hidden="true">
+                {result.clusters.map((c, i) => {
+                  const width = total ? (c.count / total) * 100 : 0;
+                  const color = c.risk === "high" ? "bg-rust" : c.risk === "med" ? "bg-ochre" : "bg-slate";
+                  return (
+                    <span
+                      key={`mix-${c.plain_name}-${i}`}
+                      className={`h-full ${color}`}
+                      style={{ width: `${width}%` }}
+                      title={`${c.plain_name} — ${c.count} of ${total}`}
+                    />
+                  );
+                })}
+                {result.unsure.length > 0 && (
+                  <span
+                    className="h-full bg-ink/25"
+                    style={{ width: `${(result.unsure.length / Math.max(total, 1)) * 100}%` }}
+                    title={`Not sure — ${result.unsure.length} of ${total}`}
+                  />
+                )}
+              </div>
+              <ul className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] text-ink/55">
+                <li className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-rust" aria-hidden="true" /> {highCount} high risk
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-ochre" aria-hidden="true" />
+                  {result.clusters.filter((c) => c.risk === "med").length} medium
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-slate" aria-hidden="true" />
+                  {result.clusters.filter((c) => c.risk === "low").length} low
+                </li>
+                {result.unsure.length > 0 && (
+                  <li className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-ink/25" aria-hidden="true" /> {result.unsure.length} not sure
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {comparison && (
+              <div className="no-print card mb-5 px-4 py-3.5">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="eyebrow">Since your last run of this question</p>
+                  <p className="text-[0.7rem] text-ink/40">
+                    {new Date(comparison.previousAt).toLocaleDateString()} · {comparison.previousTotal} answers then
+                  </p>
+                </div>
+                {comparison.changed ? (
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {comparison.deltas.slice(0, 4).map((d) => (
+                      <li
+                        key={d.plainName}
+                        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${
+                          d.change < 0
+                            ? "border-moss/45 bg-moss/10 text-moss"
+                            : "border-rust/40 bg-rust/8 text-rust"
+                        }`}
+                        title={`${d.before} of ${comparison.previousTotal} → ${d.after}`}
+                      >
+                        <span aria-hidden="true">{d.change < 0 ? "▼" : "▲"}</span>
+                        <span className="max-w-[14rem] truncate">{d.plainName}</span>
+                        <span className="tabular-nums font-medium">
+                          {d.change > 0 ? "+" : ""}
+                          {d.change}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1.5 text-sm text-ink/60">
+                    No belief moved since last time — worth re-checking whether the reteach target was the right one.
+                  </p>
+                )}
+                <p className="sr-only">{describeComparison(comparison)}</p>
+                <p className="mt-2 text-[0.7rem] leading-relaxed text-ink/45">
+                  Matched by belief name on the same question, from this browser&apos;s history. A shrinking band is
+                  the signal that a reteach landed — falls here are good news.
+                </p>
+              </div>
+            )}
+
             {topRisk && (
               <div className="no-print mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-rust/30 bg-rust/[0.06] px-5 py-4">
                 <span className="chip border-rust/40 bg-rust/12 text-rust">{t("startHere")}</span>
@@ -597,6 +789,12 @@ export default function Tool() {
                   unsureOpen={unsureOpen}
                   onShowUnsure={() => setUnsureOpen((v) => !v)}
                 />
+                <p className="no-print text-[0.7rem] text-ink/40">
+                  Press{" "}
+                  <kbd className="rounded border border-ink/20 bg-card px-1 font-ui text-[0.65rem]">j</kbd>{" "}
+                  <kbd className="rounded border border-ink/20 bg-card px-1 font-ui text-[0.65rem]">k</kbd>{" "}
+                  to move between beliefs · every band is a button, so Tab works too.
+                </p>
 
                 {unsureOpen && result.unsure.length > 0 && (
                   <section className="card animate-fade-up p-5" aria-label={t("unsure")}>

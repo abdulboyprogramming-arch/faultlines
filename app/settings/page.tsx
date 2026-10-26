@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -9,6 +9,9 @@ import { useLocale, useT } from "@/lib/use-i18n";
 import { clearAllLocalData, HISTORY_KEY, loadHistory } from "@/lib/history";
 import { useStoredString } from "@/lib/use-local-store";
 import { useTheme, type TextSize, type Theme } from "@/components/ThemeProvider";
+import { backupFilename, buildBackup, collectLocalData, MAX_BACKUP_BYTES, parseBackup, restoreLocalData } from "@/lib/backup";
+import { download } from "@/lib/export";
+import { notifyStorageChange } from "@/lib/use-local-store";
 
 const THEMES: { value: Theme; label: string; hint: string }[] = [
   { value: "light", label: "Light", hint: "Warm paper" },
@@ -28,6 +31,43 @@ export default function Settings() {
   const { theme, size, setTheme, setSize } = useTheme();
   const [provider, setProvider] = useState<string>("Checking…");
   const [message, setMessage] = useState<string | null>(null);
+  const [messageTone, setMessageTone] = useState<"ok" | "warn">("ok");
+  const restoreRef = useRef<HTMLInputElement>(null);
+
+  function say(text: string, tone: "ok" | "warn" = "ok") {
+    setMessageTone(tone);
+    setMessage(text);
+  }
+
+  function downloadBackup() {
+    const data = collectLocalData(localStorage);
+    const keys = Object.keys(data).length;
+    if (keys === 0) {
+      say("There is nothing saved in this browser yet — map a class first.", "warn");
+      return;
+    }
+    download(backupFilename(), JSON.stringify(buildBackup(data), null, 2), "application/json");
+    say(`Backup downloaded: ${keys} saved item${keys === 1 ? "" : "s"}. Keep it somewhere safe.`);
+  }
+
+  async function restoreBackup(file: File) {
+    if (file.size > MAX_BACKUP_BYTES) {
+      say("That file is too large to be a Fault Lines backup.", "warn");
+      return;
+    }
+    const parsed = parseBackup(await file.text());
+    if (!parsed.ok || !parsed.backup) {
+      say(parsed.error ?? "That file could not be read.", "warn");
+      return;
+    }
+    const when = new Date(parsed.backup.exportedAt).toLocaleString();
+    if (!confirm(`Restore ${parsed.keyCount} saved item(s) from ${when}?\n\nThis replaces matching settings and saved maps in this browser.`)) {
+      return;
+    }
+    const restored = restoreLocalData(parsed.backup, localStorage);
+    notifyStorageChange();
+    say(`Restored ${restored} item${restored === 1 ? "" : "s"} — appearance and saved maps updated.`);
+  }
 
   const historyRaw = useStoredString(HISTORY_KEY);
   const savedCount = useMemo(() => {
@@ -69,7 +109,12 @@ export default function Settings() {
         </div>
 
         {message && (
-          <p role="status" className="mt-6 max-w-3xl rounded-lg border border-moss/40 bg-moss/10 px-4 py-3 text-sm">
+          <p
+            role="status"
+            className={`mt-6 max-w-3xl rounded-lg border px-4 py-3 text-sm ${
+              messageTone === "ok" ? "border-moss/40 bg-moss/10" : "border-ochre/50 bg-ochre/10"
+            }`}
+          >
             {message}
           </p>
         )}
@@ -192,13 +237,41 @@ export default function Settings() {
               Nothing is stored on a server.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
+              <button type="button" className="btn btn-outline btn-sm" onClick={downloadBackup}>
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 4v11" />
+                  <path d="M7.5 10.5 12 15l4.5-4.5" />
+                  <path d="M5 19.5h14" />
+                </svg>
+                Download backup
+              </button>
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => restoreRef.current?.click()}>
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 15V4" />
+                  <path d="M7.5 8.5 12 4l4.5 4.5" />
+                  <path d="M5 19.5h14" />
+                </svg>
+                Restore backup
+              </button>
+              <input
+                ref={restoreRef}
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                aria-label="Restore a Fault Lines backup file"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void restoreBackup(f);
+                  e.target.value = "";
+                }}
+              />
               <button
                 type="button"
                 className="btn btn-outline btn-sm border-rust/50 text-rust hover:bg-rust/10"
                 onClick={() => {
                   if (confirm("Delete all Fault Lines data stored in this browser (settings + saved reports)?")) {
                     clearAllLocalData();
-                    setMessage("All local Fault Lines data deleted. Reload to see default settings.");
+                    say("All local Fault Lines data deleted. Reload to see default settings.", "warn");
                   }
                 }}
               >
@@ -208,6 +281,10 @@ export default function Settings() {
                 Back to the tool
               </Link>
             </div>
+            <p className="mt-3 text-xs leading-relaxed text-ink/45">
+              A backup is a single JSON file containing only preferences and saved maps — no student answers are
+              ever uploaded. Restoring validates the file first and imports nothing else.
+            </p>
           </section>
 
           {/* about */}

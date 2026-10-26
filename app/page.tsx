@@ -113,7 +113,7 @@ const PRINCIPLES = [
 const faqs = [
   {
     q: "Is my students' work stored anywhere?",
-    a: "No. There are no accounts and no database. Answers are sent once to the analysis endpoint (or analysed in your browser) and are not saved server-side. Results you keep live only in this browser's local storage — remove student names before pasting, and clear local data on shared computers (Settings).",
+    a: "No. There are no accounts and no database. Answers are sent once to the analysis endpoint (or analysed in your browser) and are not saved server-side. Results you keep live only in this browser's local storage — remove student names before pasting, and clear local data on shared computers (Settings). The plain-language privacy page has the full picture.",
   },
   {
     q: "Does it need an AI API key?",

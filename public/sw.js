@@ -6,7 +6,7 @@
 const VERSION = "v4";
 const CORE_CACHE = `faultlines-core-${VERSION}`;
 const RUNTIME_CACHE = `faultlines-runtime-${VERSION}`;
-const CORE = ["/", "/tool", "/settings", "/offline", "/play", "/manifest.json", "/icon.svg", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
+const CORE = ["/", "/tool", "/settings", "/offline", "/play", "/privacy", "/manifest.json", "/icon.svg", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -43,7 +43,8 @@ export default function SiteFooter() {
             <li><a href={GITHUB} target="_blank" rel="noreferrer" className="text-ink/65 transition-colors hover:text-ink">Source code</a></li>
             <li><a href={`${GITHUB}/blob/main/ARCHITECTURE.md`} target="_blank" rel="noreferrer" className="text-ink/65 transition-colors hover:text-ink">How it works</a></li>
             <li><a href={`${GITHUB}/issues`} target="_blank" rel="noreferrer" className="text-ink/65 transition-colors hover:text-ink">Feedback &amp; issues</a></li>
-            <li><a href={`${GITHUB}/blob/main/SECURITY.md`} target="_blank" rel="noreferrer" className="text-ink/65 transition-colors hover:text-ink">Privacy &amp; security</a></li>
+            <li><Link href="/privacy" className="text-ink/65 transition-colors hover:text-ink">Privacy</Link></li>
+            <li><a href={`${GITHUB}/blob/main/SECURITY.md`} target="_blank" rel="noreferrer" className="text-ink/65 transition-colors hover:text-ink">Security notes</a></li>
           </ul>
         </nav>
 

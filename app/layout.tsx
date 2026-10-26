@@ -3,6 +3,7 @@ import "@fontsource-variable/fraunces/wght.css";
 import "@fontsource-variable/inter/wght.css";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
+import OfflineBanner from "@/components/OfflineBanner";
 import ThemeProvider from "@/components/ThemeProvider";
 
 /**
@@ -113,6 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <ThemeProvider>{children}</ThemeProvider>
+        <OfflineBanner />
         <InstallPrompt />
       </body>
     </html>
