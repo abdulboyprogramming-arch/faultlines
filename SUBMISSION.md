@@ -211,3 +211,59 @@ Incognito window, live URL, no guidance: Can you reach a belief map in ≤3 clic
 - Pin the repo on your GitHub profile; add the Devpost link to the README's first line.
 - Post-mortem issue list from judge feedback → label `post-hackathon` in GitHub Issues.
 - If extending: run `npm run check` before every push; follow `docs/operations/RELEASE.md`.
+
+## Stage 3c — Additional info (judges & organizers)
+
+### Individual / team
+**Individual** (solo build).
+
+### Country of residence
+**Nigeria**
+
+### Organization name
+Leave blank — not applicable for an individual submission.
+
+### Which of these did you actually use?
+Tick **only what is true**. If you did not attend a live build session, a Cup of Joe call, or the Discord, select **None** — organizers can cross-check this, and an honest "None" costs nothing. Everything else in this section (the Skill Pack use, the planning docs) is what actually counts.
+
+### Did the cost of AI affect what you did?
+Recommended (and true to the build): **"It made me cut scope or switch to a cheaper model"** — Fault Lines ships a deterministic, in-browser heuristic as the default engine precisely so the product works with **zero API spend**, and the LLM path is an optional, server-configured upgrade. Pick **"No, I never thought about it"** instead only if that is genuinely how it went.
+
+### Confidence: plan and build a small, maintainable project with a coding agent
+**5 (Easily)** — the evidence is in the repo: six approved planning docs, a slice-by-slice checklist with verify steps per slice, 84 tests, green CI and a live deployment.
+
+### If we could fix one thing before the next person tries this
+> Add an explicit **"prove the path end-to-end"** gate between the build and ship skills. My first build *looked* finished — the UI, the example classroom, the whole demo — but the `/api/analyze` route had never successfully executed once; it was silently falling back to a mock that understood exactly one topic. A single checklist item in `5-build` ("hit the real endpoint with a real payload and paste the response") would have caught it in ten seconds instead of three days. The same gate should cover the non-English locale path: my language switcher shipped switching locale state while every page still rendered English, because nothing asserted that a translated page actually contains translated strings. Two mechanical checks — "the real integration ran" and "the translated path renders translated output" — would save the next learner the two most expensive detours I took.
+
+### Open-source license URL
+`https://github.com/abdulboyprogramming-arch/faultlines/blob/main/LICENSE`
+
+MIT, at the repo root, auto-detected by GitHub as "MIT license" in the About panel. (Housekeeping: fix the `taiwlindcss` typo in the repo topics — GitHub → repo → About → gear → Topics, replace with `tailwindcss`.)
+
+### What kind of value did your project create for you?
+Tick: **"Let me do something I couldn't do before"** and **"Created delight / was just fun"**.
+Do not tick "Saved me time" or "Made or saved me money" unless true — the answers are read together with the essay below.
+
+### Tell us more about the value your project provides for you
+> I set out to build a product, and came out with a way of working. The valuable part was not the app — it was learning that an agent is only as good as the documents you give it. Writing the scope, PRD and spec *before* any code turned a vague idea into a sequence of slices I could verify one at a time, and it meant I could stop, inspect and redirect instead of accepting whatever came back. The second thing it gave me was a working definition of "done" that isn't "it looks right in the browser". I now check claims mechanically: does the endpoint actually run, do the counts sum, is there a test that would fail if this broke. That habit came directly from the most embarrassing bug in this project. And on the delight side: I built a geological drilling game, a programmatic logo, a full seven-language interface and a privacy page, none of which any judge asked for — that freedom to add craft is what made it fun.
+
+### Explain how your project meets the main technology requirement
+> Fault Lines was designed and built with the **Devpost Learn Skill Pack** (`challengepost/learn-ai-basics`), pinned in `skills-lock.json` with the hash of all six skills: `1-start`, `2-scope`, `3-prd`, `4-spec`, `5-build`, `6-ship` (installed under `.agents/skills/` and `.claude/skills/`, invocation records in `agent/skills/`).
+>
+> **Flipped interaction.** The learner owned every decision; the agent implemented. In `1-start` I chose the domain (teacher misconception mapping) and the unique kernel — *an answer is not a mark, it is evidence of a belief* — and the agent interrogated it rather than running with it. `2-scope` turned that into an approved one-pager with a defined core loop, non-goals and a "what working looks like" test. Only then did `3-prd` and `4-spec` produce the artefacts the build could actually be held to.
+>
+> **Planning documents as the contract.** All four are committed, with front-matter status and traceability: `devpost/scope.md` (unique kernel, audience, core loop, identity), `devpost/prd.md` (seven-step core journey, screens, look and feel, feature behaviour), `devpost/spec.md` (file structure, components, data model, external services) and `devpost/checklist.md` (`Build mode: learn`, eight slices, each with *why now*, a PRD/spec reference, a mechanical verify step, a learner check and a commit message). Every slice was verified mechanically before the next began: build succeeds → endpoint returns validated JSON → counts sum → UI shows the band.
+>
+> **Ship.** `6-ship` produced the release surface the judges see: CI on every push (lint → typecheck → 84 tests → build), a green Vercel production deploy, and the documentation set (`README`, `ARCHITECTURE`, `SECURITY`, `STRUCTURE`, `docs/i18n.md`).
+>
+> **Where the process earned its keep.** When I audited the build against the spec (§ "A note on the API route"), the route I had marked done had never executed — the demo was riding a silent fallback. Because the plan defined what "working" meant, I could see the gap, and I documented the repair honestly in `docs/recovery/` (state → intent → completeness → integration → plan → log → acceptance → handoff). The finished product — verbatim quotes, counts that sum by construction, an honest "not sure" bucket, seven localised languages, offline PWA, 84 tests — is the output of that discipline, not of a single prompt.
+
+### Eligibility checkboxes
+Both true: **age of majority**, and **eligibility + newly created during the Submission Period using the Devpost Learn Skill Pack** (first commit and every subsequent commit fall inside the period; the skill hashes are pinned in `skills-lock.json`).
+
+### Final gate before you press Save
+- [ ] Preview link opens and the gallery cover renders at card size
+- [ ] `https://faultlines-kappa.vercel.app` loads on mobile data (not just your wifi)
+- [ ] Repo About panel shows **MIT license** + a working homepage link
+- [ ] Video uploaded and public (unlisted is fine) and pasted into the submission
+- [ ] Every "Try it out" link opens without a login
