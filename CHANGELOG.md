@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.0 — 2026-10-26 (Polish, play, reach & proof)
+
+### Added
+- **Strata Drop**: original programmatic offline game (canvas, zero assets) on 404, error, `/offline` and `/play`; high score, keyboard/mouse/touch, reduced-motion aware.
+- **Supercharged programmatic identity**: redesigned SVG logo (static + animated fault-slip variants, crack draw-in), generated PNG icon set (PWA any/maskable, apple-touch, favicon), animated StrataLoader for routes + analysing state.
+- **Tests for every core system**: 23 → **61 tests** incl. messy-data fixtures (French, unicode, duplicates, 120-class), fetch-stubbed LLM provider & key hygiene, env-selection matrix, 413/415/429 API hardening, history migration/corruption, 7-locale parity, extension codec/manifest, PWA/SW/security assets; 4th example classroom (WWI causation, History).
+- **Working browser extension** (MV3): popup paste/grab-selection, right-click send, options, minimal permissions, `#a=` prefill in the web app, store-submission guide.
+- **7-language UI** (en/fr/es/de/pt/yo/ar with RTL + auto-detect), localised header/game/settings; sticky blurred nav, entrance/card animations, site-wide micro-interactions.
+- **PWA to cross-device standard**: full manifest (shortcuts, any orientation), SW v3 (offline page fallback, update toast), install sheet for Chromium + iOS instructions + dismissal memory, viewport/theme-color.
+- **Docs**: SUBMISSION.md (Devpost steps/copy/prompts), docs/operations/ (release, readiness, capacity, DR, verification), fully annotated STRUCTURE.md.
+
+### Security
+- CSP + HSTS + COOP/CORP + extended Permissions-Policy; `/.well-known/security.txt`; API enforces JSON content-type (415); **CSV spreadsheet formula-injection** neutralised; headerless-CSV column detection fixed via longest-text heuristic.
+
 ## 1.0.0 — 2026-10-26 (MVP: recovery, stabilisation & completion)
 
 Full PRSIC pass — see `docs/recovery/` for state, audits, plan, log, acceptance and handoff.

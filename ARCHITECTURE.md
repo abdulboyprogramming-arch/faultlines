@@ -33,6 +33,8 @@ Two providers behind one interface (`lib/llm/provider.ts`):
 | `lib/schema.ts` | Shared client/server contract + limits |
 | `lib/validate.ts` | Normalisation & verbatim-quote enforcement |
 | `lib/llm/{provider,mock,real,index}.ts` | Provider interface, heuristic, LLM, resilient selection |
-| `lib/{export,share,parse-input,history,i18n}.ts` | Exports, share codec, CSV/lines, local history, en/fr/es |
-| `data/examples.ts` + `example-*.json` | Three cached example classrooms (zero-network demo) |
+| `lib/{export,share,parse-input,history,i18n}.ts` | Exports, share/prefill codecs, CSV/lines, local history, 7 locales |
+| `data/examples.ts` + `example-*.json` | Four cached example classrooms (zero-network demo) |
+| `components/StrataGame.tsx` | Strata Drop offline game (404/error/offline/play) |
+| `extension/` | MV3 extension using the same `lib/share.ts` `#a=` codec |
 | `tests/` | Vitest: heuristic invariants, normalisation, exports, share codec, API contract |
