@@ -19,7 +19,7 @@ Build mode: learn
   Learner check: Open the app, click "Load example classroom", and confirm the map appears with 4 strata bands.
   Commit: `Scaffold app with input workspace and example strata map`
 
-- [ ] **2. Paste answers → mock analysis → real results map**
+- [x] **2. Paste answers → mock analysis → real results map**
   Becomes usable: Pasting your own answers and clicking "Map my class" produces a real strata map via the mock provider.
   Why now: Delivers the core journey end to end before touching any real LLM.
   PRD ref: `prd.md > The Core Journey` (steps 2-5)
@@ -29,7 +29,7 @@ Build mode: learn
   Learner check: Paste 5-6 sample answers, click "Map my class", and confirm a map with counts and a "Not sure" band.
   Commit: `Wire paste-to-analysis with mock provider`
 
-- [ ] **3. Reteach cards, diagnostic question, and export**
+- [x] **3. Reteach cards, diagnostic question, and export**
   Becomes usable: Clicking a band shows quotes + reteach card + follow-up diagnostic question; export copies/prints a plan.
   Why now: Completes the core journey's actionable output.
   PRD ref: `prd.md > Features and Behavior > Reteach and export`, `prd.md > Acceptance Criteria`
