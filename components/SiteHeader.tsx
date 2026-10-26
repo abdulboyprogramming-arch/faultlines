@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import { useT } from "@/lib/use-i18n";
 import { useTheme } from "./ThemeProvider";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const NAV = [
   { href: "/tool", key: "map" as const },
@@ -66,7 +67,7 @@ export default function SiteHeader() {
 
   const isActive = (href: string) => pathname === href || (href !== "/" && pathname?.startsWith(href));
 
-  const themeLabel = resolved === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  const themeLabel = t(resolved === "dark" ? "themeToggleLight" : "themeToggleDark");
 
   return (
     <header
@@ -76,17 +77,17 @@ export default function SiteHeader() {
           : "border-transparent bg-paper/60 backdrop-blur-sm"
       }`}
     >
-      <nav className="shell flex h-16 items-center justify-between gap-4" aria-label="Main">
+      <nav className="shell flex h-16 items-center justify-between gap-4" aria-label={t("mainNav")}>
         <Link
           href="/"
           className="group flex items-center gap-2.5 rounded-md py-1 transition-opacity hover:opacity-90"
-          aria-label="Fault Lines — home"
+          aria-label={t("brandHome")}
         >
           <Logo className="h-8 w-8 shrink-0" />
           <span className="flex flex-col leading-none">
             <span className="font-display text-[1.15rem] font-semibold tracking-tight">{t("title")}</span>
             <span className="mt-1 hidden text-[0.65rem] uppercase tracking-[0.18em] text-ink/45 sm:block">
-              Misconception map
+              {t("brandTagline")}
             </span>
           </span>
         </Link>
@@ -119,11 +120,13 @@ export default function SiteHeader() {
             href={GITHUB}
             target="_blank"
             rel="noreferrer"
-            aria-label="Fault Lines on GitHub"
+            aria-label={t("githubAria")}
             className="hidden rounded-md p-2 text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink sm:inline-flex"
           >
             <GithubIcon />
           </a>
+
+          <LanguageSwitcher className="hidden sm:inline-flex" />
 
           <button
             type="button"
@@ -144,7 +147,7 @@ export default function SiteHeader() {
             className="ml-0.5 rounded-md p-2 text-ink/70 transition-colors hover:bg-ink/5 md:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t("closeMenu") : t("openMenu")}
             onClick={() => setOpen((v) => !v)}
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
@@ -185,6 +188,10 @@ export default function SiteHeader() {
               >
                 GitHub <GithubIcon />
               </a>
+            </li>
+            <li className="flex items-center justify-between gap-2 px-3 py-2">
+              <span className="text-xs uppercase tracking-[0.12em] text-ink/45">{t("language")}</span>
+              <LanguageSwitcher />
             </li>
             <li className="pt-1">
               <Link href="/tool" onClick={() => setOpen(false)} className="btn btn-primary w-full">

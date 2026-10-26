@@ -3,6 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
 import Reveal from "@/components/Reveal";
+import T from "@/components/T";
 import DemoMap from "@/components/landing/DemoMap";
 import { EXAMPLES } from "@/data/examples";
 
@@ -10,40 +11,25 @@ const demo = EXAMPLES[0];
 const demoTotal = demo.result.clusters.reduce((s, c) => s + c.count, 0) + demo.result.unsure.length;
 
 const STATS = [
-  { value: "1 map", label: "from 28 messy answers" },
-  { value: "5 min", label: "reteach plan per belief" },
-  { value: "7", label: "interface languages" },
-  { value: "0", label: "accounts or stored answers" },
-];
+  { value: "stat1v", label: "stat1l" },
+  { value: "stat2v", label: "stat2l" },
+  { value: "stat3v", label: "stat3l" },
+  { value: "stat4v", label: "stat4l" },
+] as const;
 
 const STEPS = [
-  {
-    n: "01",
-    title: "Paste",
-    body: "Copy your class's answers to one question — one per line, or drop a .txt/.csv. Remove names first; nothing is stored on a server.",
-    detail: "Up to 120 answers · duplicate detection · live counter",
-  },
-  {
-    n: "02",
-    title: "See the beliefs",
-    body: "Answers are grouped by the idea underneath, named in plain language, sized by how many share it, and ranked by exam risk.",
-    detail: "Vague answers are set aside honestly, never invented",
-  },
-  {
-    n: "03",
-    title: "Reteach & re-check",
-    body: "Every belief comes with a five-minute reteach card and a follow-up diagnostic question. Copy, print or export the one-page plan.",
-    detail: "Markdown · CSV · JSON · printable plan · share link",
-  },
-];
+  { n: "01", title: "step1t", body: "step1b", detail: "step1d" },
+  { n: "02", title: "step2t", body: "step2b", detail: "step2d" },
+  { n: "03", title: "step3t", body: "step3b", detail: "step3d" },
+] as const;
 
 const FEATURES = [
   {
     icon: (
       <path d="M4 7h16M4 12h10M4 17h7" strokeLinecap="round" />
     ),
-    title: "Beliefs, not marks",
-    body: "Bands are sized by share of class, ordered by damage — the one belief 18 of 28 students share is impossible to miss.",
+    title: "feat1t",
+    body: "feat1b",
   },
   {
     icon: (
@@ -52,8 +38,8 @@ const FEATURES = [
         <path d="M4.5 7.5h.01M4.5 12h.01M4.5 16.5h.01" strokeLinecap="round" />
       </>
     ),
-    title: "Verbatim evidence",
-    body: "Quotes are always the exact words a student wrote. Counts always sum to your class size — guaranteed by construction.",
+    title: "feat2t",
+    body: "feat2b",
   },
   {
     icon: (
@@ -63,8 +49,8 @@ const FEATURES = [
         <path d="M12 16h.01" strokeLinecap="round" />
       </>
     ),
-    title: "Honest about gaps",
-    body: "Too vague to classify? It says “Not sure — needs your eyes” and shows you the raw answer instead of inventing a misconception.",
+    title: "feat3t",
+    body: "feat3b",
   },
   {
     icon: (
@@ -74,8 +60,8 @@ const FEATURES = [
         <path d="M4.5 20h15" strokeLinecap="round" />
       </>
     ),
-    title: "Exports that fit school",
-    body: "Copy the plan, print one page for the staffroom, or download Markdown, CSV and JSON for department records.",
+    title: "feat4t",
+    body: "feat4b",
   },
   {
     icon: (
@@ -83,59 +69,40 @@ const FEATURES = [
         <path d="M7 9a5 5 0 0 1 9.9-1.3A3.8 3.8 0 1 1 17 15H7a3 3 0 0 1 0-6Z" strokeLinejoin="round" />
       </>
     ),
-    title: "Works offline, installs",
-    body: "Install it like an app. Example classrooms, the built-in analysis and your local history all work with no signal.",
+    title: "feat5t",
+    body: "feat5b",
   },
   {
     icon: (
       <path d="M12 3.5 4.5 7v5.4c0 4.2 3 7.2 7.5 8.1 4.5-.9 7.5-3.9 7.5-8.1V7L12 3.5Z" strokeLinejoin="round" />
     ),
-    title: "Private by design",
-    body: "No accounts, no database, no analytics on your students. Saved maps live in this browser and you can wipe them in one tap.",
+    title: "feat6t",
+    body: "feat6b",
   },
-];
+] as const;
 
 const PRINCIPLES = [
-  {
-    title: "Quotes are never rewritten",
-    body: "The model returns which answers belong together; the text you see is always your paste, unedited.",
-  },
-  {
-    title: "The counts add up",
-    body: "Every answer lands in a band or in the “not sure” list — never duplicated, never quietly dropped.",
-  },
-  {
-    title: "Silence beats invention",
-    body: "If an answer is too thin to interpret, it stays unclassified. A guess would cost you a lesson.",
-  },
-];
+  { title: "prin1t", body: "prin1b" },
+  { title: "prin2t", body: "prin2b" },
+  { title: "prin3t", body: "prin3b" },
+] as const;
 
 const faqs = [
-  {
-    q: "Is my students' work stored anywhere?",
-    a: "No. There are no accounts and no database. Answers are sent once to the analysis endpoint (or analysed in your browser) and are not saved server-side. Results you keep live only in this browser's local storage — remove student names before pasting, and clear local data on shared computers (Settings). The plain-language privacy page has the full picture.",
-  },
-  {
-    q: "Does it need an AI API key?",
-    a: "No. Out of the box it runs a built-in heuristic that groups answers by similarity, and the four example classrooms work with zero network. For true misconception judgement, a school can configure an OpenAI-compatible API key on the server (see README) — the key never reaches the browser.",
-  },
-  {
-    q: "Will it invent misconceptions?",
-    a: "It's built not to. Quotes are always verbatim from your paste, counts always sum to your class size, and anything too vague to classify is shown separately as “Not sure — needs your eyes” rather than being assigned an invented belief.",
-  },
-  {
-    q: "Which subjects does it work for?",
-    a: "Anything with short written answers: science explanations, maths methods, history causation, language comprehension. Try the example classrooms — seasons, fractions, photosynthesis and WWI causation — to see the range.",
-  },
-  {
-    q: "What do I do with the result?",
-    a: "Each belief comes with a ~5-minute reteach card and a follow-up diagnostic question. Copy the one-page plan, print it, or download Markdown/CSV/JSON for your department records.",
-  },
-  {
-    q: "How accurate is the built-in analysis?",
-    a: "The built-in engine groups by wording similarity, so it is honest about being a preview: it clusters answers and quotes them, but it does not judge correctness. Settings and every report label which engine produced the map, so you always know what you are reading.",
-  },
-];
+  { q: "faq1q", a: "faq1a" },
+  { q: "faq2q", a: "faq2a" },
+  { q: "faq3q", a: "faq3a" },
+  { q: "faq4q", a: "faq4a" },
+  { q: "faq5q", a: "faq5a" },
+  { q: "faq6q", a: "faq6a" },
+] as const;
+
+/** Example classrooms: copy comes from the dictionary, data stays in `data/examples.ts`. */
+const EXAMPLE_COPY: Record<string, { name: string; subject: string }> = {
+  seasons: { name: "exSeasonsName", subject: "exSeasonsSubject" },
+  fractions: { name: "exFractionsName", subject: "exFractionsSubject" },
+  photosynthesis: { name: "exPhotoName", subject: "exPhotoSubject" },
+  ww1: { name: "exWw1Name", subject: "exWw1Subject" },
+};
 
 export const metadata = {
   alternates: { canonical: "/" },
@@ -181,40 +148,40 @@ export default function Landing() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rust opacity-60" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rust" />
                 </span>
-                For teachers marking written answers
+                <T k="landingEyebrow" />
               </p>
 
               <h1 className="mt-5 text-[clamp(2.6rem,7vw,4.6rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
-                Every class has
-                <span className="block">fault lines.</span>
+                <T k="landingH1a" />
+                <span className="block">
+                  <T k="landingH1b" />
+                </span>
                 <span className="mt-3 block font-display text-[clamp(1.15rem,2.4vw,1.6rem)] font-normal italic leading-tight tracking-[-0.01em] text-rust">
-                  See them before the exam does.
+                  <T k="landingTagline" />
                 </span>
               </h1>
 
               <p className="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-ink/70">
-                Paste your class&apos;s answers to one question. In seconds Fault Lines reveals the different
-                ways your class is actually thinking, how many share each one, and which will cost them on
-                the exam — with their own words as evidence and a five-minute reteach plan for each.
+                <T k="landingIntro" />
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link href="/tool" className="btn btn-primary btn-lg">
-                  Map my class
+                  <T k="landingCtaPrimary" />
                   <span aria-hidden="true">→</span>
                 </Link>
                 <Link href="/tool#examples" className="btn btn-outline btn-lg">
-                  Try an example classroom
+                  <T k="landingCtaSecondary" />
                 </Link>
               </div>
 
               <ul className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-ink/55">
-                {["No accounts", "No stored student data", "Works offline", "No API key needed"].map((item) => (
+                {(["trustNoAccounts", "trustNoData", "trustOffline", "trustNoKey"] as const).map((item) => (
                   <li key={item} className="flex items-center gap-1.5">
                     <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-moss" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M5 12.5 9.5 17 19 7" />
                     </svg>
-                    {item}
+                    <T k={item} />
                   </li>
                 ))}
               </ul>
@@ -241,10 +208,16 @@ export default function Landing() {
             <dl className="shell grid grid-cols-2 divide-ink/10 sm:grid-cols-4 sm:divide-x">
               {STATS.map((s) => (
                 <div key={s.label} className="px-2 py-5 text-center sm:px-6">
-                  <dt className="sr-only">{s.label}</dt>
+                  <dt className="sr-only">
+                    <T k={s.label} />
+                  </dt>
                   <dd>
-                    <span className="block font-display text-2xl font-semibold tracking-tight">{s.value}</span>
-                    <span className="mt-0.5 block text-xs text-ink/55">{s.label}</span>
+                    <span className="block font-display text-2xl font-semibold tracking-tight">
+                      <T k={s.value} />
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink/55">
+                      <T k={s.label} />
+                    </span>
                   </dd>
                 </div>
               ))}
@@ -256,28 +229,34 @@ export default function Landing() {
         <section className="shell py-20 sm:py-24" aria-labelledby="gap-heading">
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
             <Reveal>
-              <p className="eyebrow">The gap</p>
+              <p className="eyebrow">
+                <T k="gapEyebrow" />
+              </p>
               <h2 id="gap-heading" className="mt-3 text-[clamp(1.9rem,3.6vw,2.9rem)] leading-[1.08]">
-                A mark tells you who lost points.
-                <span className="block text-ink/45">It never tells you what the class believes.</span>
+                <T k="gapTitle1" />
+                <span className="block text-ink/45">
+                  <T k="gapTitle2" />
+                </span>
               </h2>
               <p className="mt-5 max-w-xl leading-relaxed text-ink/65">
-                Mark 120 scripts and you finish knowing thirty need “see me”. What you cannot see from a
-                mark book is the one idea half the class shares — the idea that will cost them in the exam
-                and take five minutes to fix tomorrow.
+                <T k="gapBody" />
               </p>
             </Reveal>
 
             <Reveal delay={100}>
               <ul className="space-y-4">
-                {[
-                  ["Same answer, different belief", "Two students can write the same sentence for opposite reasons. Grouping by marks hides this; grouping by belief exposes it."],
-                  ["Risk, not ranking", "A belief shared by 64% of the class matters more than a single brilliant answer. Bands are ordered by damage, not by grade."],
-                  ["Evidence you can defend", "When a head of department asks why you re-taught that, you have the verbatim quotes and the exact count."],
-                ].map(([title, body]) => (
+                {([
+                  ["gap1t", "gap1b"],
+                  ["gap2t", "gap2b"],
+                  ["gap3t", "gap3b"],
+                ] as const).map(([title, body]) => (
                   <li key={title} className="card p-5">
-                    <h3 className="font-display text-lg leading-snug">{title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink/65">{body}</p>
+                    <h3 className="font-display text-lg leading-snug">
+                      <T k={title} />
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink/65">
+                      <T k={body} />
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -290,12 +269,14 @@ export default function Landing() {
           <div className="shell">
             <Reveal>
               <div className="max-w-2xl">
-                <p className="eyebrow">How it works</p>
+                <p className="eyebrow">
+                  <T k="howEyebrow" />
+                </p>
                 <h2 id="how-heading" className="mt-3 text-[clamp(1.9rem,3.6vw,2.6rem)]">
-                  Three steps, one class period
+                  <T k="howTitle" />
                 </h2>
                 <p className="mt-3 text-ink/65">
-                  No onboarding, no account, no spreadsheet to tidy first.
+                  <T k="howSub" />
                 </p>
               </div>
             </Reveal>
@@ -305,10 +286,14 @@ export default function Landing() {
                 <Reveal key={step.n} delay={i * 90} as="li" className="h-full">
                   <div className="card relative h-full p-6 card-lift">
                     <span className="font-display text-4xl font-semibold tracking-tight text-rust/25">{step.n}</span>
-                    <h3 className="mt-3 font-display text-xl">{step.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/65">{step.body}</p>
+                    <h3 className="mt-3 font-display text-xl">
+                      <T k={step.title} />
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/65">
+                      <T k={step.body} />
+                    </p>
                     <p className="mt-4 border-t border-ink/10 pt-3 text-[0.7rem] uppercase tracking-[0.1em] text-ink/45">
-                      {step.detail}
+                      <T k={step.detail} />
                     </p>
                   </div>
                 </Reveal>
@@ -322,13 +307,15 @@ export default function Landing() {
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <p className="eyebrow">What you get</p>
+                <p className="eyebrow">
+                  <T k="featEyebrow" />
+                </p>
                 <h2 id="features-heading" className="mt-3 text-[clamp(1.9rem,3.6vw,2.6rem)]">
-                  Small tool, deliberately complete
+                  <T k="featTitle" />
                 </h2>
               </div>
               <Link href="/tool" className="btn btn-outline btn-sm">
-                Open the tool <span aria-hidden="true">→</span>
+                <T k="featOpenTool" /> <span aria-hidden="true">→</span>
               </Link>
             </div>
           </Reveal>
@@ -342,8 +329,12 @@ export default function Landing() {
                       {f.icon}
                     </svg>
                   </span>
-                  <h3 className="mt-4 font-display text-lg leading-snug">{f.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-ink/65">{f.body}</p>
+                  <h3 className="mt-4 font-display text-lg leading-snug">
+                    <T k={f.title} />
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink/65">
+                    <T k={f.body} />
+                  </p>
                 </div>
               </Reveal>
             ))}
@@ -354,13 +345,14 @@ export default function Landing() {
         <section className="border-y border-ink/10 bg-slate/[0.06] py-20 sm:py-24" aria-labelledby="trust-heading">
           <div className="shell grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
             <Reveal>
-              <p className="eyebrow">Trust</p>
+              <p className="eyebrow">
+                <T k="trustEyebrow" />
+              </p>
               <h2 id="trust-heading" className="mt-3 text-[clamp(1.9rem,3.6vw,2.6rem)]">
-                Built to be boring about evidence
+                <T k="trustTitle" />
               </h2>
               <p className="mt-4 max-w-lg leading-relaxed text-ink/65">
-                Misconception tools fail in one direction: they sound confident and get the class wrong.
-                Fault Lines is designed so the worst case is a vague answer sitting in a list you can see.
+                <T k="trustBody" />
               </p>
               <ul className="mt-7 space-y-4">
                 {PRINCIPLES.map((p) => (
@@ -371,8 +363,12 @@ export default function Landing() {
                       </svg>
                     </span>
                     <div>
-                      <h3 className="text-sm font-semibold">{p.title}</h3>
-                      <p className="text-sm leading-relaxed text-ink/60">{p.body}</p>
+                      <h3 className="text-sm font-semibold">
+                        <T k={p.title} />
+                      </h3>
+                      <p className="text-sm leading-relaxed text-ink/60">
+                        <T k={p.body} />
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -382,27 +378,37 @@ export default function Landing() {
             <Reveal delay={120}>
               <div className="card overflow-hidden">
                 <div className="flex items-center justify-between border-b border-ink/10 bg-card-deep/50 px-5 py-3">
-                  <p className="eyebrow">Receipt from a real run</p>
-                  <span className="chip border-ochre/40 bg-ochre/15 text-ink/70">1 of 28 unclassified</span>
+                  <p className="eyebrow">
+                    <T k="receiptEyebrow" />
+                  </p>
+                  <span className="chip border-ochre/40 bg-ochre/15 text-ink/70">
+                    <T k="receiptChip" vars={{ n: 1 }} />
+                  </span>
                 </div>
                 <div className="space-y-4 p-5">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.1em] text-ink/45">Named belief · 18 of 28 · high risk</p>
+                    <p className="text-xs uppercase tracking-[0.1em] text-ink/45">
+                      <T k="receiptNamed" />
+                    </p>
                     <p className="mt-1 font-display text-lg">The distance myth</p>
                     <blockquote className="mt-2 border-l-2 border-rust pl-3 text-sm italic text-ink/75">
                       “Because the earth moves nearer to the sun in June”
                     </blockquote>
                   </div>
                   <div className="border-t border-ink/10 pt-4">
-                    <p className="text-xs uppercase tracking-[0.1em] text-ink/45">Set aside, not invented</p>
+                    <p className="text-xs uppercase tracking-[0.1em] text-ink/45">
+                      <T k="receiptSetAside" />
+                    </p>
                     <p className="mt-1 text-sm italic text-ink/75">“It&apos;s just different”</p>
                     <p className="mt-1 text-xs text-ink/50">
-                      Shown to the teacher with the original wording — no belief guessed on the student&apos;s behalf.
+                      <T k="receiptSetAsideNote" />
                     </p>
                   </div>
                   <div className="rounded-lg bg-paper/70 p-3 text-xs leading-relaxed text-ink/60">
-                    <strong className="font-semibold text-ink/80">Reteach · 6 minutes:</strong> show the orbit is
-                    nearly circular, demonstrate axial tilt, then ask why Sydney has winter when London has summer.
+                    <strong className="font-semibold text-ink/80">
+                      <T k="receiptReteach" />
+                    </strong>{" "}
+                    <T k="receiptReteachBody" />
                   </div>
                 </div>
               </div>
@@ -414,12 +420,14 @@ export default function Landing() {
         <section id="examples" className="shell scroll-mt-24 py-20 sm:py-24" aria-labelledby="examples-heading">
           <Reveal>
             <div className="max-w-2xl">
-              <p className="eyebrow">Example classrooms</p>
+              <p className="eyebrow">
+                <T k="exEyebrow" />
+              </p>
               <h2 id="examples-heading" className="mt-3 text-[clamp(1.9rem,3.6vw,2.6rem)]">
-                Four classes, four different fault lines
+                <T k="exTitle" />
               </h2>
               <p className="mt-3 text-ink/65">
-                Real cached runs. Open one and everything works — no typing, no API key, no network.
+                <T k="exSub" />
               </p>
             </div>
           </Reveal>
@@ -434,15 +442,20 @@ export default function Landing() {
                     className="group card flex h-full flex-col justify-between gap-4 p-5 card-lift"
                   >
                     <div>
-                      <p className="text-[0.7rem] uppercase tracking-[0.12em] text-ink/45">{ex.subject}</p>
-                      <h3 className="mt-1.5 font-display text-lg leading-snug">{ex.name}</h3>
+                      <p className="text-[0.7rem] uppercase tracking-[0.12em] text-ink/45">
+                        <T k={EXAMPLE_COPY[ex.id].subject as never} />
+                      </p>
+                      <h3 className="mt-1.5 font-display text-lg leading-snug">
+                        <T k={EXAMPLE_COPY[ex.id].name as never} />
+                      </h3>
                     </div>
                     <div className="flex items-center justify-between gap-3 text-xs text-ink/55">
                       <span className="tabular-nums">
-                        {total} answers · {ex.result.clusters.length} beliefs
+                        <T k="exAnswers" vars={{ n: total }} /> ·{" "}
+                        <T k="exBeliefs" vars={{ n: ex.result.clusters.length }} />
                       </span>
                       <span className="inline-flex items-center gap-1 font-medium text-rust opacity-0 transition-opacity group-hover:opacity-100">
-                        Open <span aria-hidden="true">→</span>
+                        <T k="exOpen" /> <span aria-hidden="true">→</span>
                       </span>
                     </div>
                   </Link>
@@ -456,12 +469,14 @@ export default function Landing() {
         <section className="border-t border-ink/10 bg-paper-deep/40 py-20 sm:py-24" aria-labelledby="faq-heading">
           <div className="shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
             <Reveal>
-              <p className="eyebrow">Questions</p>
+              <p className="eyebrow">
+                <T k="faqEyebrow" />
+              </p>
               <h2 id="faq-heading" className="mt-3 text-[clamp(1.9rem,3.6vw,2.4rem)]">
-                The things teachers ask first
+                <T k="faqTitle" />
               </h2>
               <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink/60">
-                Still unsure? The full security notes and architecture decisions are in the repository.
+                <T k="faqSub" />
               </p>
               <a
                 href="https://github.com/abdulboyprogramming-arch/faultlines/blob/main/SECURITY.md"
@@ -469,7 +484,7 @@ export default function Landing() {
                 rel="noreferrer"
                 className="btn btn-outline btn-sm mt-5"
               >
-                Read the security notes
+                <T k="faqSecurityCta" />
               </a>
             </Reveal>
 
@@ -478,7 +493,7 @@ export default function Landing() {
                 {faqs.map((f) => (
                   <details key={f.q} className="group">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-medium marker:hidden hover:bg-ink/[0.03]">
-                      {f.q}
+                      <T k={f.q} />
                       <span
                         aria-hidden="true"
                         className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-ink/15 text-ink/50 transition-transform duration-300 group-open:rotate-45"
@@ -488,7 +503,9 @@ export default function Landing() {
                         </svg>
                       </span>
                     </summary>
-                    <p className="px-5 pb-5 text-sm leading-relaxed text-ink/65">{f.a}</p>
+                    <p className="px-5 pb-5 text-sm leading-relaxed text-ink/65">
+                      <T k={f.a} />
+                    </p>
                   </details>
                 ))}
               </div>
@@ -511,22 +528,21 @@ export default function Landing() {
               <div className="relative mx-auto max-w-2xl text-center">
                 <Logo className="mx-auto h-14 w-14" variant="animated" />
                 <h2 id="cta-heading" className="mt-6 text-[clamp(1.9rem,4vw,2.8rem)]">
-                  Find your class&apos;s fault lines before the exam does.
+                  <T k="ctaTitle" />
                 </h2>
                 <p className="mx-auto mt-4 max-w-lg text-paper/70">
-                  One question, one paste, about a minute. No account, no student data stored, no API key
-                  needed to try it.
+                  <T k="ctaBody" />
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                   <Link href="/tool" className="btn btn-accent btn-lg">
-                    Map my class
+                    <T k="ctaPrimary" />
                   </Link>
                   <Link href="/tool?example=seasons" className="btn btn-lg border border-paper/25 text-paper hover:bg-paper/10">
-                    See a full example
+                    <T k="ctaSecondary" />
                   </Link>
                 </div>
                 <p className="mt-5 text-xs text-paper/45">
-                  Works on phone, tablet and laptop · installable · offline-ready
+                  <T k="ctaFoot" />
                 </p>
               </div>
             </div>

@@ -8,6 +8,7 @@ import ExportBar from "@/components/ExportBar";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import StrataLoader from "@/components/StrataLoader";
+import T from "@/components/T";
 import { MAX_ANSWERS, type AnalysisResult } from "@/lib/schema";
 import { normalizeAnalysis, resultTotal } from "@/lib/validate";
 import { MockProvider } from "@/lib/llm/mock";
@@ -17,8 +18,49 @@ import { decodeAnswersPayload, decodeShare } from "@/lib/share";
 import { entryFor, HISTORY_KEY, loadHistory, saveHistory } from "@/lib/history";
 import { useT } from "@/lib/use-i18n";
 import { useStoredString } from "@/lib/use-local-store";
-import { describeScan, scanForPersonalData } from "@/lib/privacy";
-import { compareRuns, describeComparison } from "@/lib/compare";
+import { scanForPersonalData } from "@/lib/privacy";
+import { compareRuns } from "@/lib/compare";
+
+/** Example classroom copy comes from the dictionary; the answer data does not. */
+const EXAMPLE_COPY: Record<string, { name: string; subject: string }> = {
+  seasons: { name: "exSeasonsName", subject: "exSeasonsSubject" },
+  fractions: { name: "exFractionsName", subject: "exFractionsSubject" },
+  photosynthesis: { name: "exPhotoName", subject: "exPhotoSubject" },
+  ww1: { name: "exWw1Name", subject: "exWw1Subject" },
+};
+
+type Tran = ReturnType<typeof useT>;
+
+/** "Possible personal data in 3 answers: 2 name-like phrases, 1 email address." */
+function describeScanLocalised(
+  scan: ReturnType<typeof scanForPersonalData>,
+  t: Tran,
+): string {
+  const parts: string[] = [];
+  if (scan.counts.name) parts.push(t(scan.counts.name === 1 ? "privacyNames" : "privacyNamesPlural", { n: scan.counts.name }));
+  if (scan.counts.email) parts.push(t(scan.counts.email === 1 ? "privacyEmails" : "privacyEmailsPlural", { n: scan.counts.email }));
+  if (scan.counts.phone) parts.push(t(scan.counts.phone === 1 ? "privacyPhones" : "privacyPhonesPlural", { n: scan.counts.phone }));
+  if (scan.counts.label) parts.push(t(scan.counts.label === 1 ? "privacyLabels" : "privacyLabelsPlural", { n: scan.counts.label }));
+  if (parts.length === 0) return "";
+  return t(scan.answers === 1 ? "privacyWarnOne" : "privacyWarnMany", {
+    n: scan.answers,
+    parts: parts.join(", "),
+  });
+}
+
+/** Screen-reader summary of a run-to-run comparison, in the reader's language. */
+function describeComparisonLocalised(
+  comparison: NonNullable<ReturnType<typeof compareRuns>>,
+  t: Tran,
+): string {
+  if (!comparison.changed) return t("cmpNone");
+  const shrunk = comparison.deltas.filter((d) => d.change < 0).length;
+  const grew = comparison.deltas.filter((d) => d.change > 0).length;
+  const parts: string[] = [];
+  if (shrunk) parts.push(t(shrunk === 1 ? "cmpShrunkOne" : "cmpShrunk", { n: shrunk }));
+  if (grew) parts.push(t(grew === 1 ? "cmpGrewOne" : "cmpGrew", { n: grew }));
+  return t("cmpSummary", { date: t.date(comparison.previousAt), parts: parts.join(", ") });
+}
 
 export default function Tool() {
   const t = useT();
@@ -86,9 +128,9 @@ export default function Tool() {
       if (payload && payload.answers.length) {
         if (payload.q) setQuestion(payload.q);
         setText(payload.answers.join("\n"));
-        setNotice(`${payload.answers.length} answers received — check names are removed, then map your class.`);
+        setNotice(t("incomingNotice", { n: payload.answers.length }));
       } else {
-        setError("That incoming link didn't contain usable answers.");
+        setError(t("incomingError"));
       }
       return;
     }
@@ -96,13 +138,16 @@ export default function Tool() {
     if (shared) {
       setResult(normalizeAnalysis(shared));
       setSelected(0);
-      setNotice("Viewing a shared report. Nothing was sent to a server to open it.");
+      setNotice(t("sharedNotice"));
     } else if (hash.length > 40) {
       // Long enough to be a report payload, but it did not validate.
-      setError("That share link doesn't contain a valid report.");
+      setError(t("badShare"));
     }
     // Short hashes are just in-page anchors (#examples) — leave them alone.
     /* eslint-enable react-hooks/set-state-in-effect */
+    // One-time URL sync: `t` is intentionally excluded so a language change
+    // never re-reads the hash and overwrites the teacher's current map.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function persist(next: Parameters<typeof saveHistory>[0]) {
@@ -117,26 +162,29 @@ export default function Tool() {
       setUnsureOpen(false);
       setIsSample(null);
       setAnnouncement(
-        `Map ready. ${resultTotal(clean)} answers sorted into ${clean.clusters.length} beliefs` +
-          (clean.unsure.length ? `, ${clean.unsure.length} unclassified.` : "."),
+        t("announcement", {
+          a: resultTotal(clean),
+          b: clean.clusters.length,
+          u: clean.unsure.length ? t("announcementUnsure", { n: clean.unsure.length }) : "",
+        }),
       );
       if (clean.meta?.degraded) {
-        setNotice("The AI provider didn't respond, so this map uses the built-in heuristic instead. Quotes and counts are still exact.");
+        setNotice(t("providerDegraded"));
       }
       const entry = entryFor(clean);
       setLastSavedId(entry.id);
       saveHistory([entry, ...loadHistory()].slice(0, 8));
     },
-    [],
+    [t],
   );
 
   const analyze = useCallback(async () => {
     if (live.answers.length === 0) {
-      setError("Paste at least one answer, one per line — or load an example classroom instead.");
+      setError(t("errorNoAnswers"));
       return;
     }
     setError(null);
-    setNotice(live.truncated ? `Only the first ${MAX_ANSWERS} answers were analysed (calm cap, by design).` : null);
+    setNotice(live.truncated ? t("capMessage", { n: MAX_ANSWERS }) : null);
     setLoading(true);
     const payload = { answers: live.answers, question: question.trim() || undefined };
     try {
@@ -151,20 +199,20 @@ export default function Tool() {
       }
       const data = (await res.json()) as AnalysisResult;
       finish(data, live.answers);
-    } catch (err) {
+    } catch {
       // Static deploy fallback (e.g. GitHub Pages has no API route): run the
       // same heuristic in-browser, and SAY so.
       try {
         const data = await new MockProvider().analyze(live.answers, { question: payload.question });
-        setNotice("The analysis service was unreachable, so this map was produced in your browser with the built-in heuristic.");
+        setNotice(t("analysisUnreachable"));
         finish(data, live.answers);
       } catch {
-        setError(err instanceof Error ? err.message : "Analysis failed. Please try again.");
+        setError(t("errorAnalysis"));
       }
     } finally {
       setLoading(false);
     }
-  }, [live, question, finish]);
+  }, [live, question, finish, t]);
 
   // ⌘/Ctrl + Enter maps the class from anywhere on the page.
   useEffect(() => {
@@ -222,14 +270,12 @@ export default function Tool() {
     setError(null);
     setNotice(null);
     const normalized = normalizeAnalysis(ex.result, ex.answers);
-    setAnnouncement(
-      `Example loaded. ${resultTotal(normalized)} answers sorted into ${normalized.clusters.length} beliefs.`,
-    );
+    setAnnouncement(t("exampleLoadedNotice", { a: resultTotal(normalized), b: normalized.clusters.length }));
   }
 
   function onFile(file: File) {
     if (file.size > 1_000_000) {
-      setError("That file is over 1 MB — paste the answers instead.");
+      setError(t("fileTooBig"));
       return;
     }
     const reader = new FileReader();
@@ -237,14 +283,14 @@ export default function Tool() {
       const content = String(reader.result);
       const answers = looksLikeCsv(content, file.name) ? answersFromCsv(content) : parseLines(content);
       if (answers.length === 0) {
-        setError("No answers found in that file.");
+        setError(t("fileEmpty"));
         return;
       }
       setText(answers.join("\n"));
       setError(null);
-      setNotice(`Loaded ${answers.length} answers from ${file.name}. Check names are removed before mapping.`);
+      setNotice(t("fileLoaded", { n: answers.length, name: file.name }));
     };
-    reader.onerror = () => setError("Couldn't read that file.");
+    reader.onerror = () => setError(t("fileRead"));
     reader.readAsText(file);
   }
 
@@ -271,15 +317,15 @@ export default function Tool() {
   );
   const sourceLabel =
     result?.meta?.source === "llm"
-      ? "AI analysis"
+      ? t("sourceAi")
       : result?.meta?.source === "example"
-        ? "Cached example analysis"
-        : "Heuristic preview";
+        ? t("sourceExample")
+        : t("sourceHeuristic");
   const sourceHint =
     result && result.meta?.source !== "llm" && result.meta?.source !== "example"
-      ? "Grouped by wording similarity — configure an LLM for misconception judgement"
+      ? t("sourceHeuristicHint")
       : isSample
-        ? `${isSample} · illustrative data`
+        ? t("sourceExampleHint", { name: isSample })
         : undefined;
 
   const filled = Math.min(live.answers.length / MAX_ANSWERS, 1);
@@ -295,13 +341,15 @@ export default function Tool() {
         {!result && (
           <div ref={composerRef}>
             <header className="mb-8 max-w-2xl print:hidden">
-              <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1.5 text-xs text-ink/45">
-                <Link href="/" className="transition-colors hover:text-ink">Home</Link>
+              <nav aria-label={t("breadcrumbHome")} className="mb-3 flex items-center gap-1.5 text-xs text-ink/45">
+                <Link href="/" className="transition-colors hover:text-ink">
+                  {t("breadcrumbHome")}
+                </Link>
                 <span aria-hidden="true">/</span>
-                <span className="text-ink/70">{t("map")}</span>
+                <span className="text-ink/70">{t("breadcrumbTool")}</span>
               </nav>
-              <h1 className="text-[clamp(2rem,4.5vw,3rem)]">Map a class</h1>
-              <p className="mt-2 max-w-xl leading-relaxed text-ink/65">{t("subtitle")}</p>
+              <h1 className="text-[clamp(2rem,4.5vw,3rem)]">{t("toolTitle")}</h1>
+              <p className="mt-2 max-w-xl leading-relaxed text-ink/65">{t("toolSubtitle")}</p>
             </header>
 
             {(error || notice) && (
@@ -309,13 +357,13 @@ export default function Tool() {
                 {error && (
                   <div role="alert" className="flex items-start justify-between gap-3 rounded-lg border border-rust/40 bg-rust/8 px-4 py-3 text-sm">
                     <span className="text-rust">{error}</span>
-                    <button type="button" onClick={() => setError(null)} aria-label="Dismiss error" className="shrink-0 text-rust/60 hover:text-rust">✕</button>
+                    <button type="button" onClick={() => setError(null)} aria-label={t("dismiss")} className="shrink-0 text-rust/60 hover:text-rust">✕</button>
                   </div>
                 )}
                 {notice && !error && (
                   <div role="status" className="flex items-start justify-between gap-3 rounded-lg border border-ochre/45 bg-ochre/10 px-4 py-3 text-sm text-ink/75">
                     <span>{notice}</span>
-                    <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss message" className="shrink-0 text-ink/40 hover:text-ink">✕</button>
+                    <button type="button" onClick={() => setNotice(null)} aria-label={t("dismiss")} className="shrink-0 text-ink/40 hover:text-ink">✕</button>
                   </div>
                 )}
               </div>
@@ -323,7 +371,7 @@ export default function Tool() {
 
             {loading && (
               <div className="mb-6 py-10 animate-fade-in">
-                <StrataLoader label={`${t("reading")} ${live.answers.length} ${t("answers")}…`} />
+                <StrataLoader label={t("readingCount", { n: live.answers.length })} />
               </div>
             )}
 
@@ -332,10 +380,8 @@ export default function Tool() {
                 {/* input card */}
                 <div className="card overflow-hidden animate-fade-up">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 bg-card-deep/40 px-5 py-3">
-                    <h2 className="font-display text-base font-semibold">Your class</h2>
-                    <span className="text-[0.7rem] uppercase tracking-[0.1em] text-ink/40">
-                      Step 1 of 2 · paste
-                    </span>
+                    <h2 className="font-display text-base font-semibold">{t("yourClass")}</h2>
+                    <span className="text-[0.7rem] uppercase tracking-[0.1em] text-ink/40">{t("step1of2")}</span>
                   </div>
 
                   <div className="space-y-5 p-5">
@@ -348,7 +394,7 @@ export default function Tool() {
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
                         maxLength={300}
-                        placeholder="e.g. Why do we have seasons?"
+                        placeholder={t("questionPlaceholder")}
                         className="field"
                         list="question-presets"
                         aria-describedby="question-hint"
@@ -359,7 +405,7 @@ export default function Tool() {
                         ))}
                       </datalist>
                       <p id="question-hint" className="mt-1.5 text-xs text-ink/45">
-                        Optional — but naming the question sharpens the reteach wording and diagnostic.
+                        {t("questionHint")}
                       </p>
                     </div>
 
@@ -395,7 +441,7 @@ export default function Tool() {
                           value={text}
                           onChange={(e) => setText(e.target.value)}
                           rows={11}
-                          placeholder={"Paste answers, one per line…\nBecause the earth moves nearer to the sun in June\nThe earth tilts on its axis…"}
+                          placeholder={t("answersPlaceholder")}
                           className="field min-h-[11rem] font-ui leading-relaxed"
                         />
                       </div>
@@ -408,19 +454,16 @@ export default function Tool() {
                         />
                       </div>
                       <p id="answers-hint" className="mt-2 text-xs leading-relaxed text-ink/55">
-                        {t("paste")} Answers are analysed and never stored on a server. You can also drop a{" "}
-                        <abbr title="plain text">.txt</abbr> or{" "}
-                        <abbr title="comma separated values">.csv</abbr> file here.
+                        {t("answersHint")}
                       </p>
                       {live.truncated && (
                         <p className="mt-1 text-xs text-rust">
-                          Over the cap — only the first {MAX_ANSWERS} answers will be analysed.
+                          {t("capNotice", { n: MAX_ANSWERS })}
                         </p>
                       )}
                       {live.duplicates > 0 && (
                         <p className="mt-1 text-xs text-ink/50">
-                          {live.duplicates} duplicate answer{live.duplicates === 1 ? "" : "s"} detected — kept, because
-                          duplicates are evidence too.
+                          {t(live.duplicates === 1 ? "dupNoticeOne" : "dupNotice", { n: live.duplicates })}
                         </p>
                       )}
                     </div>
@@ -430,13 +473,13 @@ export default function Tool() {
                         <div className="flex items-start justify-between gap-3">
                           <p className="font-medium text-ink/85">
                             <span aria-hidden="true">⚠ </span>
-                            {describeScan(privacy)}
+                            {describeScanLocalised(privacy, t)}
                           </p>
                           <button
                             type="button"
                             onClick={() => setPrivacyDismissedFor(live.answers.length)}
                             className="shrink-0 text-ink/40 hover:text-ink"
-                            aria-label="Dismiss name warning"
+                            aria-label={t("privacyDismiss")}
                           >
                             ✕
                           </button>
@@ -454,27 +497,25 @@ export default function Tool() {
                           </ul>
                         )}
                         <p className="mt-2 leading-relaxed text-ink/55">
-                          Nothing is stored on a server, but quotes appear verbatim in the report, exports and
-                          share links. Replace names with initials before mapping — this warning clears itself
-                          when the answers change.
+                          {t("privacyNote")}
                         </p>
                       </div>
                     )}
 
                     <div className="flex flex-wrap items-center gap-2.5 border-t border-ink/10 pt-4">
                       <button type="button" onClick={analyze} disabled={loading} className="btn btn-primary">
-                        {loading ? `${t("reading")} ${live.answers.length} ${t("answers")}…` : "Map my class"}
+                        {loading ? t("readingCount", { n: live.answers.length }) : t("map")}
                         <span aria-hidden="true">→</span>
                       </button>
                       <button type="button" onClick={() => fileRef.current?.click()} className="btn btn-outline">
-                        {t("upload")}
+                        {t("uploadBtn")}
                       </button>
                       <input
                         ref={fileRef}
                         type="file"
                         accept=".txt,.csv,text/plain,text/csv"
                         className="hidden"
-                        aria-label="Upload answers file"
+                        aria-label={t("uploadAria")}
                         onChange={(e) => {
                           const f = e.target.files?.[0];
                           if (f) onFile(f);
@@ -490,14 +531,14 @@ export default function Tool() {
                           }}
                           className="btn btn-ghost btn-sm"
                         >
-                          {t("clear")}
+                          {t("clearInput")}
                         </button>
                       )}
                       <span className="ml-auto hidden text-[0.7rem] text-ink/40 sm:inline">
                         <kbd className="rounded border border-ink/20 bg-card px-1 py-0.5 font-ui text-[0.65rem]">⌘</kbd>
                         {" + "}
                         <kbd className="rounded border border-ink/20 bg-card px-1 py-0.5 font-ui text-[0.65rem]">↵</kbd>{" "}
-                        to map
+                        {t("hintToMap")}
                       </span>
                     </div>
                   </div>
@@ -507,8 +548,8 @@ export default function Tool() {
                 <div className="space-y-4">
                   <div className="card overflow-hidden">
                     <div className="border-b border-ink/10 bg-card-deep/40 px-4 py-3">
-                      <h2 className="font-display text-base font-semibold">{t("example")}</h2>
-                      <p className="mt-0.5 text-xs text-ink/50">No typing, no API key, works offline.</p>
+                      <h2 className="font-display text-base font-semibold">{t("exampleTitle")}</h2>
+                      <p className="mt-0.5 text-xs text-ink/50">{t("exampleSub")}</p>
                     </div>
                     <ul className="scroll-mt-24 divide-y divide-ink/8" id="examples">
                       {EXAMPLES.map((ex) => (
@@ -519,9 +560,15 @@ export default function Tool() {
                             className="group flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-ink/[0.03]"
                           >
                             <span className="min-w-0">
-                              <span className="block text-[0.7rem] uppercase tracking-[0.1em] text-ink/40">{ex.subject}</span>
-                              <span className="mt-0.5 block truncate text-sm font-medium">{ex.name}</span>
-                              <span className="mt-0.5 block text-xs text-ink/45">{ex.answers.length} answers</span>
+                              <span className="block text-[0.7rem] uppercase tracking-[0.1em] text-ink/40">
+                                <T k={EXAMPLE_COPY[ex.id].subject as never} />
+                              </span>
+                              <span className="mt-0.5 block truncate text-sm font-medium">
+                                <T k={EXAMPLE_COPY[ex.id].name as never} />
+                              </span>
+                              <span className="mt-0.5 block text-xs text-ink/45">
+                                {t("reportAnswers", { n: ex.answers.length })}
+                              </span>
                             </span>
                             <span
                               aria-hidden="true"
@@ -538,15 +585,15 @@ export default function Tool() {
                   {history.length > 0 && (
                     <div className="card overflow-hidden">
                       <div className="flex items-center justify-between border-b border-ink/10 bg-card-deep/40 px-4 py-3">
-                        <h2 className="font-display text-base font-semibold">{t("recent")}</h2>
+                        <h2 className="font-display text-base font-semibold">{t("recentTitle")}</h2>
                         <button
                           type="button"
                           className="text-xs text-rust underline underline-offset-2"
                           onClick={() => {
-                            if (confirm("Delete all locally saved reports?")) persist([]);
+                            if (confirm(t("deleteAllConfirm"))) persist([]);
                           }}
                         >
-                          Delete all
+                          {t("deleteAll")}
                         </button>
                       </div>
                       <ul className="divide-y divide-ink/8">
@@ -559,20 +606,20 @@ export default function Tool() {
                                 setResult(normalizeAnalysis(h.result));
                                 setSelected(0);
                                 setIsSample(null);
-                                setNotice("Restored from this browser's local history.");
+                                setNotice(t("restoredNotice"));
                               }}
                             >
                               <span className="block truncate text-ink/85">
-                                {h.question ? `“${h.question}”` : "Untitled question"}
+                                {h.question ? `“${h.question}”` : t("untitledQuestion")}
                               </span>
                               <span className="mt-0.5 block text-xs text-ink/45">
-                                {h.result.clusters.length} {t("beliefs")} · {h.total} {t("answers")} ·{" "}
-                                {new Date(h.at).toLocaleDateString()}
+                                {t("reportBeliefs", { n: h.result.clusters.length })} ·{" "}
+                                {t("reportAnswers", { n: h.total })} · {t.date(h.at)}
                               </span>
                             </button>
                             <button
                               type="button"
-                              aria-label="Delete this report"
+                              aria-label={t("deleteOneAria")}
                               className="shrink-0 rounded p-1 text-ink/30 transition-colors hover:text-rust"
                               onClick={() => persist(history.filter((x) => x.id !== h.id))}
                             >
@@ -582,11 +629,11 @@ export default function Tool() {
                         ))}
                       </ul>
                       <p className="border-t border-ink/10 px-4 py-2.5 text-[0.7rem] leading-relaxed text-ink/45">
-                        Stored in this browser only. Delete it on shared computers —{" "}
+                        {t("historyNote").split("{link}")[0]}
                         <Link href="/settings" className="underline underline-offset-2 hover:text-ink">
-                          Settings
-                        </Link>{" "}
-                        clears everything at once.
+                          {t("settings")}
+                        </Link>
+                        {t("historyNote").split("{link}")[1]}
                       </p>
                     </div>
                   )}
@@ -596,12 +643,9 @@ export default function Tool() {
                       <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                         <path d="M12 3.5 4.5 7v5.4c0 4.2 3 7.2 7.5 8.1 4.5-.9 7.5-3.9 7.5-8.1V7L12 3.5Z" strokeLinejoin="round" />
                       </svg>
-                      Remove student names
+                      {t("removeNamesTitle")}
                     </p>
-                    <p className="mt-1 text-xs leading-relaxed text-ink/50">
-                      Nothing is stored server-side, but quotes are shown verbatim — strip names before pasting, especially
-                      if you plan to share or print the report.
-                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-ink/50">{t("removeNamesBody")}</p>
                   </div>
                 </div>
               </div>
@@ -630,34 +674,36 @@ export default function Tool() {
             {/* result toolbar */}
             <div className="no-print mb-6 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-1.5 text-xs text-ink/45">
-                  <Link href="/" className="transition-colors hover:text-ink">Home</Link>
+                <nav aria-label={t("breadcrumbHome")} className="mb-2 flex items-center gap-1.5 text-xs text-ink/45">
+                  <Link href="/" className="transition-colors hover:text-ink">
+                    {t("breadcrumbHome")}
+                  </Link>
                   <span aria-hidden="true">/</span>
-                  <span className="text-ink/70">Report</span>
+                  <span className="text-ink/70">{t("breadcrumbReport")}</span>
                 </nav>
                 <h1 className="text-[clamp(1.6rem,3.4vw,2.25rem)]">
-                  {result.question ? <span className="italic">“{result.question}”</span> : "Your class map"}
+                  {result.question ? <span className="italic">“{result.question}”</span> : t("yourClass")}
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-ink/60">
                   <span className="tabular-nums">
-                    <strong className="font-semibold text-ink">{total}</strong> answers
+                    {t("reportAnswers", { n: total })}
                   </span>
                   <span aria-hidden="true" className="text-ink/25">·</span>
                   <span className="tabular-nums">
-                    <strong className="font-semibold text-ink">{result.clusters.length}</strong> beliefs
+                    {t("reportBeliefs", { n: result.clusters.length })}
                   </span>
                   <span aria-hidden="true" className="text-ink/25">·</span>
                   <span className="tabular-nums">
-                    <strong className="font-semibold text-ink">{highCount}</strong> high risk
+                    {t("reportHigh", { n: highCount })}
                   </span>
                   <span className="chip border-ink/15 bg-card/70 text-ink/55" title={sourceHint}>
-                    {isSample ? "Example" : sourceLabel}
+                    {isSample ? t("sourceExample") : sourceLabel}
                   </span>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={startOver} className="btn btn-primary">
-                  New map
+                  {t("newMap")}
                 </button>
                 <Link href="/settings" className="btn btn-outline">
                   {t("settings")}
@@ -667,18 +713,15 @@ export default function Tool() {
 
             {isSample && (
               <p className="no-print mb-5 rounded-lg border border-slate/30 bg-slate/8 px-4 py-2.5 text-xs text-ink/65">
-                You&apos;re viewing an example classroom. Everything below is real output from a cached run — replace it
-                with your own class whenever you&apos;re ready.
+                {t("exampleBanner")}
               </p>
             )}
 
             {/* Risk mix: one glance at how the class is distributed. */}
             <div className="no-print card mb-5 px-4 py-3.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="eyebrow">Risk mix · share of class</p>
-                <p className="text-[0.7rem] text-ink/40">
-                  {total} answers · ordered high → low
-                </p>
+                <p className="eyebrow">{t("riskMix")}</p>
+                <p className="text-[0.7rem] text-ink/40">{t("riskMixSub", { n: total })}</p>
               </div>
               <div className="mt-2.5 flex h-2.5 overflow-hidden rounded-full bg-ink/8" aria-hidden="true">
                 {result.clusters.map((c, i) => {
@@ -689,7 +732,7 @@ export default function Tool() {
                       key={`mix-${c.plain_name}-${i}`}
                       className={`h-full ${color}`}
                       style={{ width: `${width}%` }}
-                      title={`${c.plain_name} — ${c.count} of ${total}`}
+                      title={`${c.plain_name} — ${c.count} ${t("of")} ${total}`}
                     />
                   );
                 })}
@@ -697,25 +740,25 @@ export default function Tool() {
                   <span
                     className="h-full bg-ink/25"
                     style={{ width: `${(result.unsure.length / Math.max(total, 1)) * 100}%` }}
-                    title={`Not sure — ${result.unsure.length} of ${total}`}
+                    title={t("notSureOfTotal", { n: result.unsure.length, total })}
                   />
                 )}
               </div>
               <ul className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] text-ink/55">
                 <li className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-rust" aria-hidden="true" /> {highCount} high risk
+                  <span className="h-2 w-2 rounded-full bg-rust" aria-hidden="true" /> {t("reportHigh", { n: highCount })}
                 </li>
                 <li className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-ochre" aria-hidden="true" />
-                  {result.clusters.filter((c) => c.risk === "med").length} medium
+                  {t("reportMed", { n: result.clusters.filter((c) => c.risk === "med").length })}
                 </li>
                 <li className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-slate" aria-hidden="true" />
-                  {result.clusters.filter((c) => c.risk === "low").length} low
+                  {t("reportLow", { n: result.clusters.filter((c) => c.risk === "low").length })}
                 </li>
                 {result.unsure.length > 0 && (
                   <li className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-ink/25" aria-hidden="true" /> {result.unsure.length} not sure
+                    <span className="h-2 w-2 rounded-full bg-ink/25" aria-hidden="true" /> {t("reportUnsure", { n: result.unsure.length })}
                   </li>
                 )}
               </ul>
@@ -724,9 +767,9 @@ export default function Tool() {
             {comparison && (
               <div className="no-print card mb-5 px-4 py-3.5">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="eyebrow">Since your last run of this question</p>
+                  <p className="eyebrow">{t("sinceLastTitle")}</p>
                   <p className="text-[0.7rem] text-ink/40">
-                    {new Date(comparison.previousAt).toLocaleDateString()} · {comparison.previousTotal} answers then
+                    {t("sinceLastSub", { date: t.date(comparison.previousAt), n: comparison.previousTotal })}
                   </p>
                 </div>
                 {comparison.changed ? (
@@ -752,13 +795,12 @@ export default function Tool() {
                   </ul>
                 ) : (
                   <p className="mt-1.5 text-sm text-ink/60">
-                    No belief moved since last time — worth re-checking whether the reteach target was the right one.
+                    {t("sinceNone")}
                   </p>
                 )}
-                <p className="sr-only">{describeComparison(comparison)}</p>
+                <p className="sr-only">{describeComparisonLocalised(comparison, t)}</p>
                 <p className="mt-2 text-[0.7rem] leading-relaxed text-ink/45">
-                  Matched by belief name on the same question, from this browser&apos;s history. A shrinking band is
-                  the signal that a reteach landed — falls here are good news.
+                  {t("sinceNote")}
                 </p>
               </div>
             )}
@@ -767,15 +809,20 @@ export default function Tool() {
               <div className="no-print mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-rust/30 bg-rust/[0.06] px-5 py-4">
                 <span className="chip border-rust/40 bg-rust/12 text-rust">{t("startHere")}</span>
                 <p className="text-sm leading-relaxed text-ink/80">
-                  <strong className="font-semibold">“{topRisk.plain_name}”</strong> — {topRisk.count} of {total} students.
-                  Reteach first: <em>{topRisk.reteach.title}</em> ({topRisk.reteach.minutes} min).
+                  {t("startHereBody", {
+                    name: topRisk.plain_name,
+                    count: topRisk.count,
+                    total,
+                    title: topRisk.reteach.title,
+                    minutes: topRisk.reteach.minutes,
+                  })}
                 </p>
                 <button
                   type="button"
                   onClick={() => setSelected(result.clusters.indexOf(topRisk))}
                   className="btn btn-sm btn-outline ml-auto"
                 >
-                  Show this band
+                  {t("showThisBand")}
                 </button>
               </div>
             )}
@@ -790,25 +837,27 @@ export default function Tool() {
                   onShowUnsure={() => setUnsureOpen((v) => !v)}
                 />
                 <p className="no-print text-[0.7rem] text-ink/40">
-                  Press{" "}
-                  <kbd className="rounded border border-ink/20 bg-card px-1 font-ui text-[0.65rem]">j</kbd>{" "}
-                  <kbd className="rounded border border-ink/20 bg-card px-1 font-ui text-[0.65rem]">k</kbd>{" "}
-                  to move between beliefs · every band is a button, so Tab works too.
+                  <T
+                    k="keyboardHint"
+                    vars={{
+                      j: <kbd className="rounded border border-ink/20 bg-card px-1 font-ui text-[0.65rem]">j</kbd>,
+                      k: <kbd className="rounded border border-ink/20 bg-card px-1 font-ui text-[0.65rem]">k</kbd>,
+                    }}
+                  />
                 </p>
 
                 {unsureOpen && result.unsure.length > 0 && (
-                  <section className="card animate-fade-up p-5" aria-label={t("unsure")}>
+                  <section className="card animate-fade-up p-5" aria-label={t("unsureTitle")}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="font-display text-lg">
-                        {t("unsure")} <span className="text-ink/40">({result.unsure.length})</span>
+                        {t("unsureTitle")} <span className="text-ink/40">({result.unsure.length})</span>
                       </h2>
                       <button type="button" onClick={() => setUnsureOpen(false)} className="btn btn-ghost btn-sm no-print">
-                        Close
+                        {t("close")}
                       </button>
                     </div>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink/60">
-                      These answers weren&apos;t turned into a belief — on purpose. Inventing a misconception would be
-                      worse than showing you the raw answers.
+                      {t("unsureBody")}
                     </p>
                     <ul className="mt-4 divide-y divide-ink/8">
                       {result.unsure.map((u, i) => (
@@ -828,7 +877,7 @@ export default function Tool() {
                     {t("startOver")}
                   </button>
                   <Link href="/play" className="text-ink/55 underline underline-offset-2 hover:text-ink">
-                    Take a drilling break
+                    {t("drillingBreak")}
                   </Link>
                   <span className="ml-auto text-xs text-ink/35" title={sourceHint}>
                     {sourceHint}
@@ -841,7 +890,7 @@ export default function Tool() {
                   <BandDetail
                     cluster={selectedCluster}
                     total={total}
-                    position={`Belief ${selected + 1} of ${result.clusters.length}`}
+                    position={t("beliefPosition", { n: selected + 1, total: result.clusters.length })}
                     onPrev={selected > 0 ? () => setSelected(selected - 1) : undefined}
                     onNext={
                       selected < result.clusters.length - 1 ? () => setSelected(selected + 1) : undefined

@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.3.0 — 2026-10-26 (Every word, in every language)
+
+### Fixed
+- **Switching language now actually translates the whole product.** Locale
+  dictionaries used to be built as `{ ...en, ...overrides }`, so any key without a
+  translation silently fell back to English — and most of the interface was never
+  in a dictionary at all. Every locale is now a *complete* `Dict`
+  (`lib/i18n/{en,fr,es,de,pt,yo,ar}.ts`, typed against English), so a missing key is
+  a compile error, not an English sentence on a Yorùbá page.
+- **Every user-visible string moved into the dictionary**: landing page (hero, stat
+  rail, the gap, how-it-works, features, trust panel, receipt, example cards, FAQ,
+  closing CTA), the whole tool (composer, counters, name guard, risk mix, run
+  comparison, top-risk call-out, map, belief detail, unsure list, exports, history,
+  toasts, live-region announcements, aria labels), Settings, Privacy, Play, offline /
+  404 / error pages, header, footer, install sheet, offline banner, loader and the
+  Strata Drop game. Only brand/product nouns, student answers and sample-class data
+  stay as they are — see `docs/i18n.md`.
+- **Exported plans are localised too**: the copied reteach plan, Markdown report and
+  CSV “not sure” rows now read in the teacher's language (`lib/export.ts` takes the
+  translator). CSV column headers stay English by design — they are machine keys.
+- **Screen-reader text is localised**: the personal-data warning summary, the
+  run-comparison announcement, the belief-map aria labels and the keyboard hints were
+  English-only, so assistive-tech users got a different product.
+
+### Added
+- **Complete dictionaries for 7 locales** (en, fr, es, de, pt, yo, ar) with ~410 keys
+  each, including Arabic RTL copy and Yorùbá.
+- **`components/T.tsx`** — a small client island so server-rendered pages (landing,
+  privacy, play, 404/offline/error, footer, loader) can translate without becoming
+  client components, and so translated sentences keep inline markup:
+  `<T k="keyboardHint" vars={{ j: <kbd>j</kbd> }} />`.
+- **`components/LanguageSwitcher.tsx`** — a compact, accessible language `<select>` in
+  the header (desktop) and mobile sheet, so changing language no longer requires
+  hunting through Settings. Every mounted string re-renders instantly via the
+  `faultlines:locale` event; `dir` flips for Arabic.
+- **Locale-aware formatting** — `formatNumber` / `formatDate` / `formatDateTime`
+  (`Intl`) exposed as `t.num`, `t.date`, `t.dateTime` for counts and history rows.
+- **`tests/i18n-coverage.test.ts`** (8 tests) — key parity across all seven locales,
+  no empty strings, identical placeholder sets per key, a "no English left" check with
+  a documented allowlist, and RTL assertions. Total: **84 tests across 11 files**.
+- **`docs/i18n.md`** — the localisation system end to end, including what is
+  deliberately *not* translated and how to add a language.
+
+### Improved (adjacent MVP polish)
+- Settings shows each language's short code and native name, and the engine chip is
+  translated rather than a hard-coded English sentence.
+- RTL refinements in `app/globals.css`: letter-spacing is dropped for Arabic
+  headings and eyebrows, blockquote rules mirror, and numerals/`code`/`kbd` stay
+  left-to-right inside RTL text.
+- The locale boot script now whitelists the seven supported codes, so an unsupported
+  browser language no longer sets a misleading `<html lang>` on an English page.
+- Service worker cache bumped to `v5` so returning visitors get the new copy.
+- `package.json` / docs raised to 1.3.0.
+
 ## 1.2.0 — 2026-10-26 (Frontend: the design system actually ships)
 
 ### Added in the follow-up pass (privacy, continuity, resilience)

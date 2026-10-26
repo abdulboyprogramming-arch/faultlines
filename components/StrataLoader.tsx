@@ -1,4 +1,7 @@
+"use client";
+
 import Logo from "./Logo";
+import { useT } from "@/lib/use-i18n";
 
 /**
  * Programmatic loading object: a core sample being read top-to-bottom, with a
@@ -7,12 +10,14 @@ import Logo from "./Logo";
  * get the static version automatically via globals.css.
  */
 export default function StrataLoader({
-  label = "Reading the strata…",
+  label,
   fullPage = false,
 }: {
   label?: string;
   fullPage?: boolean;
 }) {
+  const t = useT();
+  const text = label ?? t("loaderReading");
   const bands = [
     { color: "bg-rust", width: "94%", delay: "0ms" },
     { color: "bg-ochre", width: "78%", delay: "120ms" },
@@ -22,7 +27,7 @@ export default function StrataLoader({
   ];
 
   const inner = (
-    <div className="flex flex-col items-center gap-6" role="status" aria-live="polite" aria-label={label}>
+    <div className="flex flex-col items-center gap-6" role="status" aria-live="polite" aria-label={text}>
       <div className="relative">
         <Logo className="h-14 w-14" variant="animated" />
       </div>
@@ -44,7 +49,7 @@ export default function StrataLoader({
         </div>
       </div>
 
-      <p className="animate-pulse-soft text-sm text-ink/60">{label}</p>
+      <p className="animate-pulse-soft text-sm text-ink/60">{text}</p>
     </div>
   );
 

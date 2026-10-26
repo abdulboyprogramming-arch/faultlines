@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResult, Cluster } from "@/lib/schema";
 import { resultTotal } from "@/lib/validate";
+import { useT } from "@/lib/use-i18n";
 
 type Filter = "all" | Cluster["risk"];
 
-const RISK_STYLE: Record<Cluster["risk"], { bar: string; chip: string; label: string }> = {
-  high: { bar: "bg-rust", chip: "border-rust/35 bg-rust/10 text-rust", label: "High risk" },
-  med: { bar: "bg-ochre", chip: "border-ochre/45 bg-ochre/15 text-ink/75", label: "Medium" },
-  low: { bar: "bg-slate", chip: "border-slate/35 bg-slate/12 text-slate", label: "Low risk" },
+const RISK_STYLE: Record<Cluster["risk"], { bar: string; chip: string }> = {
+  high: { bar: "bg-rust", chip: "border-rust/35 bg-rust/10 text-rust" },
+  med: { bar: "bg-ochre", chip: "border-ochre/45 bg-ochre/15 text-ink/75" },
+  low: { bar: "bg-slate", chip: "border-slate/35 bg-slate/12 text-slate" },
 };
 
 /**
@@ -31,6 +32,7 @@ export default function StrataMap({
   onShowUnsure?: () => void;
   unsureOpen?: boolean;
 }) {
+  const t = useT();
   const [ready, setReady] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const total = resultTotal(result);
@@ -58,18 +60,20 @@ export default function StrataMap({
     .filter(({ cluster }) => filter === "all" || cluster.risk === filter);
 
   const pct = (n: number) => (total ? (n / total) * 100 : 0);
+  const riskLabel = (risk: Cluster["risk"]) =>
+    risk === "high" ? t("riskHigh") : risk === "med" ? t("riskMed") : t("riskLow");
 
   return (
-    <section className="card overflow-hidden" aria-label="Belief map — bands sized by share of class">
+    <section className="card overflow-hidden" aria-label={t("mapAria")}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 bg-card-deep/40 px-4 py-3">
-        <h2 className="font-display text-base font-semibold">The map</h2>
-        <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Filter by risk">
+        <h2 className="font-display text-base font-semibold">{t("mapTitle")}</h2>
+        <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("filterByRisk")}>
           {(
             [
-              ["all", "All", result.clusters.length],
-              ["high", "High", counts.high],
-              ["med", "Med", counts.med],
-              ["low", "Low", counts.low],
+              ["all", t("riskAllShort"), result.clusters.length],
+              ["high", t("riskHighShort"), counts.high],
+              ["med", t("riskMedShort"), counts.med],
+              ["low", t("riskLowShort"), counts.low],
             ] as const
           ).map(([value, label, n]) => (
             <button
@@ -101,7 +105,7 @@ export default function StrataMap({
                 type="button"
                 onClick={() => onSelect(i)}
                 aria-pressed={isSelected}
-                aria-label={`${c.plain_name}: ${c.count} of ${total} answers (${Math.round(pct(c.count))}%), ${risk.label}`}
+                aria-label={`${c.plain_name}: ${c.count} ${t("of")} ${total} (${Math.round(pct(c.count))}%), ${riskLabel(c.risk)}`}
                 className={`group relative w-full px-4 py-3.5 text-left transition-colors ${
                   isSelected ? "bg-ink/[0.045]" : "hover:bg-ink/[0.025]"
                 }`}
@@ -118,7 +122,7 @@ export default function StrataMap({
                     <span className="font-display text-[0.98rem] font-semibold leading-tight">{c.plain_name}</span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className={`chip hidden border sm:inline-flex ${risk.chip}`}>{risk.label}</span>
+                    <span className={`chip hidden border sm:inline-flex ${risk.chip}`}>{riskLabel(c.risk)}</span>
                     <span className="text-xs tabular-nums text-ink/60">
                       <strong className="font-semibold text-ink/85">{c.count}</strong> of {total} ·{" "}
                       {Math.round(pct(c.count))}%
@@ -136,7 +140,7 @@ export default function StrataMap({
           );
         })}
         {visible.length === 0 && (
-          <li className="px-4 py-6 text-center text-sm text-ink/50">No beliefs at this risk level.</li>
+          <li className="px-4 py-6 text-center text-sm text-ink/50">{t("noBeliefsAtRisk")}</li>
         )}
       </ul>
 
@@ -149,10 +153,10 @@ export default function StrataMap({
         >
           <span className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 shrink-0 rounded-sm border border-dashed border-ink/40" aria-hidden="true" />
-            <span className="text-ink/70">Not sure — needs your eyes</span>
+            <span className="text-ink/70">{t("unsureTitle")}</span>
           </span>
           <span className="flex items-center gap-2 text-xs text-ink/55">
-            <span className="tabular-nums">{result.unsure.length} unclassified</span>
+            <span className="tabular-nums">{result.unsure.length} {t("unclassified")}</span>
             <span
               aria-hidden="true"
               className={`inline-block transition-transform duration-300 ${unsureOpen ? "rotate-180" : ""}`}
@@ -164,8 +168,8 @@ export default function StrataMap({
       )}
 
       <p className="border-t border-ink/10 px-4 py-2.5 text-xs text-ink/45" aria-live="polite">
-        {total} answers · {result.clusters.length} beliefs
-        {result.unsure.length ? ` · ${result.unsure.length} not sure` : ""} · ordered by exam risk
+        {total} {t("answers")} · {result.clusters.length} {t("beliefs")}
+        {result.unsure.length ? ` · ${result.unsure.length} ${t("notSureShort")}` : ""} · {t("orderedByRisk")}
       </p>
     </section>
   );

@@ -232,35 +232,35 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
         <div className="flex items-center gap-4 font-ui text-sm tabular-nums" aria-live="polite">
-          <span>Score <strong className="tabular-nums">{score}</strong></span>
-          <span aria-label={`${lives} lives left`}>{"♥".repeat(Math.max(0, lives))}<span className="opacity-25">{"♥".repeat(Math.max(0, 3 - lives))}</span></span>
-          <span className="text-ink/50">Best <strong className="tabular-nums">{best}</strong></span>
+          <span>
+            {t("gameScore")} <strong className="tabular-nums">{score}</strong>
+          </span>
+          <span aria-label={t("gameLives", { n: lives })}>{"♥".repeat(Math.max(0, lives))}<span className="opacity-25">{"♥".repeat(Math.max(0, 3 - lives))}</span></span>
+          <span className="text-ink/50">
+            {t("gameBest")} <strong className="tabular-nums">{best}</strong>
+          </span>
         </div>
       </div>
 
       <div ref={wrapRef} className="relative w-full touch-none select-none overflow-hidden rounded-lg border border-ink/10">
-        <canvas ref={canvasRef} className="block w-full" style={{ minHeight: 220 }} tabIndex={0} aria-label="Strata Drop game area. Use left and right arrow keys, mouse, or touch to move the tray." />
+        <canvas ref={canvasRef} className="block w-full" style={{ minHeight: 220 }} tabIndex={0} aria-label={t("gameAria")} />
         {state !== "playing" && (
           <div className="absolute inset-0 bg-paper/85 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 text-center px-6 animate-fade-in">
             {state === "over" ? (
               <>
-                <p className="font-display text-2xl">The section collapsed!</p>
-                <p className="text-sm text-ink/70">Score {score} · Best {best}. Even geologists need a reteach sometimes.</p>
+                <p className="font-display text-2xl">{t("gameOver")}</p>
+                <p className="text-sm text-ink/70">{t("gameOverBody", { score, best })}</p>
               </>
             ) : state === "paused" ? (
-              <p className="font-display text-2xl">Paused</p>
+              <p className="font-display text-2xl">{t("gamePaused")}</p>
             ) : (
               <>
                 <p className="font-display text-2xl">Strata Drop</p>
-                <p className="text-sm text-ink/70 max-w-sm">
-                  Move with <strong>← →</strong>, mouse or touch. Catch <span className="text-slate font-semibold">● solid (+10)</span> and{" "}
-                  <span className="text-ochre font-semibold">■ partial (+5)</span> — dodge the{" "}
-                  <span className="text-rust font-semibold">✦ rust fault-cracks</span>.
-                </p>
+                <p className="text-sm text-ink/70 max-w-sm">{t("gameHint")}</p>
               </>
             )}
             <button type="button" onClick={start} className="btn btn-primary">
-              {state === "over" ? "Play again" : state === "paused" ? "Restart" : "Start drilling"}
+              {state === "over" ? t("gameAgain") : state === "paused" ? t("gameRestart") : t("gameStart")}
             </button>
           </div>
         )}
@@ -268,12 +268,16 @@ export default function StrataGame({ compact = false }: { compact?: boolean }) {
 
       <div className="flex gap-2 mt-3">
         {state === "playing" && (
-          <button type="button" onClick={() => setState("paused")} className="btn btn-outline btn-sm">Pause</button>
+          <button type="button" onClick={() => setState("paused")} className="btn btn-outline btn-sm">
+            {t("gamePause")}
+          </button>
         )}
         {state === "paused" && (
-          <button type="button" onClick={() => { game.current.last = performance.now(); setState("playing"); }} className="btn btn-primary btn-sm">Resume</button>
+          <button type="button" onClick={() => { game.current.last = performance.now(); setState("playing"); }} className="btn btn-primary btn-sm">
+            {t("gameResume")}
+          </button>
         )}
-        <p className="text-xs text-ink/50 self-center">100% offline · no assets · built into Fault Lines</p>
+        <p className="text-xs text-ink/50 self-center">{t("gameFoot")}</p>
       </div>
     </section>
   );

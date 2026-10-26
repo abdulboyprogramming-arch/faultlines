@@ -7,7 +7,7 @@ MVP (v1.0.0) + polish release (v1.1.0) are complete: faithful belief map, heuris
 - **Richer analysis**: per-answer confidence, "borderline" band between two beliefs, teacher drag-to-regroup corrections that refine the map.
 - **Browser extension**: ✅ shipped functional MV3 (v1.1.0) → next: Chrome Web Store listing, Firefox permanent port, one-click VLE page scrapers.
 - **Exports**: first-class PDF, department-shared template formats, slide-per-belief deck.
-- **More languages**: ✅ 7 locales + RTL (v1.1.0) → next: localise landing long-form copy, community translations, locale-aware number/date formats.
+- **More languages**: ✅ 7 locales + RTL (v1.1.0) → ✅ **fully localised** in v1.3.0: every screen, error, aria label, toast and exported plan, plus locale-aware number/date formatting (`docs/i18n.md`). Next: community review of the Yorùbá and Arabic copy, localised sample-classroom data, and a translated social-preview image.
 - **Accessibility**: formal WCAG 2.1 AA audit with assistive-tech testing.
 - **Providers**: native Anthropic adapter, streaming progress for large classes, response caching for identical inputs.
 - ✅ **Self-hosted fonts** so production builds don't depend on Google Fonts at build time (v1.2.0).

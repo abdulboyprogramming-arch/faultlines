@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import StrataGame from "@/components/StrataGame";
+import T from "@/components/T";
 
 export const metadata = {
   title: "Strata Drop — the Fault Lines game",
@@ -10,9 +11,9 @@ export const metadata = {
 };
 
 const RULES = [
-  { swatch: "bg-slate", label: "Solid understanding", points: "+10" },
-  { swatch: "bg-ochre", label: "Partial idea", points: "+5" },
-  { swatch: "bg-rust", label: "Fault crack", points: "−1 life" },
+  { swatch: "bg-slate", label: "playRule1" as const, points: "+10", life: false },
+  { swatch: "bg-ochre", label: "playRule2" as const, points: "+5", life: false },
+  { swatch: "bg-rust", label: "playRule3" as const, points: "playRuleLife" as const, life: true },
 ];
 
 export default function Play() {
@@ -23,16 +24,21 @@ export default function Play() {
       <main id="main-content" className="shell py-10 sm:py-14">
         <div className="mx-auto max-w-2xl">
           <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1.5 text-xs text-ink/45">
-            <Link href="/" className="transition-colors hover:text-ink">Home</Link>
+            <Link href="/" className="transition-colors hover:text-ink">
+              <T k="breadcrumbHome" />
+            </Link>
             <span aria-hidden="true">/</span>
-            <span className="text-ink/70">Strata Drop</span>
+            <span className="text-ink/70">
+              <T k="playTitle" />
+            </span>
           </nav>
 
           <header className="animate-fade-up text-center">
-            <h1 className="text-[clamp(2.2rem,5vw,3.2rem)]">Strata Drop</h1>
+            <h1 className="text-[clamp(2.2rem,5vw,3.2rem)]">
+              <T k="playTitle" />
+            </h1>
             <p className="mx-auto mt-3 max-w-lg leading-relaxed text-ink/65">
-              Our own little drilling game — the same one that keeps you company on 404s and offline
-              moments. Fully programmatic, zero downloads, works on any device.
+              <T k="playIntro" />
             </p>
           </header>
 
@@ -45,8 +51,12 @@ export default function Play() {
               <li key={rule.label} className="card flex items-center gap-3 px-4 py-3">
                 <span className={`h-3 w-3 shrink-0 rounded-sm ${rule.swatch}`} aria-hidden="true" />
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium leading-tight">{rule.label}</span>
-                  <span className="block text-xs tabular-nums text-ink/50">{rule.points}</span>
+                  <span className="block text-sm font-medium leading-tight">
+                    <T k={rule.label} />
+                  </span>
+                  <span className="block text-xs tabular-nums text-ink/50">
+                    {rule.life ? <T k="playRuleLife" /> : rule.points}
+                  </span>
                 </span>
               </li>
             ))}
@@ -54,15 +64,15 @@ export default function Play() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/tool" className="btn btn-primary">
-              Back to mapping
+              <T k="playBack" />
             </Link>
             <Link href="/" className="btn btn-outline">
-              Home
+              <T k="breadcrumbHome" />
             </Link>
           </div>
 
           <p className="mt-6 text-center text-xs text-ink/40">
-            High scores are saved in this browser only — no accounts, no leaderboards, no tracking.
+            <T k="playFoot" />
           </p>
         </div>
       </main>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { useT } from "@/lib/use-i18n";
 
 function subscribe(callback: () => void) {
   window.addEventListener("online", callback);
@@ -17,6 +18,7 @@ function subscribe(callback: () => void) {
  * works instead of pretending the app is broken.
  */
 export default function OfflineBanner() {
+  const t = useT();
   const online = useSyncExternalStore(
     subscribe,
     () => navigator.onLine,
@@ -32,10 +34,10 @@ export default function OfflineBanner() {
     >
       <span className="flex items-center gap-2 font-medium text-ink">
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ochre" aria-hidden="true" />
-        You&apos;re offline
+        {t("offlineBannerTitle")}
       </span>
       <span className="mt-1 block">
-        Example classrooms, your saved maps and the in-browser analysis still work. Nothing is lost.
+        {t("offlineBannerBody")}
       </span>
     </div>
   );
