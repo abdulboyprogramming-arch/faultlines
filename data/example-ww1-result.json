@@ -1,0 +1,86 @@
+{
+  "question": "What caused the First World War? Explain.",
+  "clusters": [
+    {
+      "label": "Names only the spark: the Sarajevo assassination",
+      "plain_name": "One bullet did it",
+      "count": 3,
+      "risk": "high",
+      "why_it_matters": "Confuses trigger with cause. Exam questions ask 'how far was the assassination responsible?' — spark-only answers cap at low marks because they can't explain why one shooting became a world war.",
+      "quotes": [
+        "The assassination of Archduke Franz Ferdinand in Sarajevo caused the war",
+        "It started because Gavrilo Princip shot the Archduke in 1914"
+      ],
+      "reteach": {
+        "title": "Spark vs powder keg",
+        "minutes": 6,
+        "steps": [
+          "Draw a powder keg labelled with the long-term tensions; put the assassination on top as the match.",
+          "Ask: matches fall on wet ground elsewhere in 1914 Europe — why did THIS one explode?",
+          "Students rewrite their answer with one sentence of spark + two of keg."
+        ],
+        "check_question": "If Princip had missed, would Europe have stayed at peace in 1914? Use evidence."
+      },
+      "diagnostic_question": "'The assassination caused the First World War.' How far do you agree? (Two paragraphs: trigger vs underlying causes.)"
+    },
+    {
+      "label": "Recites long-term causes (MAIN) and alliance escalation",
+      "plain_name": "The powder keg",
+      "count": 4,
+      "risk": "low",
+      "why_it_matters": "Structurally correct. The exam risk is listing without linking: marks come from explaining how the causes interacted in July 1914, not from naming all four.",
+      "quotes": [
+        "MAIN: militarism, alliances, imperialism and nationalism built up tension for years",
+        "Alliances meant a small Balkan crisis could not stay local, it escalated step by step"
+      ],
+      "reteach": {
+        "title": "From list to chain",
+        "minutes": 5,
+        "steps": [
+          "Give students the July crisis as 6 event cards; they must order and arrow-link them with 'because'.",
+          "Ban the word 'and' between causes for one paragraph — force causal connectives.",
+          "Model one linked sentence together: 'Because of the alliance system, Austria's ultimatum meant…'"
+        ],
+        "check_question": "Write one sentence linking militarism to the speed of mobilization in July 1914."
+      },
+      "diagnostic_question": "Explain how TWO long-term causes worked together to turn the Sarajevo shooting into a European war."
+    },
+    {
+      "label": "Blames Germany alone (war guilt) without weighing others",
+      "plain_name": "All Germany's fault",
+      "count": 3,
+      "risk": "med",
+      "why_it_matters": "Partially evidence-based (blank cheque, Schlieffen Plan) but one-sided: ignores Austro-Hungarian and Russian choices. 'How far' questions punish single-cause verdicts.",
+      "quotes": [
+        "Germany wanted a bigger empire and navy so it is mostly Germany's fault",
+        "Germany gave Austria a blank cheque and invaded Belgium, so Germany caused it"
+      ],
+      "reteach": {
+        "title": "Prosecution and defence",
+        "minutes": 6,
+        "steps": [
+          "Split the board: evidence Germany pushed for war vs evidence others chose escalation (Russian mobilization, Austria's ultimatum).",
+          "Each student writes a verdict sentence with a qualifier: 'mainly', 'partly', 'least'.",
+          "Compare with Article 231: why did the peacemakers need a single guilty party?"
+        ],
+        "check_question": "Give one piece of evidence AGAINST the claim that Germany alone caused the war."
+      },
+      "diagnostic_question": "'Germany was entirely responsible for the outbreak of war in 1914.' How far do you agree? Use the blank cheque AND one other country's actions."
+    }
+  ],
+  "unsure": [
+    {
+      "answer": "war is bad",
+      "why": "An opinion, not a cause — needs your eyes"
+    },
+    {
+      "answer": "1914",
+      "why": "A date, no identifiable claim"
+    }
+  ],
+  "meta": {
+    "source": "example",
+    "total": 12,
+    "generatedAt": "2026-10-26T00:00:00.000Z"
+  }
+}
