@@ -105,7 +105,18 @@ export default function Home() {
             className="w-full border border-ink/20 bg-white rounded-md p-3 font-ui text-sm"
             placeholder="Paste answers, one per line…"
           />
-          {error && <p className="text-rust text-sm">{error}</p>}
+          <input
+            type="file"
+            accept=".txt,.csv"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              const r = new FileReader();
+              r.onload = () => setText(String(r.result));
+              r.readAsText(f);
+            }}
+            className="text-sm"
+          />
           <div className="flex gap-3">
             <button
               onClick={() => analyze()}
