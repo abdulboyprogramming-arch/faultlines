@@ -1,5 +1,58 @@
 # Changelog
 
+## 1.4.0 — 2026-10-26 (Assistance: suggestions, notifications, a proper tour)
+
+### Added
+- **Answer autocomplete in the composer.** As a teacher types a line, the field offers
+  answers they have already used — drawn from the four example classrooms and from the
+  quotes in their own local history. `Tab`/`Enter` accepts, `↑ ↓` moves, `Esc` dismisses.
+  Matching is accent- and case-insensitive, prefix matches outrank mid-word matches, and
+  the completion replaces only the line being typed (`lib/suggest.ts`).
+- **Question autocomplete.** The question field is now a real combobox (`role="combobox"`,
+  `aria-activedescendant`) over the example questions plus every question saved in local
+  history, replacing the browser `datalist` — which ignored styling and could not show
+  where a suggestion came from.
+- **Search in saved maps, with its own suggestions.** A search box in the "Recent" rail
+  filters by question, belief name, plain-language label or date; every term must match,
+  so `seasons high` narrows instead of widening. A suggestion list offers past questions
+  and belief names while typing, and the rail says “2 of 5 saved” with an honest empty
+  state.
+- **Completion notifications.** Optional browser notification when a map finishes, so a
+  teacher can mark while the analysis runs. Bodies carry **counts only**
+  (“28 answers · 5 beliefs”) — never student words — and the notification collapses via a
+  tag rather than stacking. Permission is requested only when the switch is turned on,
+  and the switch explains itself when the browser has blocked notifications
+  (`lib/notify.ts`).
+- **Guided tour.** A first-run walkthrough that dims the page, cuts a spotlight around
+  the area being described, points an arrow at it and explains it in a card — five steps
+  for the composer, four for a finished report, three for the landing page. Steps whose
+  anchor is not on the page are skipped, so one definition covers every state. Keyboard:
+  `← →`, `Enter`, `Esc`. Replayable from **Settings → Assistance** or the **“Show me
+  around”** button on a report (`components/TourHost.tsx`, `lib/tour.ts`).
+- **Settings → Assistance**, with switches for answer suggestions, search suggestions,
+  notifications (plus a test notification) and the tour. Every helper is off-able and
+  remembered per browser (`lib/prefs.ts`).
+
+### Fixed / answered
+- **Report prose is now localised, not just the interface.** Previously the *chrome* was
+  translated but belief names, “why it matters”, reteach steps and diagnostics were
+  English — the engine had no idea which language to write in. The composer now sends
+  `locale` with the analysis request; the LLM prompt asks for prose in that language, and
+  the built-in heuristic reads its own strings from the dictionaries. A chip on the
+  report states which language it was written in. **Student quotes are never touched** in
+  any locale — verified by tests. Exports carry the localised prose through
+  unchanged; only the CSV column headers stay English machine keys, and the
+  export labels themselves come from the dictionary.
+
+### Tests
+- `tests/suggest.test.ts` (10) — ranking, dedupe, minimum query length, line-scoped
+  answer completion, history filtering with all-terms-required.
+- `tests/report-language.test.ts` (7) — prompt instruction per locale, heuristic prose
+  localised, quotes still verbatim, counts still sum, unknown locale degrades to English.
+- `tests/assistance.test.ts` (9) — safe defaults, persistence, blocked storage, missing
+  Notification API, denied permission, tour steps referencing real dictionary keys.
+- Total: **110 tests across 14 files**.
+
 ## 1.3.0 — 2026-10-26 (Every word, in every language)
 
 ### Fixed

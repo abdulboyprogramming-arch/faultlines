@@ -42,6 +42,8 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
     "faqEyebrow", "aboutVersion", "aboutLicence", "aboutSource", // same spelling in French
     "gamePause", "gameScore", // "Pause", "Score" are used in French
     "exFractionsSubject", // "Maths · Fractions"
+    "assistTitle", // "Assistance" is French
+    "suggestAria", // "Suggestions" is French
   ],
   es: ["stat2v", "stat3v", "stat4v"],
   de: ["stat3v", "stat4v", "themeSystem", "aboutVersion", "gamePause"],

@@ -35,7 +35,18 @@ const LlmOutput = z.object({
     .default([]),
 });
 
-export function buildPrompt(answers: string[], question?: string): string {
+/** Human names used in the prompt — models follow "French" better than "fr". */
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  es: "Spanish",
+  de: "German",
+  pt: "Portuguese",
+  yo: "Yoruba",
+  ar: "Arabic",
+};
+
+export function buildPrompt(answers: string[], question?: string, locale?: string): string {
   const numbered = answers.map((a, i) => `${i}: ${a}`).join("\n");
   return [
     "You help a teacher see what a class actually misunderstands. Group the student answers below by the UNDERLYING BELIEF they express (not by mark or wording alone).",
@@ -47,9 +58,14 @@ export function buildPrompt(answers: string[], question?: string): string {
     "- plain_name: short memorable name for the belief (e.g. 'The distance myth').",
     "- reteach: a practical ~5 minute whole-class reteach (title, minutes, 2-4 steps, one check_question).",
     "- diagnostic_question: one follow-up question that would reveal whether the belief has changed.",
+    locale && LANGUAGE_NAMES[locale]
+      ? `- Write every piece of prose you produce (label, plain_name, why_it_matters, reteach title/steps/check_question, diagnostic_question, unsure.why) in ${LANGUAGE_NAMES[locale]}. Never translate or rewrite the student answers themselves — they are quoted verbatim.`
+      : "",
     "- Return ONLY JSON: {\"clusters\":[{\"label\",\"plain_name\",\"risk\",\"why_it_matters\",\"member_indexes\":[..],\"reteach\":{\"title\",\"minutes\",\"steps\":[..],\"check_question\"},\"diagnostic_question\"}],\"unsure\":[{\"index\",\"why\"}]}",
     `Answers:\n${numbered}`,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 /** Convert index-based model output into a faithful AnalysisResult. Exported for tests. */
@@ -123,7 +139,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
           model: this.model,
           temperature: 0,
           response_format: { type: "json_object" },
-          messages: [{ role: "user", content: buildPrompt(cleaned, opts.question) }],
+          messages: [{ role: "user", content: buildPrompt(cleaned, opts.question, opts.locale) }],
         }),
       });
       if (!res.ok) throw new Error(`LLM provider responded ${res.status}`);

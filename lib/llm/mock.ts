@@ -1,5 +1,8 @@
 import type { AnalysisResult, Cluster } from "../schema";
 import type { AnalyzeOptions, LLMProvider } from "./provider";
+import { tFor } from "../i18n";
+import type { Locale } from "../i18n";
+import { REPORT_LOCALES } from "../schema";
 
 /**
  * Deterministic, topic-agnostic heuristic provider.
@@ -119,6 +122,14 @@ export class MockProvider implements LLMProvider {
       }
     }
 
+    // Heuristic prose follows the reader's interface language; quotes never do.
+    const L = (opts.locale && (REPORT_LOCALES as readonly string[]).includes(opts.locale)
+      ? opts.locale
+      : "en") as Locale;
+    const tr = (key: Parameters<typeof tFor>[1], vars?: Record<string, string | number>) =>
+      tFor(L, key, vars);
+    const trUnsure = tr("hUnsure");
+
     // Singleton groups with no resemblance to anything else are honest "unsure"
     // unless the whole class is tiny (then a single belief is still a belief).
     const keepSingletons = cleaned.length <= 4;
@@ -128,7 +139,7 @@ export class MockProvider implements LLMProvider {
 
     for (const g of sorted) {
       if (g.members.length === 1 && !keepSingletons) {
-        unsure.push({ answer: g.members[0], why: "Unlike any other answer — needs your eyes" });
+        unsure.push({ answer: g.members[0], why: trUnsure });
         continue;
       }
       const keywords = topKeywords(g);
@@ -140,28 +151,24 @@ export class MockProvider implements LLMProvider {
       const q = opts.question?.trim();
       clusters.push({
         label: titleCase(rep.length > 140 ? `${rep.slice(0, 137)}…` : rep),
-        plain_name: keywords.length ? `Centred on “${keywords.join(" · ")}”` : "Shared wording",
+        plain_name: keywords.length
+          ? tr("hPlainCentred", { k: keywords.join(" · ") })
+          : tr("hPlainShared"),
         count: g.members.length,
         risk,
-        why_it_matters:
-          `${g.members.length} of ${cleaned.length} answers share this way of putting it. ` +
-          "Grouped by wording similarity (heuristic preview) — read the quotes to judge whether the underlying idea is sound, partial, or a misconception.",
+        why_it_matters: tr("hWhy", { n: g.members.length, total: cleaned.length }),
         quotes: quotePool.slice(0, Math.min(2, quotePool.length)),
         reteach: {
-          title: keywords.length ? `Test the “${keywords[0]}” idea out loud` : "Surface and test this idea",
+          title: keywords.length ? tr("hReteachTest", { k: keywords[0] }) : tr("hReteachSurface"),
           minutes: 5,
           steps: [
-            `Put a representative answer on the board (anonymised): “${rep.length > 90 ? `${rep.slice(0, 87)}…` : rep}”`,
-            "Ask the class: what would have to be true for this to be right? Where does it break?",
-            "Give the missing/correct mechanism in two sentences, then have students rewrite the answer using it.",
+            tr("hStep1", { q: rep.length > 90 ? `${rep.slice(0, 87)}…` : rep }),
+            tr("hStep2"),
+            tr("hStep3"),
           ],
-          check_question: q
-            ? `Answer again: ${q} — this time explain the mechanism, not just the keyword.`
-            : "Rewrite your answer explaining the mechanism, not just the keyword.",
+          check_question: q ? tr("hCheckQ", { q }) : tr("hCheck"),
         },
-        diagnostic_question: q
-          ? `${q} (Re-check: explain your reasoning step by step so a younger student could follow it.)`
-          : "Explain your reasoning step by step so a younger student could follow it — where does each claim come from?",
+        diagnostic_question: q ? tr("hDiagQ", { q }) : tr("hDiag"),
       });
     }
 

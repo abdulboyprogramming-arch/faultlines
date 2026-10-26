@@ -142,7 +142,7 @@ export default function Landing() {
           </div>
 
           <div className="shell grid items-center gap-12 pb-16 pt-14 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pb-24">
-            <div className="animate-fade-up">
+            <div className="animate-fade-up" data-tour="hero">
               <p className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-card/70 px-3 py-1.5 text-xs font-medium text-ink/65">
                 <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rust opacity-60" />
@@ -165,7 +165,7 @@ export default function Landing() {
                 <T k="landingIntro" />
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex flex-wrap items-center gap-3" data-tour="hero-cta">
                 <Link href="/tool" className="btn btn-primary btn-lg">
                   <T k="landingCtaPrimary" />
                   <span aria-hidden="true">→</span>

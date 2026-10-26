@@ -22,11 +22,13 @@ Open http://localhost:3000 → **Map my class**. It works with **no API key**: a
 - **Reteach cards** — title, minutes, steps, check question + follow-up diagnostic per belief; copy a single card or the whole plan.
 - **Exports** — copy/print one-page plan, Markdown, CSV, JSON, and shareable links (the report travels inside the link; no server storage).
 - **Inputs** — paste, drag-and-drop, or upload `.txt`/`.csv` (answer column auto-detected). Optional question field improves grouping. Live counter, duplicate detection, calm 120-answer cap.
-- **Local history** — your last 8 maps in *this browser only*, labelled, individually deletable (Settings can wipe everything — use it on shared computers).
+- **Local history** — your last 8 maps in *this browser only*, labelled, searchable (by question, belief or date, with suggestions), individually deletable (Settings can wipe everything — use it on shared computers).
+- **Assistance** — optional answer and question autocomplete while you paste, and an optional browser notification when a map finishes so you can mark meanwhile. Both off-able in Settings; notifications carry counts only, never student words.
+- **Guided tour** — a first-run walkthrough that spotlights each part of the tool and explains it, replayable any time from Settings or the report page.
 - **Name guard** — the composer warns about emails, phone-like numbers, “Name:” labels and name-like pairs before anything is mapped, quoted or shared. It runs in your browser.
 - **“Since your last run”** — re-map the same question and see which beliefs shrank after a reteach (diffed against local history; refuses to compare classes of very different sizes).
 - **Backup & restore** — download every local setting and saved map as one JSON file, restore it on another machine. Validated before import; nothing leaves the browser.
-- **Languages** — the **whole interface** is translated into 7 languages (English, Français, Español, Deutsch, Português, Yorùbá, العربية with RTL): every page, button, error, screen-reader label, toast and exported plan. Auto-detected from the browser, switchable from the header or Settings, no reload. Only brand/product nouns and student answers stay as they are — see `docs/i18n.md`. Analysis works on answers in any language.
+- **Languages** — the **interface and the generated report** (belief names, reteach plans, diagnostics) are translated into 7 languages (English, Français, Español, Deutsch, Português, Yorùbá, العربية with RTL): every page, button, error, screen-reader label, toast and exported plan. Auto-detected from the browser, switchable from the header or Settings, no reload. Only brand/product nouns and student answers stay as they are — see `docs/i18n.md`. Analysis works on answers in any language.
 - **PWA** — installable on phone/tablet/laptop/desktop with a cross-device install sheet (incl. iOS steps); examples, heuristic and history work offline; custom offline page.
 - **Browser extension** — select answers anywhere on the web and send them into the tool (`extension/`, MV3, minimal permissions).
 - **Strata Drop** — our own little offline game built into the 404/error/offline pages and at `/play`. Catch solid understanding, dodge the fault cracks.
@@ -60,7 +62,7 @@ npm run dev        # develop
 npm run build      # production build
 npm run lint       # eslint (zero problems expected)
 npm run typecheck  # tsc --noEmit
-npm test           # vitest — 84 tests across every core system
+npm test           # vitest — 110 tests across every core system
 npm run check      # all three
 ```
 
@@ -75,7 +77,7 @@ Stack: Next.js App Router + TypeScript + Tailwind 4 (via PostCSS) + Zod. Fonts a
 
 ## Project status
 
-MVP complete and polished (v1.3.0 — full seven-language interface). Submission pack: `SUBMISSION.md`. Operations pack: `docs/operations/`. This codebase went through a full recovery & completion pass — state, audits, plan, log, acceptance evidence and handoff live in `docs/recovery/`. Future ideas: `ROADMAP.md`.
+MVP complete and polished (v1.4.0 — localised reports, suggestions, notifications and a guided tour). Submission pack: `SUBMISSION.md`. Operations pack: `docs/operations/`. This codebase went through a full recovery & completion pass — state, audits, plan, log, acceptance evidence and handoff live in `docs/recovery/`. Future ideas: `ROADMAP.md`.
 
 ## Acknowledgements
 

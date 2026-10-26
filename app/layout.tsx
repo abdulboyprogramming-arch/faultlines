@@ -6,6 +6,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import OfflineBanner from "@/components/OfflineBanner";
 import ThemeProvider from "@/components/ThemeProvider";
 import T from "@/components/T";
+import TourHost from "@/components/TourHost";
 
 /**
  * Fonts are self-hosted from `@fontsource-variable/*` instead of fetched from
@@ -118,6 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <ThemeProvider>{children}</ThemeProvider>
         <OfflineBanner />
+        <TourHost />
         <InstallPrompt />
       </body>
     </html>
