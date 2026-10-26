@@ -1,0 +1,90 @@
+{
+  "question": "What is 1/2 + 1/3? Explain your method.",
+  "clusters": [
+    {
+      "label": "Adds numerators and denominators straight across (gives 2/5)",
+      "plain_name": "Add everything in sight",
+      "count": 6,
+      "risk": "high",
+      "why_it_matters": "The classic fractions fault line: treats a fraction as two whole numbers. It blocks all later fraction, ratio and algebra work.",
+      "quotes": [
+        "You add the tops and add the bottoms so 1/2 + 1/3 = 2/5",
+        "1 plus 1 is 2 and 2 plus 3 is 5 so it is 2/5"
+      ],
+      "reteach": {
+        "title": "You can't add halves to thirds",
+        "minutes": 6,
+        "steps": [
+          "Show 1/2 + 1/3 with paper strips: the pieces are different sizes, so counting pieces is meaningless.",
+          "Re-cut both into sixths so the pieces match; now count: 3 + 2 = 5 sixths.",
+          "Ask: is 2/5 bigger or smaller than 1/2? Adding something positive can't shrink it — so 2/5 must be wrong."
+        ],
+        "check_question": "Is 1/2 + 1/3 more or less than 1/2? What does that tell you about 2/5?"
+      },
+      "diagnostic_question": "Compute 1/4 + 1/2 and explain, without a calculator, why 2/6 cannot be right."
+    },
+    {
+      "label": "Finds a common denominator but does not scale the numerators (gives 2/6)",
+      "plain_name": "New bottom, old tops",
+      "count": 3,
+      "risk": "med",
+      "why_it_matters": "Half the method is there; the equivalence step (whatever you do to the bottom, do to the top) is missing, so answers shrink.",
+      "quotes": [
+        "Multiply the denominators 2 x 3 = 6 and add 1 + 1 = 2 so 2/6",
+        "I made them sixths but kept 1 and 1 on top so 2/6"
+      ],
+      "reteach": {
+        "title": "Same fraction, new clothes",
+        "minutes": 5,
+        "steps": [
+          "Show 1/2 = 3/6 by folding: more pieces, same amount.",
+          "Rule out loud: multiply top and bottom by the same number — the value doesn't change, the name does.",
+          "Redo 1/2 + 1/3 renaming BOTH fractions before adding."
+        ],
+        "check_question": "Rename 2/3 as twelfths. What did you multiply the top by, and why?"
+      },
+      "diagnostic_question": "Compute 2/5 + 1/10, showing the renaming step for each fraction."
+    },
+    {
+      "label": "Correct: converts to a common denominator, then adds numerators (5/6)",
+      "plain_name": "Secure — for now",
+      "count": 5,
+      "risk": "low",
+      "why_it_matters": "Method is sound. Risk is fragility under exam pressure or with unlike denominators that don't multiply so neatly.",
+      "quotes": [
+        "Find a common denominator of 6: 3/6 + 2/6 = 5/6",
+        "Make the denominators the same (6), then 3 + 2 = 5, so 5/6"
+      ],
+      "reteach": {
+        "title": "Make it unshakeable",
+        "minutes": 4,
+        "steps": [
+          "Have students explain the method to a partner in words, not just symbols.",
+          "Stretch: try 5/6 − 1/4 (common denominator 12, not 24-by-rote).",
+          "Ask for an estimate first (about 1?) to build the sanity-check habit."
+        ],
+        "check_question": "Estimate 7/8 + 5/6 first — roughly where should the answer land?"
+      },
+      "diagnostic_question": "Compute 5/6 − 1/4 and justify your choice of common denominator."
+    }
+  ],
+  "unsure": [
+    {
+      "answer": "idk",
+      "why": "Says they don't know yet"
+    },
+    {
+      "answer": "?",
+      "why": "No identifiable claim"
+    },
+    {
+      "answer": "fractions are hard",
+      "why": "Feeling, not a method — needs your eyes"
+    }
+  ],
+  "meta": {
+    "source": "example",
+    "total": 17,
+    "generatedAt": "2026-10-26T00:00:00.000Z"
+  }
+}
