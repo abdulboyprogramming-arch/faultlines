@@ -18,5 +18,7 @@ npm run build
 npm run lint
 ```
 
-## License
-MIT
+## Acknowledgements
+
+Built by Abdulrahman Adeeyo (Abdulboy) for the Devpost "Build with AI: Basics" hackathon — a proof of concept exploring flipped interaction and plan-first development with AI.
+
